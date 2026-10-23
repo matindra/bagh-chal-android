@@ -113,6 +113,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Save/resume the in-progress game automatically.
 - Stats: wins/losses per side and difficulty.
 - Localisation-ready: all strings in `strings.xml` (plan for English + Hindi + Odia + Nepali).
+- Portrait only on phones.
 
 ## Monetisation
 

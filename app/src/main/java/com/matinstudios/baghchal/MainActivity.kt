@@ -1,5 +1,6 @@
 package com.matinstudios.baghchal
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,7 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lockPhonesToPortrait()
         enableEdgeToEdge()
         setContent {
             BaghchalTheme {
@@ -22,5 +24,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /** Phones are portrait-only; tablets (smallest width >= 600dp) may rotate. Re-checked when a foldable unfolds. */
+    private fun lockPhonesToPortrait() {
+        if (resources.configuration.smallestScreenWidthDp < TABLET_MIN_WIDTH_DP) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+
+    private companion object {
+        const val TABLET_MIN_WIDTH_DP = 600
     }
 }

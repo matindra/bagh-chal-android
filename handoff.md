@@ -1,5 +1,21 @@
 # Handoff
 
+## Step 4 backlog (polish)
+- Animations: steps and jumps, fade out captured goats.
+- Sound effects + haptics, toggleable in Settings.
+- How to Play screen with illustrated rules.
+- Save/resume the in-progress game automatically (survive process death); persist last side/difficulty.
+- Stats: wins/losses per side and difficulty.
+- **TalkBack:** the board is a single node with only a content description. Expose each of the 25
+  points as an accessible, tappable node (piece/empty, selected, legal target) so the game is
+  playable with a screen reader.
+- **Compose UI tests:** none yet (CLAUDE.md wants them for key screens). Cover at least Home →
+  start game navigation, tap-to-move on the board, game-over buttons, and the thinking indicator.
+
+## Session 2026-10-23 (5) — orientation
+- Phones (smallest width < 600dp) are locked to portrait in `MainActivity.lockPhonesToPortrait()`;
+  tablets and unfolded foldables can rotate.
+
 ## Session 2026-10-23 (4) — roadmap step 3: AI + start screen
 
 ### Done
