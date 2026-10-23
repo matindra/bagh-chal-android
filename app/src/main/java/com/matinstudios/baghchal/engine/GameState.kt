@@ -11,6 +11,25 @@ enum class Side {
 
 enum class Phase { PLACEMENT, MOVEMENT }
 
+/** Bit layout of [GameState.positionKey], shared with the AI's incremental key. */
+internal object PositionKey {
+    const val EMPTY = 0
+    const val GOAT = 1
+    const val TIGER = 2
+    const val SIDE_BIT = 1L shl 50
+    private const val IN_HAND_SHIFT = 51
+    const val IN_HAND_MASK = 0x1FL shl IN_HAND_SHIFT
+
+    fun code(side: Side?): Int = when (side) {
+        null -> EMPTY
+        Side.GOAT -> GOAT
+        Side.TIGER -> TIGER
+    }
+
+    fun cellBits(point: Int, code: Int): Long = code.toLong() shl (point * 2)
+    fun inHandBits(goatsInHand: Int): Long = goatsInHand.toLong() shl IN_HAND_SHIFT
+}
+
 /**
  * Draw settings.
  *
@@ -65,15 +84,10 @@ data class GameState(
         get() {
             var key = 0L
             for (point in 0 until Board.POINTS) {
-                val code = when (board[point]) {
-                    null -> 0L
-                    Side.GOAT -> 1L
-                    Side.TIGER -> 2L
-                }
-                key = key or (code shl (point * 2))
+                key = key or PositionKey.cellBits(point, PositionKey.code(board[point]))
             }
-            if (sideToMove == Side.TIGER) key = key or (1L shl 50)
-            return key or (goatsInHand.toLong() shl 51)
+            if (sideToMove == Side.TIGER) key = key or PositionKey.SIDE_BIT
+            return key or PositionKey.inHandBits(goatsInHand)
         }
 
     companion object {

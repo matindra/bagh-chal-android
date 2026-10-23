@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">Bagh Chal</string>
+
+    <string name="cd_board">Bagh Chal board</string>
+    <string name="turn_goats">Goats to move</string>
+    <string name="turn_tigers">Tigers to move</string>
+    <string name="phase_placement">Placement phase</string>
+    <string name="phase_movement">Movement phase</string>
+    <string name="goats_in_hand">In hand: %1$d</string>
+    <string name="goats_captured">Captured: %1$d/%2$d</string>
+    <string name="game_over">Game over</string>
+    <string name="new_game">New game</string>
+    <string name="menu">Menu</string>
+    <string name="ai_thinking">Thinking…</string>
+    <string name="result_you_win">You win!</string>
+    <string name="result_you_lose">You lose</string>
+
+    <string name="home_vs_computer">Play vs computer</string>
+    <string name="home_play_as">Play as</string>
+    <string name="home_difficulty">Difficulty</string>
+    <string name="home_play">Play</string>
+    <string name="home_two_player">2 players (pass and play)</string>
+    <string name="side_goats">Goats</string>
+    <string name="side_tigers">Tigers</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+
+    <string name="result_tigers_win_captures">Tigers win — %1$d goats captured</string>
+    <string name="result_goats_win_trapped">Goats win — tigers are trapped</string>
+    <string name="result_tigers_win_blocked">Tigers win — goats cannot move</string>
+    <string name="result_draw_repetition">Draw — position repeated</string>
+    <string name="result_draw_move_limit">Draw — too many moves without a capture</string>
 </resources>
