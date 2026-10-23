@@ -1,0 +1,67 @@
+<!-- Generated from design/ic_launcher_foreground.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <path
+      android:pathData="M40.8,37.2m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"
+      android:strokeWidth="1.8"
+      android:fillColor="#E8862A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M40.8,37.2m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M67.2,37.2m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"
+      android:strokeWidth="1.8"
+      android:fillColor="#E8862A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M67.2,37.2m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M54,55.2m-21.6,0a21.6,21.6 0,1 1,43.2 0a21.6,21.6 0,1 1,-43.2 0"
+      android:strokeWidth="1.8"
+      android:fillColor="#F29A3A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M51.6,34.2l4.8,0l-2.4,8.4z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M45.6,36.6l3.6,-1.2l-0.6,6.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M62.4,36.6l-3.6,-1.2l0.6,6.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M33,51.6l8.4,0.6l-8.4,3.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M33.6,59.4l7.2,0l-6,3.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M75,51.6l-8.4,0.6l8.4,3.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M74.4,59.4l-7.2,0l6,3.6z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M44.4,63a7.2,9.6 90,1 0,19.2 0a7.2,9.6 90,1 0,-19.2 0z"
+      android:fillColor="#FFF4E0"/>
+  <path
+      android:pathData="M44.4,52.2a3,2.4 90,1 0,4.8 0a3,2.4 90,1 0,-4.8 0z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M58.8,52.2a3,2.4 90,1 0,4.8 0a3,2.4 90,1 0,-4.8 0z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M50.4,58.8L57.6,58.8L54,63Z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M54,63L54,65.4M54,65.4Q51,67.8 48.6,66M54,65.4Q57,67.8 59.4,66"
+      android:strokeWidth="1.5"
+      android:fillColor="#00000000"
+      android:strokeColor="#3A2416"
+      android:strokeLineCap="round"/>
+</vector>

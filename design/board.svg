@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect x="0" y="0" width="600" height="600" rx="28" fill="#7A4A22"/>
+  <rect x="18" y="18" width="564" height="564" rx="16" fill="#D9A86C"/>
+  <path d="M18 110 Q160 96 300 112 T582 104 M18 230 Q170 244 320 228 T582 236 M18 360 Q150 348 300 364 T582 356 M18 480 Q180 494 330 478 T582 486" fill="none" stroke="#CC9A5E" stroke-width="3"/>
+  <path d="M75 75 H525 M75 187.5 H525 M75 300 H525 M75 412.5 H525 M75 525 H525 M75 75 V525 M187.5 75 V525 M300 75 V525 M412.5 75 V525 M525 75 V525 M75 75 L525 525 M525 75 L75 525 M300 75 L525 300 L300 525 L75 300 Z" fill="none" stroke="#4A2E17" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="75" cy="75" r="10" fill="#4A2E17"/><circle cx="187.5" cy="75" r="10" fill="#4A2E17"/><circle cx="300" cy="75" r="10" fill="#4A2E17"/><circle cx="412.5" cy="75" r="10" fill="#4A2E17"/><circle cx="525" cy="75" r="10" fill="#4A2E17"/>
+  <circle cx="75" cy="187.5" r="10" fill="#4A2E17"/><circle cx="187.5" cy="187.5" r="10" fill="#4A2E17"/><circle cx="300" cy="187.5" r="10" fill="#4A2E17"/><circle cx="412.5" cy="187.5" r="10" fill="#4A2E17"/><circle cx="525" cy="187.5" r="10" fill="#4A2E17"/>
+  <circle cx="75" cy="300" r="10" fill="#4A2E17"/><circle cx="187.5" cy="300" r="10" fill="#4A2E17"/><circle cx="300" cy="300" r="10" fill="#4A2E17"/><circle cx="412.5" cy="300" r="10" fill="#4A2E17"/><circle cx="525" cy="300" r="10" fill="#4A2E17"/>
+  <circle cx="75" cy="412.5" r="10" fill="#4A2E17"/><circle cx="187.5" cy="412.5" r="10" fill="#4A2E17"/><circle cx="300" cy="412.5" r="10" fill="#4A2E17"/><circle cx="412.5" cy="412.5" r="10" fill="#4A2E17"/><circle cx="525" cy="412.5" r="10" fill="#4A2E17"/>
+  <circle cx="75" cy="525" r="10" fill="#4A2E17"/><circle cx="187.5" cy="525" r="10" fill="#4A2E17"/><circle cx="300" cy="525" r="10" fill="#4A2E17"/><circle cx="412.5" cy="525" r="10" fill="#4A2E17"/><circle cx="525" cy="525" r="10" fill="#4A2E17"/>
+</svg>

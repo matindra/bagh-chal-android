@@ -1,0 +1,32 @@
+# Handoff
+
+## Session 2026-10-23 — project setup + assets
+
+### Done
+- Build setup (version catalog): added lifecycle-runtime-compose, lifecycle-viewmodel-compose,
+  navigation-compose 2.9.5, datastore-preferences 1.1.7, kotlinx-coroutines-android 1.10.2.
+- Unit tests switched to JUnit 5 + kotlin.test (`useJUnitPlatform()`), plus kotlinx-coroutines-test.
+- `app_name` → "Bagh Chal".
+- `scripts/convert-svgs.sh` (+ `scripts/SvgConvert.java`): converts every `design/*.svg` to
+  `res/drawable/*.xml` with Android Studio's Svg2Vector, and renders the legacy (API 24–25)
+  launcher icons into `mipmap-*/ic_launcher{,_round}.webp`.
+  Generated: `board_wood`, `board_stone`, `board_cloth`, `ic_tiger`, `ic_goat`,
+  `ic_launcher_background`, `ic_launcher_foreground`.
+- Adaptive icon (`mipmap-anydpi-v26`) now uses the converted tiger foreground + board-pattern background.
+- `./gradlew assembleDebug test` green.
+
+### Not done / deliberately deferred
+- Ads, UMP, Billing deps: deferred to roadmap step 5 (Ads SDK needs an App ID in the manifest
+  or the app crashes on launch).
+- R8 still disabled for release (release checklist item).
+- Not a git repository yet.
+
+### Known issues
+- Themed (monochrome) icon reuses the full-colour foreground, so Android 13+ themed icons show
+  a solid tiger-head silhouette with no face detail. Needs a dedicated
+  `design/ic_launcher_monochrome.svg`.
+- `board_stone` has a light "highlight" line layer offset by +2.5 units; main lines/points are on
+  the standard 75…525 grid, so geometry matches the other boards.
+
+### Next
+- Roadmap step 1: engine (`Board`, `Move`, `GameState`, `Rules`) + full unit tests.
