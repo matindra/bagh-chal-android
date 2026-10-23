@@ -1,5 +1,30 @@
 # Handoff
 
+## Session 2026-10-23 (2) — roadmap step 1: engine
+
+### Done
+- `engine/Board.kt`: point indexing, precomputed `adjacency` and `jumps` (`JumpLine(over, landing)`),
+  diagonals only from even-parity points.
+- `engine/Move.kt`: `Place`, `Step`, `Jump`.
+- `engine/GameState.kt`: immutable state, `Side`, `Phase` (derived from goats in hand), `RulesConfig`
+  (`repetitionsForDraw = 3`, `maxPliesWithoutCapture = 100`), constants `TOTAL_GOATS`, `GOATS_TO_WIN`,
+  exact 56-bit `positionKey`, `GameState.create(...)` factory for arbitrary positions.
+- `engine/GameStatus.kt`: `InProgress` / `Won(winner, WinReason)` / `Drawn(DrawReason)`.
+- `engine/Rules.kt`: `initialState`, `legalMoves` (empty once the game is over), `isLegal`, `apply`
+  (throws on illegal move), `status`.
+- Tests: `BoardTest` (6) and `RulesTest` (25): all green with `./gradlew test`.
+
+### Decisions worth knowing
+- Move limit counts **plies** (single turns), default 100, reset by captures.
+- Repetition history resets on placements and captures (those positions can never recur).
+- Win checks take priority over draws (5th capture / trapped before repetition or move limit).
+- Goats can never be blocked during placement (at least one point is always empty).
+
+### Next
+- Roadmap step 2: basic UI (Canvas board using `board_*` drawables, tap-to-move, local 2-player).
+- AI tests from the CLAUDE.md list ("legal move in every position", "respects time budget")
+  belong to step 3.
+
 ## Session 2026-10-23 — project setup + assets
 
 ### Done

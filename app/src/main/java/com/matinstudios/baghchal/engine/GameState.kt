@@ -1,0 +1,110 @@
+package com.matinstudios.baghchal.engine
+
+const val TOTAL_GOATS = 20
+const val GOATS_TO_WIN = 5
+
+enum class Side {
+    TIGER, GOAT;
+
+    val opponent: Side get() = if (this == TIGER) GOAT else TIGER
+}
+
+enum class Phase { PLACEMENT, MOVEMENT }
+
+/**
+ * Draw settings.
+ *
+ * @property repetitionsForDraw the game is drawn when the same position occurs this many times.
+ * @property maxPliesWithoutCapture the game is drawn after this many plies (single turns) with no capture.
+ */
+data class RulesConfig(
+    val repetitionsForDraw: Int = 3,
+    val maxPliesWithoutCapture: Int = 100,
+) {
+    init {
+        require(repetitionsForDraw >= 2) { "repetitionsForDraw must be >= 2" }
+        require(maxPliesWithoutCapture >= 1) { "maxPliesWithoutCapture must be >= 1" }
+    }
+}
+
+/**
+ * Immutable game position plus the history needed for draw detection.
+ *
+ * [positionCounts] maps [positionKey] to how often that position has occurred since the last
+ * irreversible move (placement or capture); earlier positions can never recur.
+ */
+data class GameState(
+    val board: List<Side?>,
+    val sideToMove: Side,
+    val goatsInHand: Int,
+    val goatsCaptured: Int,
+    val pliesSinceCapture: Int,
+    val positionCounts: Map<Long, Int>,
+    val config: RulesConfig,
+) {
+    init {
+        require(board.size == Board.POINTS) { "Board must have ${Board.POINTS} points" }
+        require(goatsInHand >= 0 && goatsCaptured >= 0) { "Goat counts must be non-negative" }
+        require(goatsOnBoard + goatsInHand + goatsCaptured == TOTAL_GOATS) {
+            "Goats on board + in hand + captured must equal $TOTAL_GOATS"
+        }
+    }
+
+    val goatsOnBoard: Int get() = board.count { it == Side.GOAT }
+
+    /** Placement lasts until every goat has left the hand. */
+    val phase: Phase get() = if (goatsInHand > 0) Phase.PLACEMENT else Phase.MOVEMENT
+
+    fun pointsOf(side: Side): List<Int> = board.indices.filter { board[it] == side }
+
+    /**
+     * Exact, collision-free encoding of the position: 2 bits per point, the side to move,
+     * and goats in hand (captured goats follow from the other counts).
+     */
+    val positionKey: Long
+        get() {
+            var key = 0L
+            for (point in 0 until Board.POINTS) {
+                val code = when (board[point]) {
+                    null -> 0L
+                    Side.GOAT -> 1L
+                    Side.TIGER -> 2L
+                }
+                key = key or (code shl (point * 2))
+            }
+            if (sideToMove == Side.TIGER) key = key or (1L shl 50)
+            return key or (goatsInHand.toLong() shl 51)
+        }
+
+    companion object {
+        /** Builds a position from piece locations; its occurrence is recorded once in [positionCounts]. */
+        fun create(
+            tigers: Collection<Int>,
+            goats: Collection<Int>,
+            sideToMove: Side,
+            goatsInHand: Int,
+            goatsCaptured: Int = TOTAL_GOATS - goatsInHand - goats.size,
+            pliesSinceCapture: Int = 0,
+            config: RulesConfig = RulesConfig(),
+        ): GameState {
+            require(tigers.intersect(goats.toSet()).isEmpty()) { "A point holds at most one piece" }
+            val board = List(Board.POINTS) { point ->
+                when (point) {
+                    in tigers -> Side.TIGER
+                    in goats -> Side.GOAT
+                    else -> null
+                }
+            }
+            val state = GameState(
+                board = board,
+                sideToMove = sideToMove,
+                goatsInHand = goatsInHand,
+                goatsCaptured = goatsCaptured,
+                pliesSinceCapture = pliesSinceCapture,
+                positionCounts = emptyMap(),
+                config = config,
+            )
+            return state.copy(positionCounts = mapOf(state.positionKey to 1))
+        }
+    }
+}
