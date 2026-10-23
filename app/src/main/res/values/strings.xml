@@ -2,6 +2,12 @@
     <string name="app_name">Bagh Chal</string>
 
     <string name="cd_board">Bagh Chal board</string>
+    <string name="point_description">Row %1$d, column %2$d, %3$s</string>
+    <string name="point_goat">goat</string>
+    <string name="point_tiger">tiger</string>
+    <string name="point_tiger_trapped">trapped tiger</string>
+    <string name="point_empty">empty</string>
+    <string name="point_possible_move">possible move</string>
     <string name="turn_goats">Goats to move</string>
     <string name="turn_tigers">Tigers to move</string>
     <string name="phase_placement">Placement phase</string>
@@ -25,6 +31,48 @@
     <string name="difficulty_easy">Easy</string>
     <string name="difficulty_medium">Medium</string>
     <string name="difficulty_hard">Hard</string>
+    <string name="home_stats">Stats</string>
+    <string name="home_settings">Settings</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_sound">Sound</string>
+    <string name="settings_sound_detail">Sound effects for moves and captures</string>
+    <string name="settings_haptics">Haptics</string>
+    <string name="settings_haptics_detail">Vibrate when a goat is placed or captured</string>
+    <string name="settings_board">Board</string>
+    <string name="board_wood">Wood</string>
+    <string name="board_stone">Stone</string>
+    <string name="board_cloth">Cloth</string>
+    <string name="home_resume_title">Game in progress</string>
+    <string name="home_resume">Resume</string>
+    <string name="home_resume_vs_computer">You play %1$s · %2$s</string>
+    <string name="home_two_player_short">2 players</string>
+    <string name="home_resume_progress">In hand: %1$d · Captured: %2$d/%3$d</string>
+
+    <string name="stats_title">Stats</string>
+    <string name="stats_subtitle">Games against the computer</string>
+    <string name="stats_as_goats">As Goats</string>
+    <string name="stats_as_tigers">As Tigers</string>
+    <string name="stats_wins">Won</string>
+    <string name="stats_losses">Lost</string>
+    <string name="stats_draws">Drawn</string>
+    <string name="stats_total">Total</string>
+    <string name="stats_reset">Reset stats</string>
+    <string name="stats_reset_title">Reset stats?</string>
+    <string name="stats_reset_message">All wins, losses and draws will be deleted.</string>
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="result_title_tigers">Tigers Win!</string>
+    <string name="result_title_goats">Goats Win!</string>
+    <plurals name="result_moves">
+        <item quantity="one">%d move</item>
+        <item quantity="other">%d moves</item>
+    </plurals>
+    <string name="play_again">Play Again</string>
+    <string name="home">Home</string>
+    <string name="cd_result_tigers">A big tiger celebrating</string>
+    <string name="cd_result_goats">Three goats in front of a locked-in tiger</string>
 
     <string name="result_tigers_win_captures">Tigers win — %1$d goats captured</string>
     <string name="result_goats_win_trapped">Goats win — tigers are trapped</string>

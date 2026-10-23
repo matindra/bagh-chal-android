@@ -158,6 +158,7 @@ app/src/main/java/com/matinstudios/baghchal/
 ./gradlew assembleDebug
 ./gradlew installDebug
 ./gradlew test
+./gradlew connectedDebugAndroidTest   # Compose UI tests (needs a running emulator/device)
 ./gradlew lint
 ./gradlew bundleRelease      # AAB for Play Console
 scripts/convert-svgs.sh      # regenerate res/drawable + legacy launcher icons from design/*.svg
@@ -195,6 +196,7 @@ scripts/convert-svgs.sh      # regenerate res/drawable + legacy launcher icons f
 - Source SVGs live in `design/`. Convert them to VectorDrawables in `res/drawable/`; never edit the generated XML by hand.
 - Run `scripts/convert-svgs.sh` after changing any SVG (uses Android Studio's Svg2Vector; needs Android Studio installed and `cwebp`). Name mapping lives in `scripts/SvgConvert.java` (`board.svg` → `board_wood`, `tiger_piece.svg` → `ic_tiger`, `goat_piece.svg` → `ic_goat`).
 - Pieces: `ic_tiger`, `ic_goat`.
+- Result art: `result_bg_tiger`, `result_bg_goat` (300×200); `lock_badge` marks a trapped tiger (board and Goats Win art).
 - Boards: `board_wood`, `board_stone`, `board_cloth`, all 600×600 units with identical geometry.
 - The 25 board points are at x/y = 75, 187.5, 300, 412.5, 525 (spacing 112.5). Scale these to the on-screen board size.
 - Pieces are drawn at ~90 units (80% of spacing), centered on points.

@@ -58,11 +58,21 @@ object Rules {
             goatsInHand = goatsInHand,
             goatsCaptured = goatsCaptured,
             pliesSinceCapture = if (move is Move.Jump) 0 else state.pliesSinceCapture + 1,
+            moveCount = state.moveCount + 1,
         )
         val key = next.positionKey
         // Placements and captures change goat counts, so no earlier position can recur.
         val history = if (move is Move.Step) state.positionCounts else emptyMap()
         return next.copy(positionCounts = history + (key to (history[key] ?: 0) + 1))
+    }
+
+    /**
+     * Tigers that could not move right now even if it were their turn: no empty neighbour and no
+     * capture. When every tiger is trapped on the tigers' turn, goats win.
+     */
+    fun trappedTigers(state: GameState): Set<Int> = state.pointsOf(Side.TIGER).filterTo(mutableSetOf()) { tiger ->
+        Board.adjacency[tiger].none { state.board[it] == null } &&
+            Board.jumps[tiger].none { state.board[it.over] == Side.GOAT && state.board[it.landing] == null }
     }
 
     private fun drawReason(state: GameState): DrawReason? = when {

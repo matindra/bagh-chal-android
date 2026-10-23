@@ -1,0 +1,19 @@
+<!-- Generated from design/result_bg_tiger.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="200dp"
+    android:viewportWidth="300"
+    android:viewportHeight="200">
+  <path
+      android:pathData="M0,0h300v200h-300z"
+      android:fillColor="#FFF1DC"/>
+  <path
+      android:pathData="M150,100L367.9,69.4L367.9,130.6ZM150,100L354,182.4L323.4,235.4ZM150,100L285.4,273.4L232.4,304ZM150,100L180.6,317.9L119.4,317.9ZM150,100L67.6,304L14.6,273.4ZM150,100L-23.4,235.4L-54,182.4ZM150,100L-67.9,130.6L-67.9,69.4ZM150,100L-54,17.6L-23.4,-35.4ZM150,100L14.6,-73.4L67.6,-104ZM150,100L119.4,-117.9L180.6,-117.9ZM150,100L232.4,-104L285.4,-73.4ZM150,100L323.4,-35.4L354,17.6Z"
+      android:fillColor="#FBD9A8"/>
+  <path
+      android:pathData="M150,100m-70,0a70,70 0,1 1,140 0a70,70 0,1 1,-140 0"
+      android:fillColor="#FCE6C4"/>
+  <path
+      android:pathData="M40,30L43,37L50,40L43,43L40,50L37,43L30,40L37,37ZM260,38L262.5,44L268,46L262.5,48L260,54L257.5,48L252,46L257.5,44ZM252,148L255,155L262,158L255,161L252,168L249,161L242,158L249,155ZM52,146L54,151L59,153L54,155L52,160L50,155L45,153L50,151Z"
+      android:fillColor="#F2B23A"/>
+</vector>

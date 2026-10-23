@@ -19,9 +19,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.engine.DrawReason
 import com.matinstudios.baghchal.engine.GOATS_TO_WIN
 import com.matinstudios.baghchal.engine.GameStatus
@@ -40,10 +45,29 @@ import com.matinstudios.baghchal.ui.board.BoardCanvas
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
-fun GameScreen(onMenu: () -> Unit, modifier: Modifier = Modifier, viewModel: GameViewModel = viewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+fun GameScreen(
+    onMenu: () -> Unit,
+    onGameWon: (GameResult) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: GameViewModel = viewModel(factory = GameViewModel.Factory),
+) {
+    val haptics = LocalHapticFeedback.current
+    LaunchedEffect(viewModel) {
+        viewModel.feedback.collect { feedback ->
+            if (feedback.haptic) haptics.performHapticFeedback(feedback.event.hapticType)
+            // feedback.sound: sound effects are not bundled yet.
+        }
+    }
+    val currentOnGameWon by rememberUpdatedState(onGameWon)
+    LaunchedEffect(viewModel) {
+        viewModel.results.collect { currentOnGameWon(it) }
+    }
+    // Null only for the moment it takes to read a saved game and settings.
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value ?: return
+    val boardTheme = viewModel.boardTheme.collectAsStateWithLifecycle().value ?: return
     GameContent(
         uiState = uiState,
+        boardTheme = boardTheme,
         onPointTapped = viewModel::onPointTapped,
         onNewGame = viewModel::onNewGame,
         onMenu = onMenu,
@@ -54,6 +78,7 @@ fun GameScreen(onMenu: () -> Unit, modifier: Modifier = Modifier, viewModel: Gam
 @Composable
 fun GameContent(
     uiState: GameUiState,
+    boardTheme: BoardTheme,
     onPointTapped: (Int) -> Unit,
     onNewGame: () -> Unit,
     onMenu: () -> Unit,
@@ -70,8 +95,12 @@ fun GameContent(
         StatusLine(uiState)
         BoardCanvas(
             board = game.board,
+            theme = boardTheme,
             selected = uiState.selected,
             targets = uiState.targets,
+            trappedTigers = uiState.trappedTigers,
+            lastMove = uiState.lastMove,
+            moveNumber = uiState.moveNumber,
             onPointTapped = onPointTapped,
             modifier = Modifier
                 .widthIn(max = 600.dp)
@@ -85,7 +114,8 @@ fun GameContent(
             Counter(R.drawable.ic_goat, stringResource(R.string.goats_in_hand, game.goatsInHand))
             Counter(R.drawable.ic_tiger, stringResource(R.string.goats_captured, game.goatsCaptured, GOATS_TO_WIN))
         }
-        if (uiState.status != GameStatus.InProgress) {
+        // Wins move on to the result screen; only draws end here.
+        if (uiState.status is GameStatus.Drawn) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onMenu) { Text(stringResource(R.string.menu)) }
                 Button(onClick = onNewGame) { Text(stringResource(R.string.new_game)) }
@@ -96,6 +126,12 @@ fun GameContent(
         }
     }
 }
+
+private val FeedbackEvent.hapticType: HapticFeedbackType
+    get() = when (this) {
+        FeedbackEvent.GOAT_PLACED -> HapticFeedbackType.ContextClick
+        FeedbackEvent.GOAT_CAPTURED -> HapticFeedbackType.LongPress
+    }
 
 @Composable
 private fun StatusLine(uiState: GameUiState) {
@@ -163,6 +199,6 @@ private fun Counter(@DrawableRes icon: Int, text: String) {
 @Composable
 private fun GameContentPreview() {
     BaghchalTheme {
-        GameContent(uiState = GameInteraction.newGame(), onPointTapped = {}, onNewGame = {}, onMenu = {})
+        GameContent(uiState = GameInteraction.newGame(), boardTheme = BoardTheme.WOOD, onPointTapped = {}, onNewGame = {}, onMenu = {})
     }
 }

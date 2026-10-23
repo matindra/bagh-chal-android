@@ -32,7 +32,10 @@ public class SvgConvert {
             "tiger_piece.svg", "ic_tiger",
             "goat_piece.svg", "ic_goat",
             "ic_launcher_background.svg", "ic_launcher_background",
-            "ic_launcher_foreground.svg", "ic_launcher_foreground"
+            "ic_launcher_foreground.svg", "ic_launcher_foreground",
+            "result_bg_tiger.svg", "result_bg_tiger",
+            "result_bg_goat.svg", "result_bg_goat",
+            "lock_badge.svg", "lock_badge"
     ));
 
     /** mipmap density -> legacy launcher icon size in px (48dp). */

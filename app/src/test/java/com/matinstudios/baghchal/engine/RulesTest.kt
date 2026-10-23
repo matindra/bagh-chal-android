@@ -259,6 +259,50 @@ class RulesTest {
         assertEquals(setOf(Move.Place(0), Move.Place(23)), Rules.legalMoves(state).toSet())
     }
 
+    // --- Move count ---
+
+    @Test
+    fun `move count starts at zero and counts every turn`() {
+        val state = Rules.initialState()
+        assertEquals(0, state.moveCount)
+        val after = state.play(Move.Place(1), Move.Jump(0, 1, 2), Move.Place(12))
+        assertEquals(3, after.moveCount)
+    }
+
+    // --- Trapped tigers ---
+
+    @Test
+    fun `no tiger is trapped at the start`() {
+        assertEquals(emptySet(), Rules.trappedTigers(Rules.initialState()))
+    }
+
+    @Test
+    fun `a tiger with no step and no capture is trapped, regardless of whose turn it is`() {
+        // Tiger 0: neighbours 1, 5, 6 are goats and every landing (2, 10, 12) is occupied.
+        val goats = listOf(1, 2, 5, 6, 10, 12)
+        for (side in Side.entries) {
+            val state = GameState.create(listOf(0, 4, 20, 24), goats, side, goatsInHand = TOTAL_GOATS - goats.size)
+            assertEquals(setOf(0), Rules.trappedTigers(state), "side to move $side")
+        }
+    }
+
+    @Test
+    fun `a tiger that can only capture is not trapped`() {
+        // Tiger 0 is surrounded but can jump 1 -> 2.
+        val goats = listOf(1, 5, 6, 10, 12)
+        val state = GameState.create(listOf(0, 4, 20, 24), goats, Side.TIGER, goatsInHand = TOTAL_GOATS - goats.size)
+        assertEquals(emptySet(), Rules.trappedTigers(state))
+    }
+
+    @Test
+    fun `all four tigers are trapped when goats win by trapping`() {
+        val goats = listOf(1, 3, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 19, 21, 22, 23)
+        val state = GameState.create(listOf(0, 4, 20, 24), goats, Side.GOAT, goatsInHand = 0, goatsCaptured = 3)
+        assertEquals(setOf(20, 24), Rules.trappedTigers(state), "tigers 0 and 4 can still jump into 2")
+        val next = Rules.apply(state, Move.Step(7, 2))
+        assertEquals(setOf(0, 4, 20, 24), Rules.trappedTigers(next))
+    }
+
     // --- Draws ---
 
     /** Tigers on the top row, goats packed below; tiger 0<->5 and goat 9<->4 can shuffle forever. */

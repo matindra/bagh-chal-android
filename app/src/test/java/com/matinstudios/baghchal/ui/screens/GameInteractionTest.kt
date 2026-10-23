@@ -122,6 +122,7 @@ class GameInteractionTest {
         )) {
             val args = setup.route.substringAfter('?').split('&').associate { it.substringBefore('=') to it.substringAfter('=') }
             assertEquals(setup, GameSetup.fromArgs(args[GameSetup.ARG_AI], args[GameSetup.ARG_DIFFICULTY]))
+            assertEquals(null, args[GameSetup.ARG_RESUME], "new-game routes never resume")
         }
         assertEquals(Side.TIGER, GameSetup.vsComputer(Side.GOAT, Difficulty.EASY).aiSide)
         assertEquals(GameSetup.TWO_PLAYER, GameSetup.fromArgs(null, null))

@@ -51,6 +51,7 @@ data class RulesConfig(
  *
  * [positionCounts] maps [positionKey] to how often that position has occurred since the last
  * irreversible move (placement or capture); earlier positions can never recur.
+ * [moveCount] is the number of turns (by either side) played so far.
  */
 data class GameState(
     val board: List<Side?>,
@@ -60,10 +61,12 @@ data class GameState(
     val pliesSinceCapture: Int,
     val positionCounts: Map<Long, Int>,
     val config: RulesConfig,
+    val moveCount: Int = 0,
 ) {
     init {
         require(board.size == Board.POINTS) { "Board must have ${Board.POINTS} points" }
         require(goatsInHand >= 0 && goatsCaptured >= 0) { "Goat counts must be non-negative" }
+        require(moveCount >= 0) { "moveCount must be non-negative" }
         require(goatsOnBoard + goatsInHand + goatsCaptured == TOTAL_GOATS) {
             "Goats on board + in hand + captured must equal $TOTAL_GOATS"
         }
@@ -100,6 +103,7 @@ data class GameState(
             goatsCaptured: Int = TOTAL_GOATS - goatsInHand - goats.size,
             pliesSinceCapture: Int = 0,
             config: RulesConfig = RulesConfig(),
+            moveCount: Int = 0,
         ): GameState {
             require(tigers.intersect(goats.toSet()).isEmpty()) { "A point holds at most one piece" }
             val board = List(Board.POINTS) { point ->
@@ -117,6 +121,7 @@ data class GameState(
                 pliesSinceCapture = pliesSinceCapture,
                 positionCounts = emptyMap(),
                 config = config,
+                moveCount = moveCount,
             )
             return state.copy(positionCounts = mapOf(state.positionKey to 1))
         }
