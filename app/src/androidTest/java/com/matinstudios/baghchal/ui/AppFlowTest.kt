@@ -12,8 +12,11 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -70,6 +73,12 @@ class AppFlowTest {
     private fun text(@StringRes id: Int, vararg args: Any): SemanticsNodeInteraction =
         compose.onNodeWithText(str(id, *args))
 
+    /** Opens the Home side menu and picks [item]. */
+    private fun openMenuItem(@StringRes item: Int) {
+        compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
+        text(item).performClick()
+    }
+
     private fun point(index: Int) = compose.onNodeWithTag(boardPointTestTag(index))
 
     private companion object {
@@ -85,6 +94,30 @@ class AppFlowTest {
     private fun startTwoPlayer() {
         text(R.string.mode_vs_player).performScrollTo().performClick()
         waitForText(R.string.turn_goats)
+    }
+
+    @Test
+    fun gameMenuOpensSettingsAndKeepsTheGame() {
+        startTwoPlayer()
+        point(12).performClick() // a goat goes in the centre, so it's the tigers' turn
+        waitForText(R.string.turn_tigers)
+
+        openMenuItem(R.string.home_settings)
+        waitForText(R.string.settings_sound)
+        Espresso.pressBack()
+        waitForText(R.string.turn_tigers)
+
+        openMenuItem(R.string.menu_home)
+        waitForText(R.string.home_resume)
+    }
+
+    @Test
+    fun playOnlineSaysItIsUnavailableWithoutAServer() {
+        // Instrumented tests run without online play, like a build without a Firebase config.
+        text(R.string.mode_online).performScrollTo().performClick()
+        waitForText(R.string.online_unavailable)
+        Espresso.pressBack()
+        waitForText(R.string.mode_vs_player)
     }
 
     @Test
@@ -111,11 +144,26 @@ class AppFlowTest {
 
     @Test
     fun homeToHowToPlayAndBack() {
-        text(R.string.home_how_to_play).performScrollTo().performClick()
-        waitForText(R.string.rules_title)
+        openMenuItem(R.string.home_how_to_play)
+        waitForText(R.string.rules_goal)
         text(R.string.rules_goal).assertIsDisplayed()
         Espresso.pressBack()
         waitForText(R.string.mode_vs_player)
+    }
+
+    @Test
+    fun menuOpensStatsAndBackClosesIt() {
+        val menuStats = text(R.string.home_stats) // the closed drawer stays in the tree, off-screen
+        compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
+        menuStats.assertIsDisplayed()
+        Espresso.pressBack()
+        compose.waitUntil(5_000) { !menuStats.isDisplayed() }
+
+        openMenuItem(R.string.home_stats)
+        waitForText(R.string.stats_subtitle)
+        Espresso.pressBack()
+        waitForText(R.string.mode_vs_player)
+        menuStats.assertIsNotDisplayed()
     }
 
     @Test
@@ -325,7 +373,7 @@ class AppFlowTest {
 
     @Test
     fun lockedBoardsNeedAnAdAndSayWhenNoneIsAvailable() {
-        text(R.string.home_settings).performScrollTo().performClick()
+        openMenuItem(R.string.home_settings)
         waitForText(R.string.settings_title)
         assertEquals(2, compose.onAllNodesWithText(str(R.string.settings_board_watch_ad)).fetchSemanticsNodes().size)
 
@@ -338,7 +386,7 @@ class AppFlowTest {
 
     @Test
     fun removeAdsSaysWhenGooglePlayIsUnavailable() {
-        text(R.string.home_settings).performScrollTo().performClick()
+        openMenuItem(R.string.home_settings)
         waitForText(R.string.settings_title)
         // Tests run without Play Billing, so the purchase sheet can't open.
         compose.onNode(hasText(str(R.string.settings_remove_ads)) and hasClickAction()).performScrollTo().performClick()

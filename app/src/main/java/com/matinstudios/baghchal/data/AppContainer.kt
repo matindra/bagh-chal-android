@@ -7,6 +7,10 @@ import com.matinstudios.baghchal.ads.ConsentManager
 import com.matinstudios.baghchal.ads.MobileAdsManager
 import com.matinstudios.baghchal.ads.NoAds
 import com.matinstudios.baghchal.billing.BillingManager
+import com.matinstudios.baghchal.online.FirebaseOnlineService
+import com.matinstudios.baghchal.online.NoOnline
+import com.matinstudios.baghchal.online.OnlineService
+import com.google.firebase.FirebaseApp
 import com.matinstudios.baghchal.ui.sound.SoundPoolPlayer
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
@@ -19,7 +23,7 @@ import kotlinx.coroutines.flow.combine
 /**
  * App-wide singletons, created once in the Application.
  *
- * @param servicesEnabled false in instrumented tests: no consent form, ads or Play Billing.
+ * @param servicesEnabled false in instrumented tests: no consent form, ads, Play Billing or online play.
  */
 class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -47,6 +51,13 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
     }
     val billing = BillingManager(context, entitlements, activities, appScope)
 
+    /** Online play needs a Firebase config (app/google-services.json); without one it is switched off. */
+    val online: OnlineService = if (servicesEnabled && firebaseConfigured(context)) FirebaseOnlineService() else NoOnline
+
     /** Created at app start so every sound is loaded before the first game. */
     val sounds = SoundPoolPlayer(context)
 }
+
+/** True when the build included a Firebase config, so the default Firebase app exists (or can be made). */
+private fun firebaseConfigured(context: Context): Boolean =
+    FirebaseApp.getApps(context).isNotEmpty() || FirebaseApp.initializeApp(context) != null

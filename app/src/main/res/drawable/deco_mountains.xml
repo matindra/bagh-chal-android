@@ -1,0 +1,25 @@
+<!-- Generated from design/mountains.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="120dp"
+    android:viewportWidth="400"
+    android:viewportHeight="120">
+  <path
+      android:pathData="M0,120L0,74L38,52L62,63L104,22L132,46L158,36L196,8L236,44L262,32L300,58L334,30L372,56L400,46L400,120Z"
+      android:fillColor="#B9CCDD"/>
+  <path
+      android:pathData="M104,22L117,34L110,32L104,38L97,33L92,34Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M196,8L214,25L205,23L198,30L190,24L182,22Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M334,30L348,40L341,39L335,44L328,39L321,40Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M0,120L0,92Q50,70 104,86T214,80T318,84T400,76L400,120Z"
+      android:fillColor="#9DBF94"/>
+  <path
+      android:pathData="M0,120L0,106Q70,92 150,104T300,100T400,98L400,120Z"
+      android:fillColor="#7BA56F"/>
+</vector>

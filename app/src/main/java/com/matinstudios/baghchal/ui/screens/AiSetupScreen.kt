@@ -1,7 +1,18 @@
 package com.matinstudios.baghchal.ui.screens
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
+import com.matinstudios.baghchal.ui.theme.PrayerFlags
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -61,10 +72,12 @@ fun AiSetupScreen(onStart: (GameSetup) -> Unit, onBack: () -> Unit, modifier: Mo
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
     ) {
+        PrayerFlags()
         Text(
             stringResource(R.string.mode_vs_ai),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.semantics { heading() },
         )
 
@@ -75,18 +88,16 @@ fun AiSetupScreen(onStart: (GameSetup) -> Unit, onBack: () -> Unit, modifier: Mo
             SectionLabel(R.string.home_play_as)
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 SideOption(
+                    side = Side.GOAT,
                     selected = humanSide == Side.GOAT,
                     onClick = { humanSide = Side.GOAT },
-                    icon = R.drawable.ic_goat,
-                    name = stringResource(R.string.side_goats),
                     detail = stringResource(R.string.side_goats_detail),
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
                 SideOption(
+                    side = Side.TIGER,
                     selected = humanSide == Side.TIGER,
                     onClick = { humanSide = Side.TIGER },
-                    icon = R.drawable.ic_tiger,
-                    name = stringResource(R.string.side_tigers),
                     detail = stringResource(R.string.side_tigers_detail, GOATS_TO_WIN),
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
@@ -111,46 +122,63 @@ fun AiSetupScreen(onStart: (GameSetup) -> Unit, onBack: () -> Unit, modifier: Mo
 }
 
 @Composable
-private fun SectionLabel(@StringRes text: Int) {
+internal fun SectionLabel(@StringRes text: Int) {
     Text(stringResource(text), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
 }
 
-/** Outlined card that shows a thicker, coloured border when selected. */
+/** Outlined card; when selected it takes a thicker [accent] border and a [selectedContainer] fill. */
 @Composable
 private fun OptionCard(
     selected: Boolean,
     onClick: () -> Unit,
+    accent: Color,
+    selectedContainer: Color,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val border = if (selected) {
-        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-    } else {
-        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    }
+    val border = if (selected) BorderStroke(2.dp, accent) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    val container by animateColorAsState(
+        if (selected) selectedContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
+        label = "option container",
+    )
     OutlinedCard(
         border = border,
+        colors = CardDefaults.outlinedCardColors(containerColor = container),
         modifier = modifier.selectable(selected = selected, onClick = onClick, role = Role.RadioButton),
     ) { content() }
 }
 
 @Composable
-private fun SideOption(
+internal fun SideOption(
+    side: Side,
     selected: Boolean,
     onClick: () -> Unit,
-    @DrawableRes icon: Int,
-    name: String,
     detail: String,
     modifier: Modifier = Modifier,
 ) {
-    OptionCard(selected, onClick, modifier) {
+    val colors = MaterialTheme.colorScheme
+    val isTiger = side == Side.TIGER
+    OptionCard(
+        selected = selected,
+        onClick = onClick,
+        accent = if (isTiger) colors.primary else colors.secondary,
+        selectedContainer = if (isTiger) colors.primaryContainer else colors.secondaryContainer,
+        modifier = modifier,
+    ) {
         Column(
             Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(56.dp))
-            Text(name, style = MaterialTheme.typography.titleMedium)
+            Image(
+                painterResource(if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+            )
+            Text(
+                stringResource(if (isTiger) R.string.side_tigers else R.string.side_goats),
+                style = MaterialTheme.typography.titleMedium,
+            )
             Text(detail, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
         }
     }
@@ -158,17 +186,53 @@ private fun SideOption(
 
 @Composable
 private fun DifficultyOption(level: Difficulty, selected: Boolean, onClick: () -> Unit) {
-    OptionCard(selected, onClick, Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    val accent = level.accent
+    OptionCard(
+        selected = selected,
+        onClick = onClick,
+        accent = accent,
+        selectedContainer = accent.copy(alpha = 0.14f).compositeOver(MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             // The whole card is the radio button, so this one only shows the state.
-            RadioButton(selected = selected, onClick = null, modifier = Modifier.padding(horizontal = 12.dp))
-            Column {
+            RadioButton(
+                selected = selected,
+                onClick = null,
+                colors = RadioButtonDefaults.colors(selectedColor = accent),
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            Column(Modifier.weight(1f)) {
                 Text(stringResource(level.label), style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(level.detail), style = MaterialTheme.typography.bodySmall)
             }
+            StrengthBars(filled = level.ordinal + 1, total = Difficulty.entries.size, color = accent)
         }
     }
 }
+
+/** Rising bars, like a signal meter: one for Easy, all for Hard. */
+@Composable
+private fun StrengthBars(filled: Int, total: Int, color: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.Bottom) {
+        for (i in 1..total) {
+            Box(
+                Modifier
+                    .width(6.dp)
+                    .height((8 + i * 5).dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(if (i <= filled) color else MaterialTheme.colorScheme.outlineVariant),
+            )
+        }
+    }
+}
+
+private val Difficulty.accent: Color
+    @Composable get() = when (this) {
+        Difficulty.EASY -> BaghchalThemeExtras.colors.easy
+        Difficulty.MEDIUM -> BaghchalThemeExtras.colors.medium
+        Difficulty.HARD -> BaghchalThemeExtras.colors.hard
+    }
 
 private val Difficulty.detail: Int
     get() = when (this) {

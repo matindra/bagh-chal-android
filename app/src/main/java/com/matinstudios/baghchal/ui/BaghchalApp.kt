@@ -15,6 +15,9 @@ import com.matinstudios.baghchal.ui.screens.GameScreen
 import com.matinstudios.baghchal.ui.screens.GameSetup
 import com.matinstudios.baghchal.ui.screens.HomeScreen
 import com.matinstudios.baghchal.ui.screens.HowToPlayScreen
+import com.matinstudios.baghchal.ui.screens.OnlineGameScreen
+import com.matinstudios.baghchal.ui.screens.OnlineGameViewModel
+import com.matinstudios.baghchal.ui.screens.OnlineLobbyScreen
 import com.matinstudios.baghchal.ui.screens.ResultScreen
 import com.matinstudios.baghchal.ui.screens.ResultViewModel
 import com.matinstudios.baghchal.ui.screens.SettingsScreen
@@ -27,6 +30,7 @@ private const val SETTINGS_ROUTE = "settings"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
 private const val WELCOME_ROUTE = "welcome"
 private const val AI_SETUP_ROUTE = "ai_setup"
+private const val ONLINE_ROUTE = "online"
 
 @Composable
 fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)) {
@@ -47,6 +51,7 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
         composable(HOME_ROUTE) {
             HomeScreen(
                 onPlayVsAi = { navController.navigate(AI_SETUP_ROUTE) },
+                onPlayOnline = { navController.navigate(ONLINE_ROUTE) },
                 onStartGame = { setup -> navController.navigate(setup.route) },
                 onResume = { navController.navigate(GameSetup.RESUME_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
@@ -75,6 +80,9 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onMenu = { navController.popBackStack(HOME_ROUTE, inclusive = false) },
                 // The game is over, so Back from the result goes Home rather than to the finished board.
                 onGameWon = { result -> navController.navigate(result.route) { popUpTo(HOME_ROUTE) } },
+                onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
+                onStats = { navController.navigate(STATS_ROUTE) },
+                onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
         composable(
@@ -117,6 +125,24 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 // Back from the game goes Home, where the game can be resumed.
                 onStart = { setup -> navController.navigate(setup.route) { popUpTo(HOME_ROUTE) } },
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable(ONLINE_ROUTE) {
+            OnlineLobbyScreen(
+                onMatched = { roomId -> navController.navigate(OnlineGameViewModel.route(roomId)) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(
+            OnlineGameViewModel.ROUTE_PATTERN,
+            arguments = listOf(navArgument(OnlineGameViewModel.ARG_ROOM) { type = NavType.StringType }),
+        ) {
+            OnlineGameScreen(
+                onHome = { navController.popBackStack(HOME_ROUTE, inclusive = false) },
+                onPlayAgain = { navController.popBackStack(ONLINE_ROUTE, inclusive = false) },
+                onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
+                onStats = { navController.navigate(STATS_ROUTE) },
+                onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
         composable(STATS_ROUTE) {

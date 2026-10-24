@@ -20,6 +20,7 @@ Project guide for Claude Code. Read this file fully before making changes. Keep 
 - Google Mobile Ads SDK (AdMob directly, no mediation for now)
 - Google Play Billing Library (latest) for "Remove Ads"
 - Google UMP SDK for consent (GDPR/EEA) before any ad request
+- Firebase (Anonymous Auth + Realtime Database) for online play; BOM pinned to 34.x while Kotlin is 2.2
 - Build: Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`)
 - minSdk 24, target/compile SDK = latest stable required by Play
 - Tests: JUnit 5 / kotlin.test for the game engine, Compose UI tests for key screens
@@ -43,6 +44,7 @@ app/src/main/java/com/matinstudios/baghchal/
 │   └── theme/
 ├── ads/            # AdMob wrappers (banner, interstitial, rewarded), consent
 ├── billing/        # Remove Ads purchase + entitlement
+├── online/         # OnlineService (Firebase / NoOnline), move codec, room codes, move checking
 ├── data/           # DataStore repositories
 └── MainActivity.kt
 ```
@@ -114,6 +116,15 @@ app/src/main/java/com/matinstudios/baghchal/
 - Stats: wins/losses per side and difficulty.
 - Localisation-ready: all strings in `strings.xml` (plan for English + Hindi + Odia + Nepali).
 - Portrait only on phones.
+
+## Online play
+
+- Quick match (random opponent, random sides) and private games joined with a 4-digit code the host shares.
+- Screens see the backend only through `online/OnlineService`; `FirebaseOnlineService` is the real one, `NoOnline` is used when `app/google-services.json` is missing and in instrumented tests.
+- The google-services plugin is applied only when `app/google-services.json` exists; the build must stay green without it.
+- No server referee: every phone replays the room's moves through the engine (`OnlineReplay`); a bad move loses for its sender.
+- Claims (random seat, codes, joining) are Realtime Database transactions. Security rules live in `firebase/database.rules.json`; keep them in sync with the data layout in `FirebaseOnlineService`.
+- Online games: no Undo/Hint, no save/resume, not in Stats. Leaving mid-game resigns; an opponent disconnected for 45 s loses.
 
 ## Monetisation
 
@@ -202,7 +213,9 @@ scripts/convert-sounds.sh    # regenerate res/raw/*.ogg from design/sounds (need
 
 - Source SVGs live in `design/`. Convert them to VectorDrawables in `res/drawable/`; never edit the generated XML by hand.
 - Run `scripts/convert-svgs.sh` after changing any SVG (uses Android Studio's Svg2Vector; needs Android Studio installed and `cwebp`). Name mapping lives in `scripts/SvgConvert.java` (`board.svg` → `board_wood`, `tiger_piece.svg` → `ic_tiger`, `goat_piece.svg` → `ic_goat`).
-- Pieces: `ic_tiger`, `ic_goat`.
+- Pieces: `ic_tiger`, `ic_goat`. Button icons: `ic_undo`, `ic_hint` (single-colour, tinted in code).
+- Decorations: `deco_prayer_flags` (header ornament), `deco_mountains` (bottom of `MountainBackdrop`). Purely decorative, never clickable, never behind or touching an ad; keep the game screen free of them.
+- Colours: app palette lives in `ui/theme/` (tiger orange = primary, goat green = secondary, sky = tertiary, light + dark). Dynamic colour is off on purpose. Tigers use primary/primaryContainer and goats secondary/secondaryContainer everywhere.
 - Sounds: sources in `design/sounds/`, converted by `scripts/convert-sounds.sh` to `res/raw/*.ogg` (mono, 44.1 kHz, Vorbis q4, silence trimmed, -18 LUFS). Never edit the .ogg files by hand.
 - Result art: `result_bg_tiger`, `result_bg_goat` (300×200); `lock_badge` marks a trapped tiger (board and Goats Win art).
 - Boards: `board_wood`, `board_stone`, `board_cloth`, all 600×600 units with identical geometry.

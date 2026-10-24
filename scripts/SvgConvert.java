@@ -25,17 +25,29 @@ import javax.imageio.ImageIO;
 public class SvgConvert {
 
     /** design/ file name -> drawable resource name. */
-    private static final Map<String, String> NAMES = new TreeMap<>(Map.of(
-            "board.svg", "board_wood",
-            "board_stone.svg", "board_stone",
-            "board_cloth.svg", "board_cloth",
-            "tiger_piece.svg", "ic_tiger",
-            "goat_piece.svg", "ic_goat",
-            "ic_launcher_background.svg", "ic_launcher_background",
-            "ic_launcher_foreground.svg", "ic_launcher_foreground",
-            "result_bg_tiger.svg", "result_bg_tiger",
-            "result_bg_goat.svg", "result_bg_goat",
-            "lock_badge.svg", "lock_badge"
+    private static final Map<String, String> NAMES = new TreeMap<>(Map.ofEntries(
+            Map.entry("board.svg", "board_wood"),
+            Map.entry("board_stone.svg", "board_stone"),
+            Map.entry("board_cloth.svg", "board_cloth"),
+            Map.entry("tiger_piece.svg", "ic_tiger"),
+            Map.entry("goat_piece.svg", "ic_goat"),
+            Map.entry("ic_launcher_background.svg", "ic_launcher_background"),
+            Map.entry("ic_launcher_foreground.svg", "ic_launcher_foreground"),
+            Map.entry("result_bg_tiger.svg", "result_bg_tiger"),
+            Map.entry("result_bg_goat.svg", "result_bg_goat"),
+            Map.entry("lock_badge.svg", "lock_badge"),
+            Map.entry("prayer_flags.svg", "deco_prayer_flags"),
+            Map.entry("mountains.svg", "deco_mountains"),
+            Map.entry("undo.svg", "ic_undo"),
+            Map.entry("hint.svg", "ic_hint"),
+            Map.entry("menu.svg", "ic_menu"),
+            Map.entry("help.svg", "ic_help"),
+            Map.entry("stats.svg", "ic_stats"),
+            Map.entry("settings.svg", "ic_settings"),
+            Map.entry("home.svg", "ic_home"),
+            Map.entry("mode_vs_ai.svg", "ic_mode_vs_ai"),
+            Map.entry("mode_vs_player.svg", "ic_mode_vs_player"),
+            Map.entry("mode_online.svg", "ic_mode_online")
     ));
 
     /** mipmap density -> legacy launcher icon size in px (48dp). */

@@ -1,9 +1,20 @@
 package com.matinstudios.baghchal.ui.screens
 
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.Color
+import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +62,9 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 fun GameScreen(
     onMenu: () -> Unit,
     onGameWon: (GameResult) -> Unit,
+    onHowToPlay: () -> Unit,
+    onStats: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(factory = GameViewModel.Factory),
 ) {
@@ -68,22 +82,37 @@ fun GameScreen(
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     val undoNeedsAd by viewModel.undoNeedsAd.collectAsStateWithLifecycle()
     val hintNeedsAd by viewModel.hintNeedsAd.collectAsStateWithLifecycle()
-    GameContent(
-        uiState = uiState,
-        boardTheme = boardTheme,
-        undoNeedsAd = undoNeedsAd,
-        hintNeedsAd = hintNeedsAd,
-        onPointTapped = viewModel::onPointTapped,
-        onUndo = viewModel::onUndo,
-        onHint = viewModel::onHint,
-        onNewGame = viewModel::onNewGame,
-        onMenu = onMenu,
-        modifier = modifier,
-        banner = { if (showBanner) BannerAd(BannerPlacement.GAME) },
+    val menuItems = listOf(
+        AppMenuItem(R.string.menu_home, R.drawable.ic_home, onMenu),
+        AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
+        AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
+        AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
+    Column(modifier.fillMaxSize()) {
+        AppMenuDrawer(menuItems, Modifier.weight(1f)) { openMenu ->
+            GameContent(
+                uiState = uiState,
+                boardTheme = boardTheme,
+                undoNeedsAd = undoNeedsAd,
+                hintNeedsAd = hintNeedsAd,
+                onPointTapped = viewModel::onPointTapped,
+                onUndo = viewModel::onUndo,
+                onHint = viewModel::onHint,
+                onNewGame = viewModel::onNewGame,
+                onMenu = onMenu,
+                onOpenMenu = openMenu,
+            )
+        }
+        // Outside the drawer so the menu never covers the ad; kept well away from the board and buttons.
+        if (showBanner) BannerAd(BannerPlacement.GAME, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+    }
 }
 
-/** @param banner the ad slot at the very bottom, kept well away from the board and buttons. */
+/**
+ * @param onMenu leaves the game for Home; @param onOpenMenu opens the side menu.
+ * @param localControls Undo / Hint, and Menu / New game after a draw; off for online games.
+ * @param statusNote replaces the phase line under the turn badge while the game is on.
+ */
 @Composable
 fun GameContent(
     uiState: GameUiState,
@@ -96,7 +125,9 @@ fun GameContent(
     onNewGame: () -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
-    banner: @Composable () -> Unit = {},
+    onOpenMenu: () -> Unit = {},
+    localControls: Boolean = true,
+    statusNote: String? = null,
 ) {
     val game = uiState.game
     Column(
@@ -106,7 +137,11 @@ fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
-        StatusLine(uiState)
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            AppMenuButton(onOpenMenu, Modifier.align(Alignment.CenterStart))
+            // Side padding keeps the centred status clear of the menu button.
+            StatusLine(uiState, statusNote, Modifier.padding(horizontal = 48.dp))
+        }
         BoardCanvas(
             board = game.board,
             theme = boardTheme,
@@ -130,23 +165,54 @@ fun GameContent(
             Counter(R.drawable.ic_tiger, stringResource(R.string.goats_captured, game.goatsCaptured, GOATS_TO_WIN))
         }
         // Wins move on to the result screen; only draws end here.
-        if (uiState.status is GameStatus.Drawn) {
+        // Online games have no Undo / Hint, and their own end-of-game dialog.
+        if (localControls && uiState.status is GameStatus.Drawn) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onMenu) { Text(stringResource(R.string.menu)) }
                 Button(onClick = onNewGame) { Text(stringResource(R.string.new_game)) }
             }
-        } else {
+        } else if (localControls) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onUndo, enabled = uiState.canUndo) {
-                    Text(assistLabel(R.string.undo, undoNeedsAd))
-                }
-                OutlinedButton(onClick = onHint, enabled = uiState.canHint) {
-                    Text(assistLabel(R.string.hint, hintNeedsAd))
-                }
+                AssistButton(
+                    onClick = onUndo,
+                    enabled = uiState.canUndo,
+                    icon = R.drawable.ic_undo,
+                    text = assistLabel(R.string.undo, undoNeedsAd),
+                    container = MaterialTheme.colorScheme.tertiaryContainer,
+                    content = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+                AssistButton(
+                    onClick = onHint,
+                    enabled = uiState.canHint,
+                    icon = R.drawable.ic_hint,
+                    text = assistLabel(R.string.hint, hintNeedsAd),
+                    container = BaghchalThemeExtras.colors.hintContainer,
+                    content = BaghchalThemeExtras.colors.onHintContainer,
+                )
             }
         }
-        Spacer(Modifier.height(4.dp))
-        banner()
+    }
+}
+
+/** Undo / Hint: a tinted button with a leading icon. */
+@Composable
+private fun AssistButton(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    @DrawableRes icon: Int,
+    text: String,
+    container: Color,
+    content: Color,
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        enabled = enabled,
+        colors = ButtonDefaults.filledTonalButtonColors(containerColor = container, contentColor = content),
+        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+    ) {
+        Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+        Text(text)
     }
 }
 
@@ -155,23 +221,27 @@ fun GameContent(
 private fun assistLabel(@StringRes label: Int, needsAd: Boolean): String =
     if (needsAd) stringResource(R.string.with_ad, stringResource(label)) else stringResource(label)
 
-private val HapticCue.hapticType: HapticFeedbackType
+internal val HapticCue.hapticType: HapticFeedbackType
     get() = when (this) {
         HapticCue.GOAT_PLACED -> HapticFeedbackType.ContextClick
         HapticCue.GOAT_CAPTURED -> HapticFeedbackType.LongPress
     }
 
 @Composable
-private fun StatusLine(uiState: GameUiState) {
+private fun StatusLine(uiState: GameUiState, note: String?, modifier: Modifier = Modifier) {
     val status = uiState.status
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         val headline = when (status) {
             GameStatus.InProgress -> stringResource(
                 if (uiState.game.sideToMove == Side.TIGER) R.string.turn_tigers else R.string.turn_goats,
             )
             else -> resultText(status)
         }
-        Text(headline, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        if (status == GameStatus.InProgress) {
+            TurnBadge(uiState.game.sideToMove, headline)
+        } else {
+            Text(headline, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        }
         Row(
             modifier = Modifier.height(24.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -184,9 +254,34 @@ private fun StatusLine(uiState: GameUiState) {
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {
-                Text(subtitle(uiState), style = MaterialTheme.typography.bodyMedium)
+                val text = note.takeIf { status == GameStatus.InProgress } ?: subtitle(uiState)
+                Text(text, style = MaterialTheme.typography.bodyMedium)
             }
         }
+    }
+}
+
+/** Whose turn, in that side's colour with its piece: orange for tigers, green for goats. */
+@Composable
+private fun TurnBadge(side: Side, text: String) {
+    val colors = MaterialTheme.colorScheme
+    val isTiger = side == Side.TIGER
+    val container by animateColorAsState(if (isTiger) colors.primaryContainer else colors.secondaryContainer, label = "turn")
+    val content by animateColorAsState(if (isTiger) colors.onPrimaryContainer else colors.onSecondaryContainer, label = "turn text")
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(container)
+            .padding(start = 8.dp, end = 20.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Image(
+            painterResource(if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat),
+            contentDescription = null,
+            modifier = Modifier.size(36.dp),
+        )
+        Text(text, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = content)
     }
 }
 
@@ -220,7 +315,14 @@ private fun resultText(status: GameStatus): String = when (status) {
 
 @Composable
 private fun Counter(@DrawableRes icon: Int, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(start = 6.dp, end = 14.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(32.dp))
         Text(text, style = MaterialTheme.typography.titleMedium)
     }

@@ -7,6 +7,50 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-25 (20) — online play (Firebase)
+
+### Done
+- **Home** has a third card, **Play online** (sky blue, `ic_mode_online` from `design/mode_online.svg`). Home content now starts 52dp down so the ☰ button never sits on the prayer flags.
+- **Lobby** (`OnlineLobbyScreen` + `OnlineLobbyViewModel`): Quick match (random opponent, random sides), Create game (host picks Goats/Tigers, gets a 4-digit code, Share code via the Android share sheet, waits), Join a friend's game (4-digit field). Errors show as snackbars (no connection / no game with that code / already started / need 4 digits).
+- **Online game** (`OnlineGameScreen` + `OnlineGameViewModel`): same board UI (`GameContent` with `localControls = false`, so no Undo/Hint), turn note "You play Goats · Your turn", same side menu. Back/Home before the end asks "Leave the game?" (leaving = resign). End dialog after 1.2 s: You won / You lost / Draw + reason, Play again (back to lobby) or Home; leaving it calls `ads.onGameFinished()` (interstitial cap as usual). Opponent disconnected for 45 s ⇒ you win.
+- **Backend** (`online/`): `OnlineService` interface; `FirebaseOnlineService` (anonymous Auth + Realtime Database); `NoOnline` when Firebase isn't configured or in instrumented tests. Pure, unit-tested parts: `MoveCodec` ("P12", "S0,1", "J0,1,2"), `RoomCode`, `RoomSnapshot`, `OnlineReplay` (each phone checks every move with the engine: legal, in turn, from the right player), `OnlineSession` + `onlineEndFor` in `ui/screens/OnlineSession.kt`.
+- Matchmaking is all transactions: `lobby/random` holds the one waiting random room (refreshed every 20 s, stale after 60 s); `codes/{4 digits}` → private room (stale after 6 h); joining = transaction on the room (only if waiting, no guest, host connected). Security rules: `firebase/database.rules.json`.
+- Libraries (approved: Firebase): firebase-bom **34.19.0** (35.x needs Kotlin 2.4 metadata; project is on Kotlin 2.2.10), firebase-auth, firebase-database, google-services plugin 4.5.0 — applied **only if `app/google-services.json` exists**, so the build stays green without it.
+- Tests: +16 unit (OnlineRulesTest, OnlineSessionTest, OnlineLobbyViewModelTest), +6 UI (OnlineScreensTest, AppFlowTest unavailable case). All unit + 50 UI tests pass. Lobby/board checked visually; **real online play has not been run yet** (no Firebase project).
+
+### To turn it on (needs you)
+1. Firebase console → create project → add Android app `com.matinstudios.baghchal` (add debug + release SHA-1 later if needed) → download `google-services.json` into `app/`.
+2. Authentication → Sign-in method → enable **Anonymous**.
+3. Realtime Database → create (pick a region) → Rules → paste `firebase/database.rules.json` → Publish.
+4. Build, install on two devices/emulators, try Quick match and a private code.
+
+### Known gaps / next
+- Rooms are never deleted (closed/finished ones pile up); add a cleanup (scheduled Cloud Function or TTL sweep) before launch.
+- No turn timer: a connected opponent can stall forever (only disconnects are timed out).
+- Online games don't count in Stats and aren't saved/resumed (leaving the app for long = disconnected = loss after 45 s).
+- No server-side referee: both phones validate, so a cheat can only make the cheater lose on the honest phone.
+- Play Data safety form: add Firebase (app instance/user IDs for anonymous auth, game data).
+- New strings need Hindi/Odia/Nepali.
+
+## Session 2026-10-25 (19) — hamburger menu (Home + game)
+
+- **Game screen** has the same menu (button left of the turn badge) with an extra **Home** item (`menu_home`, `ic_home` from `design/home.svg`); Stats/Settings/How to play open on top of the game and Back returns to it (game results are a buffered channel, so a win while away still shows on return). The game banner moved out of `GameContent` into `GameScreen`, below the drawer, so the menu never covers it. `GameContent` lost its `banner` param and gained `onOpenMenu`. Test: `gameMenuOpensSettingsAndKeepsTheGame`.
+- Home mode cards have their own icons instead of the tiger/goat heads: `design/mode_vs_ai.svg` → `ic_mode_vs_ai` (person + friendly robot), `design/mode_vs_player.svg` → `ic_mode_vs_player` (two people in tiger orange and goat green). Same outline colour/width as the pieces.
+- Menu code renamed to `ui/screens/AppMenu.kt` (`AppMenuDrawer`, `AppMenuButton`, `AppMenuItem`).
+
+- Home has a hamburger button (top-left) that opens a side drawer (`ui/screens/HomeMenu.kt`: `HomeMenuDrawer`, `HomeMenuButton`) with How to play, Stats and Settings. It replaces the row of text links at the bottom of Home. The drawer covers only the Home content, never the banner below it. Back closes it; picking an item closes it, then navigates.
+- New icons from Material icon paths (Apache 2.0): `design/menu.svg`, `help.svg`, `stats.svg`, `settings.svg` → `ic_menu`, `ic_help`, `ic_stats`, `ic_settings`. New string `home_menu` ("Menu", the button's TalkBack label).
+- The closed drawer stays in the semantics tree off-screen, so UI tests check visibility rather than existence for its labels. AppFlowTest goes through the menu (`openMenuItem`) and has a new `menuOpensStatsAndBackClosesIt`. All unit + UI tests pass on Medium_Phone.
+
+## Session 2026-10-25 (18) — colour and decorations
+
+- Root cause of the grey look: template theme with dynamic (wallpaper) colour. Replaced with a Bagh Chal palette in `ui/theme/Color.kt` + `Theme.kt` (light and dark), dynamic colour removed; `GameColors` (via `BaghchalThemeExtras.colors`) adds difficulty accents and decoration alphas. Window background matches (`values/colors.xml`, `values-night/colors.xml`), so no white flash at launch.
+- New art in `design/`: `prayer_flags.svg` → `deco_prayer_flags`, `mountains.svg` → `deco_mountains`. `SvgConvert.java` name table moved to `Map.ofEntries` (`Map.of` caps at 10 entries).
+- `ui/theme/Scenery.kt`: `MountainBackdrop` (gradient + mountains, used on Welcome and Home, banner kept outside it) and `PrayerFlags` (header on Welcome intro, Home, AI setup).
+- Home: orange "Player vs AI" card with tiger, green "Player vs Player" card with goat, sky-blue Resume card, title in primary. AI setup: selected side card fills with that side's colour; difficulty rows have green/amber/red accents and 1–3 strength bars. Game: turn shown as a coloured badge with the side's piece; counters in tinted pills. Board, pieces and ad slots unchanged.
+- Undo / Hint are tinted icon buttons (`AssistButton` in GameScreen): Undo sky blue (tertiaryContainer) with `ic_undo`, Hint amber (`GameColors.hintContainer`) with `ic_hint`; icons from `design/undo.svg`, `design/hint.svg` (Material icon paths, Apache 2.0). "(ad)" label kept for AdMob.
+- Checked light + dark on the Medium_Phone emulator; all unit + UI tests pass.
+
 ## Session 2026-10-25 (17) — welcome tutorial + new start flow
 
 - New flow: **Welcome tutorial** (first launch only) → **Home / mode select** (Player vs AI, Player vs Player) → **AI setup** (play as Goats/Tigers + Easy/Medium/Hard, Start) → game. Player vs Player goes straight to the game.
@@ -14,7 +58,7 @@
 - `AppViewModel` reads `tutorialSeen` once per launch to pick the nav start destination (welcome vs home); app shows blank until it's read.
 - `AiSetupScreen` (no view model; choices are `rememberSaveable`, default Goats/Medium). Starting a game pops back to Home, so Back from the game shows Resume.
 - Home lost the inline side/difficulty pickers. Removed strings `home_vs_computer`, `home_play`, `home_two_player`.
-- Tests: `WelcomeFlowTest` (Next through all pages; Skip), new AppFlowTest case for AI setup, `tutorialSeen` repository test. `AppFlowTest` marks the tutorial seen in its reset. All unit + 44 UI tests pass on the Medium_Phone emulator.
+- Tests: `WelcomeFlowTest` (Next through all pages; Skip), new AppFlowTest case for AI setup, `tutorialSeen` repository test. `AppFlowTest` marks the tutorial seen in its reset. All unit + 43 UI tests pass on the Medium_Phone emulator.
 - New strings need Hindi/Odia/Nepali translations when those locales are added.
 
 ## Session 2026-10-25 (16) — piece size balance

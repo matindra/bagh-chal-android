@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// Online play needs the Firebase config from the Firebase console. Without it the app still builds
+// and runs; online play just reports that it isn't available.
+if (file("google-services.json").exists()) {
+    apply(plugin = libs.plugins.google.services.get().pluginId)
+}
+
 /** Untracked per-machine settings; real AdMob IDs live here, never in source. */
 val localProperties = Properties().apply {
     providers.fileContents(rootProject.layout.projectDirectory.file("local.properties")).asText.orNull
@@ -52,7 +58,7 @@ android {
         applicationId = "com.matinstudios.baghchal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "com.matinstudios.baghchal.BaghchalTestRunner"
@@ -99,6 +105,9 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.ump)
     implementation(libs.billing.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlin.test.junit5)

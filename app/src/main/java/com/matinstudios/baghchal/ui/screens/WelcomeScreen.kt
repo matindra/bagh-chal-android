@@ -45,6 +45,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
+import com.matinstudios.baghchal.ui.theme.MountainBackdrop
+import com.matinstudios.baghchal.ui.theme.PrayerFlags
 import kotlinx.coroutines.launch
 
 /** An intro page followed by one page per rule. */
@@ -74,47 +76,50 @@ fun WelcomeContent(boardTheme: BoardTheme, onFinished: () -> Unit, modifier: Mod
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == WELCOME_PAGE_COUNT - 1
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            // Hidden (but still taking space) on the last page, where the main button already starts the game.
-            TextButton(
-                onClick = onFinished,
-                enabled = !isLastPage,
-                modifier = Modifier.alpha(if (isLastPage) 0f else 1f),
-            ) { Text(stringResource(R.string.welcome_skip)) }
-        }
-
-        HorizontalPager(pagerState, Modifier.weight(1f).fillMaxWidth()) { page ->
-            if (page == 0) {
-                IntroPage()
-            } else {
-                RulePage(stepNumber = page, step = HOW_TO_PLAY_STEPS[page - 1], boardTheme = boardTheme)
+    MountainBackdrop(modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                // Hidden (but still taking space) on the last page, where the main button already starts the game.
+                TextButton(
+                    onClick = onFinished,
+                    enabled = !isLastPage,
+                    modifier = Modifier.alpha(if (isLastPage) 0f else 1f),
+                ) { Text(stringResource(R.string.welcome_skip)) }
             }
-        }
 
-        PageDots(current = pagerState.currentPage, count = WELCOME_PAGE_COUNT, Modifier.padding(vertical = 16.dp))
-
-        Button(
-            onClick = {
-                if (isLastPage) {
-                    onFinished()
+            HorizontalPager(pagerState, Modifier.weight(1f).fillMaxWidth()) { page ->
+                if (page == 0) {
+                    IntroPage()
                 } else {
-                    scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    RulePage(stepNumber = page, step = HOW_TO_PLAY_STEPS[page - 1], boardTheme = boardTheme)
                 }
-            },
-            modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-        ) { Text(stringResource(if (isLastPage) R.string.welcome_start else R.string.welcome_next)) }
+            }
+
+            PageDots(current = pagerState.currentPage, count = WELCOME_PAGE_COUNT, Modifier.padding(vertical = 16.dp))
+
+            Button(
+                onClick = {
+                    if (isLastPage) {
+                        onFinished()
+                    } else {
+                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    }
+                },
+                modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
+            ) { Text(stringResource(if (isLastPage) R.string.welcome_start else R.string.welcome_next)) }
+        }
     }
 }
 
 @Composable
 private fun IntroPage() {
     WelcomePage {
+        PrayerFlags()
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(96.dp))
             Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(96.dp))
@@ -124,6 +129,7 @@ private fun IntroPage() {
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.semantics { heading() },
         )
         Text(
@@ -141,7 +147,11 @@ private fun RulePage(stepNumber: Int, step: HowToPlayStep, boardTheme: BoardThem
         Text(
             stringResource(R.string.welcome_step_count, stepNumber, HOW_TO_PLAY_STEPS.size),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 12.dp, vertical = 4.dp),
         )
         Text(
             stringResource(step.title),
@@ -186,7 +196,7 @@ private fun PageDots(current: Int, count: Int, modifier: Modifier = Modifier) {
             val selected = index == current
             val width by animateDpAsState(if (selected) 24.dp else 8.dp, label = "dot width")
             val color by animateColorAsState(
-                if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 label = "dot color",
             )
             Box(

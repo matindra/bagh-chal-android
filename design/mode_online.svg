@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <!-- Play online: a globe with two players on opposite sides, linked across it. -->
+  <circle cx="50" cy="48" r="30" fill="#8EC5E8" stroke="#3A2416" stroke-width="3.6"/>
+  <path d="M33 30 Q40 26 46 31 Q44 38 37 38 Q31 37 33 30 Z" fill="#6DB35F"/>
+  <path d="M52 44 Q62 40 70 46 Q72 56 64 62 Q56 64 55 56 Q50 50 52 44 Z" fill="#6DB35F"/>
+  <path d="M28 52 Q34 50 38 56 Q36 62 30 62 Q26 58 28 52 Z" fill="#6DB35F"/>
+  <ellipse cx="50" cy="48" rx="13" ry="30" fill="none" stroke="#3A2416" stroke-width="2.4"/>
+  <line x1="20" y1="48" x2="80" y2="48" stroke="#3A2416" stroke-width="2.4"/>
+
+  <path d="M4 96 Q4 78 17 78 Q30 78 30 96 Z" fill="#F29A3A" stroke="#3A2416" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="17" cy="68" r="9" fill="#F6CFA6" stroke="#3A2416" stroke-width="3"/>
+  <path d="M70 96 Q70 78 83 78 Q96 78 96 96 Z" fill="#6DB35F" stroke="#3A2416" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="83" cy="68" r="9" fill="#E9B98C" stroke="#3A2416" stroke-width="3"/>
+  <path d="M28 64 Q50 90 72 64" fill="none" stroke="#E8862A" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
+</svg>
