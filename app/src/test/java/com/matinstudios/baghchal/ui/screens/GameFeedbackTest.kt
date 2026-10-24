@@ -47,9 +47,9 @@ class GameFeedbackTest {
     // --- Sounds for moves ---
 
     @Test
-    fun `placing a goat plays place and a light haptic`() {
+    fun `placing a goat plays move and a light haptic`() {
         val before = GameInteraction.newGame()
-        assertEquals(Feedback(HapticCue.GOAT_PLACED, SoundEffect.PLACE), feedbackFor(before, before.tap(12), all))
+        assertEquals(Feedback(HapticCue.GOAT_PLACED, SoundEffect.MOVE), feedbackFor(before, before.tap(12), all))
     }
 
     @Test
@@ -82,7 +82,7 @@ class GameFeedbackTest {
             aiSide = null,
         )
         assertEquals(setOf(0), before.trappedTigers)
-        assertEquals(SoundEffect.PLACE, sound(before, Move.Place(18)))
+        assertEquals(SoundEffect.MOVE, sound(before, Move.Place(18)))
     }
 
     // --- Game end ---
@@ -112,7 +112,7 @@ class GameFeedbackTest {
             aiSide,
         )
         assertEquals(SoundEffect.PLAYER_WIN, sound(nearMoveLimit(aiSide = null), Move.Place(7)))
-        assertEquals(SoundEffect.PLACE, sound(nearMoveLimit(aiSide = Side.TIGER), Move.Place(7)))
+        assertEquals(SoundEffect.MOVE, sound(nearMoveLimit(aiSide = Side.TIGER), Move.Place(7)))
     }
 
     // --- Settings and non-moves ---
@@ -122,7 +122,7 @@ class GameFeedbackTest {
         val before = GameInteraction.newGame()
         val after = before.tap(12)
         assertEquals(
-            Feedback(haptic = null, sound = SoundEffect.PLACE),
+            Feedback(haptic = null, sound = SoundEffect.MOVE),
             feedbackFor(before, after, Settings(soundEnabled = true, hapticsEnabled = false)),
         )
         assertEquals(

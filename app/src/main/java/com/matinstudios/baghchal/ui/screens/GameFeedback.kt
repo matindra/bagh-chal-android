@@ -37,8 +37,7 @@ private fun soundFor(previous: GameUiState, current: GameUiState, move: Move): S
     }
     if ((current.trappedTigers - previous.trappedTigers).isNotEmpty()) return SoundEffect.GOAT_CAPTURE
     return when (move) {
-        is Move.Place -> SoundEffect.PLACE
-        is Move.Step -> SoundEffect.MOVE
+        is Move.Place, is Move.Step -> SoundEffect.MOVE
         is Move.Jump -> SoundEffect.TIGER_CAPTURE
     }
 }

@@ -7,6 +7,10 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-24 (13) — drop the place sound
+- Placing a goat now plays `move` like any step; `place.ogg` and `SoundEffect.PLACE` removed and
+  `place.wav` dropped from `scripts/convert-sounds.sh` (`design/sounds/place.wav` kept as an unused source).
+
 ## Session 2026-10-24 (12) — sound effects
 
 ### Done
@@ -16,19 +20,17 @@
   libvorbis, so `brew install vorbis-tools`). Output is reproducible (fixed Ogg serial).
   `play_win.wav` is mapped to `player_win.ogg`.
 - `ui/sound/SoundPlayer.kt`: `SoundEffect` enum + `SoundPoolPlayer` (USAGE_GAME, 4 streams), created
-  in `AppContainer` at app start so all six sounds preload. `MainActivity.onStart/onStop` set
+  in `AppContainer` at app start so all sounds preload. `MainActivity.onStart/onStop` set
   foreground; in the background nothing plays and current sounds are paused.
 - `GameFeedback.kt`: one sound per move by priority: game end (vs computer: player_win if the player
   won, player_lose if not; 2-player: always player_win) > a tiger newly trapped (goat_capture) >
-  tiger_capture / place / move. Draws vs the computer just play the move sound. Filtered by the
+  tiger_capture / move. Draws vs the computer just play the move sound. Filtered by the
   Sound setting; haptics unchanged (now `HapticCue`). The ViewModel plays sounds directly.
 - Tests: `GameFeedbackTest` rewritten (13). 117 unit + 31 instrumented, all green.
 - Checked on emulator via `dumpsys audio`: SoundPool registered at startup, one `started` event per
   move, none while backgrounded (computer moved), none with Sound off, back on when re-enabled.
 
 ### Known issues
-- **`design/sounds/place.wav` is a ~2 ms click followed by 1.5 s of digital silence**, so
-  `place.ogg` is a 7 ms tick. Probably not the intended sound; replace the source and rerun the script.
 - Haptic cues are still delivered for moves made while backgrounded (sound is not).
 
 ## Session 2026-10-24 (11) — How to Play

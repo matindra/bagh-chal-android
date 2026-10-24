@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 /** Sound effects in `res/raw` (generated from design/sounds by scripts/convert-sounds.sh). */
 enum class SoundEffect(@get:RawRes val resource: Int) {
-    PLACE(R.raw.place),
     MOVE(R.raw.move),
     TIGER_CAPTURE(R.raw.tiger_capture),
     GOAT_CAPTURE(R.raw.goat_capture),

@@ -18,7 +18,6 @@ QUALITY=4
 
 # source file : resource name
 SOUNDS="
-place.wav:place
 move.mp3:move
 tiger_capture.wav:tiger_capture
 goat_capture.wav:goat_capture
