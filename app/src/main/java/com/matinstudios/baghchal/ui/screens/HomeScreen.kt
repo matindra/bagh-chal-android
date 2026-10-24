@@ -1,5 +1,6 @@
 package com.matinstudios.baghchal.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,23 +14,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,6 +43,7 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
 fun HomeScreen(
+    onPlayVsAi: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onStats: () -> Unit,
@@ -57,14 +55,16 @@ fun HomeScreen(
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     Column(modifier.fillMaxSize()) {
-        HomeContent(savedGame, onStartGame, onResume, onStats, onSettings, onHowToPlay, Modifier.weight(1f))
+        HomeContent(savedGame, onPlayVsAi, onStartGame, onResume, onStats, onSettings, onHowToPlay, Modifier.weight(1f))
         if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp))
     }
 }
 
+/** Home: resume a saved game, or choose Player vs AI / Player vs Player. */
 @Composable
 fun HomeContent(
     savedGame: SavedGame?,
+    onPlayVsAi: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onStats: () -> Unit,
@@ -72,9 +72,6 @@ fun HomeContent(
     onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var humanSide by rememberSaveable { mutableStateOf(Side.GOAT) }
-    var difficulty by rememberSaveable { mutableStateOf(Difficulty.MEDIUM) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -99,49 +96,32 @@ fun HomeContent(
         ) {
             if (savedGame != null) ResumeCard(savedGame, onResume)
 
-            Text(stringResource(R.string.home_vs_computer), style = MaterialTheme.typography.titleLarge)
+            Text(
+                stringResource(R.string.mode_title),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() },
+            )
+            ModeCard(R.string.mode_vs_ai, R.string.mode_vs_ai_detail, onPlayVsAi)
+            ModeCard(R.string.mode_vs_player, R.string.mode_vs_player_detail) { onStartGame(GameSetup.TWO_PLAYER) }
 
-            Text(stringResource(R.string.home_play_as), style = MaterialTheme.typography.labelLarge)
-            val sides = listOf(Side.GOAT to R.string.side_goats, Side.TIGER to R.string.side_tigers)
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                sides.forEachIndexed { index, (side, label) ->
-                    SegmentedButton(
-                        selected = humanSide == side,
-                        onClick = { humanSide = side },
-                        shape = SegmentedButtonDefaults.itemShape(index, sides.size),
-                    ) { Text(stringResource(label)) }
-                }
-            }
-
-            Text(stringResource(R.string.home_difficulty), style = MaterialTheme.typography.labelLarge)
-            val levels = Difficulty.entries
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                levels.forEachIndexed { index, level ->
-                    SegmentedButton(
-                        selected = difficulty == level,
-                        onClick = { difficulty = level },
-                        shape = SegmentedButtonDefaults.itemShape(index, levels.size),
-                    ) { Text(stringResource(level.label)) }
-                }
-            }
-
-            Button(
-                onClick = { onStartGame(GameSetup.vsComputer(humanSide, difficulty)) },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.home_play)) }
-
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-
-            OutlinedButton(
-                onClick = { onStartGame(GameSetup.TWO_PLAYER) },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.home_two_player)) }
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 TextButton(onClick = onHowToPlay) { Text(stringResource(R.string.home_how_to_play)) }
                 TextButton(onClick = onStats) { Text(stringResource(R.string.home_stats)) }
                 TextButton(onClick = onSettings) { Text(stringResource(R.string.home_settings)) }
             }
+        }
+    }
+}
+
+@Composable
+private fun ModeCard(@StringRes title: Int, @StringRes detail: Int, onClick: () -> Unit) {
+    ElevatedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(stringResource(detail), style = MaterialTheme.typography.bodyMedium)
+            }
+            Text("›", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.clearAndSetSemantics {})
         }
     }
 }
@@ -185,5 +165,5 @@ internal val Difficulty.label: Int
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BaghchalTheme { HomeContent(savedGame = null, onStartGame = {}, onResume = {}, onStats = {}, onSettings = {}, onHowToPlay = {}) }
+    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onStartGame = {}, onResume = {}, onStats = {}, onSettings = {}, onHowToPlay = {}) }
 }

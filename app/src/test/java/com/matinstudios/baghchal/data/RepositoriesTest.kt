@@ -111,6 +111,14 @@ class RepositoriesTest {
     }
 
     @Test
+    fun `tutorial starts unseen and remembers being seen`() = runBlocking {
+        val store = dataStore()
+        assertEquals(false, SettingsRepository(store).tutorialSeen.first())
+        SettingsRepository(store).setTutorialSeen(true)
+        assertEquals(true, SettingsRepository(store).tutorialSeen.first())
+    }
+
+    @Test
     fun `settings default to on and persist changes`() = runBlocking {
         val repository = SettingsRepository(dataStore())
         assertEquals(Settings(soundEnabled = true, hapticsEnabled = true), repository.settings.first())

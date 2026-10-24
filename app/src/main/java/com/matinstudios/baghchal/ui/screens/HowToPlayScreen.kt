@@ -67,15 +67,7 @@ fun HowToPlayContent(boardTheme: BoardTheme, onBack: () -> Unit, modifier: Modif
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.semantics { heading() },
                     )
-                    val picture = stringResource(step.illustrationDescription)
-                    RuleBoard(
-                        illustration = step.illustration,
-                        theme = boardTheme,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .semantics { contentDescription = picture },
-                    )
+                    RulePicture(step, boardTheme, Modifier.fillMaxWidth())
                     Text(stringResource(step.body), style = MaterialTheme.typography.bodyLarge)
                 }
             }
@@ -89,6 +81,19 @@ fun HowToPlayContent(boardTheme: BoardTheme, onBack: () -> Unit, modifier: Modif
         )
         OutlinedButton(onClick = onBack) { Text(stringResource(R.string.back)) }
     }
+}
+
+/** The step's mini board, described for screen readers. */
+@Composable
+internal fun RulePicture(step: HowToPlayStep, boardTheme: BoardTheme, modifier: Modifier = Modifier) {
+    val picture = stringResource(step.illustrationDescription)
+    RuleBoard(
+        illustration = step.illustration,
+        theme = boardTheme,
+        modifier = modifier
+            .aspectRatio(1f)
+            .semantics { contentDescription = picture },
+    )
 }
 
 @Preview(showBackground = true, heightDp = 2000)

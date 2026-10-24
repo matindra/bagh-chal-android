@@ -7,6 +7,21 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-25 (17) — welcome tutorial + new start flow
+
+- New flow: **Welcome tutorial** (first launch only) → **Home / mode select** (Player vs AI, Player vs Player) → **AI setup** (play as Goats/Tigers + Easy/Medium/Hard, Start) → game. Player vs Player goes straight to the game.
+- `WelcomeScreen`: `HorizontalPager` with an intro page + one page per `HOW_TO_PLAY_STEPS` rule (reuses `RulePicture`, now shared with How to Play), page dots, Skip / Next / Let's play. Finishing or skipping stores `tutorial_seen` (`SettingsRepository.tutorialSeen`, written via `SerialWriter`).
+- `AppViewModel` reads `tutorialSeen` once per launch to pick the nav start destination (welcome vs home); app shows blank until it's read.
+- `AiSetupScreen` (no view model; choices are `rememberSaveable`, default Goats/Medium). Starting a game pops back to Home, so Back from the game shows Resume.
+- Home lost the inline side/difficulty pickers. Removed strings `home_vs_computer`, `home_play`, `home_two_player`.
+- Tests: `WelcomeFlowTest` (Next through all pages; Skip), new AppFlowTest case for AI setup, `tutorialSeen` repository test. `AppFlowTest` marks the tutorial seen in its reset. All unit + 44 UI tests pass on the Medium_Phone emulator.
+- New strings need Hindi/Odia/Nepali translations when those locales are added.
+
+## Session 2026-10-25 (16) — piece size balance
+
+- Goat looked bigger than the tiger (goat filled ~90% of its 100×100 canvas, tiger only ~62%). Rescaled in `design/`: tiger group `scale(0.82)` → `0.9`, goat wrapped in a `scale(0.85)` group; both centred on (50, 54). Regenerated `ic_tiger` / `ic_goat` with `scripts/convert-svgs.sh`.
+- Not yet checked on a device.
+
 ## Session 2026-10-25 (15) — ad units per placement
 - local.properties keys are now `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`,
   `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`,

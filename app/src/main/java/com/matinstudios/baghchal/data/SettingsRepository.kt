@@ -32,6 +32,15 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             )
         }
 
+    /** Whether the first-launch welcome tutorial has been finished or skipped. */
+    val tutorialSeen: Flow<Boolean> = dataStore.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map { it[TUTORIAL_SEEN] ?: false }
+
+    suspend fun setTutorialSeen(seen: Boolean) {
+        dataStore.edit { it[TUTORIAL_SEEN] = seen }
+    }
+
     suspend fun setSoundEnabled(enabled: Boolean) {
         dataStore.edit { it[SOUND] = enabled }
     }
@@ -48,5 +57,6 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val SOUND = booleanPreferencesKey("settings_sound")
         val HAPTICS = booleanPreferencesKey("settings_haptics")
         val BOARD_THEME = stringPreferencesKey("settings_board_theme")
+        val TUTORIAL_SEEN = booleanPreferencesKey("tutorial_seen")
     }
 }

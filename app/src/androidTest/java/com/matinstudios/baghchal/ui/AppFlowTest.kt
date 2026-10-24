@@ -55,6 +55,7 @@ class AppFlowTest {
                 container.settings.setHapticsEnabled(true)
                 container.settings.setBoardTheme(BoardTheme.WOOD)
                 container.entitlements.reset()
+                container.settings.setTutorialSeen(true)
             }
         }
     }
@@ -82,16 +83,30 @@ class AppFlowTest {
     }
 
     private fun startTwoPlayer() {
-        text(R.string.home_two_player).performScrollTo().performClick()
+        text(R.string.mode_vs_player).performScrollTo().performClick()
         waitForText(R.string.turn_goats)
     }
 
     @Test
     fun homeToTwoPlayerGame() {
-        text(R.string.home_vs_computer).assertIsDisplayed()
+        text(R.string.mode_vs_ai).assertIsDisplayed()
         startTwoPlayer()
         text(R.string.goats_in_hand, 20).assertIsDisplayed()
         point(0).assertContentDescriptionEquals(str(R.string.point_description, 1, 1, str(R.string.point_tiger)))
+    }
+
+    @Test
+    fun playerVsAiOffersSidesAndDifficultiesAndBackReturnsHome() {
+        text(R.string.mode_vs_ai).performScrollTo().performClick()
+        waitForText(R.string.ai_setup_start)
+        text(R.string.side_goats).assertIsSelected()
+        text(R.string.difficulty_medium).assertIsSelected()
+        text(R.string.difficulty_easy).performClick()
+        text(R.string.difficulty_easy).assertIsSelected()
+        text(R.string.difficulty_medium).assertIsNotSelected()
+
+        text(R.string.back).performScrollTo().performClick()
+        waitForText(R.string.mode_vs_player)
     }
 
     @Test
@@ -100,7 +115,7 @@ class AppFlowTest {
         waitForText(R.string.rules_title)
         text(R.string.rules_goal).assertIsDisplayed()
         Espresso.pressBack()
-        waitForText(R.string.home_vs_computer)
+        waitForText(R.string.mode_vs_player)
     }
 
     @Test
@@ -121,12 +136,14 @@ class AppFlowTest {
 
     @Test
     fun playingTigersTheComputerMovesFirstWhileShowingTheThinkingIndicator() {
+        text(R.string.mode_vs_ai).performScrollTo().performClick()
+        waitForText(R.string.ai_setup_start)
         text(R.string.side_tigers).performClick()
-        text(R.string.difficulty_hard).performClick()
-        text(R.string.home_play).performScrollTo()
+        text(R.string.difficulty_hard).performScrollTo().performClick()
+        text(R.string.ai_setup_start).performScrollTo()
         // The spinner animates forever, so Compose is never idle while it shows: drive frames by hand.
         compose.mainClock.autoAdvance = false
-        text(R.string.home_play).performClick()
+        text(R.string.ai_setup_start).performClick()
 
         waitForTextWithManualClock(R.string.ai_thinking)
         text(R.string.turn_goats).assertIsDisplayed()
@@ -235,7 +252,7 @@ class AppFlowTest {
         text(R.string.goats_in_hand, 20).assertIsDisplayed()
 
         Espresso.pressBack()
-        waitForText(R.string.home_vs_computer)
+        waitForText(R.string.mode_vs_player)
         text(R.string.home_resume).assertDoesNotExist()
     }
 
@@ -251,7 +268,7 @@ class AppFlowTest {
         compose.onNodeWithText(moves(10)).assertIsDisplayed()
 
         text(R.string.home).performClick()
-        waitForText(R.string.home_vs_computer)
+        waitForText(R.string.mode_vs_player)
         text(R.string.home_resume).assertDoesNotExist()
     }
 
@@ -265,7 +282,7 @@ class AppFlowTest {
         waitForText(R.string.result_title_tigers)
 
         Espresso.pressBack()
-        waitForText(R.string.home_vs_computer)
+        waitForText(R.string.mode_vs_player)
     }
 
     @Test
