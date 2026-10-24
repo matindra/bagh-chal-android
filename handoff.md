@@ -7,6 +7,65 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-25 (15) — ad units per placement
+- local.properties keys are now `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`,
+  `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`,
+  `ADMOB_REWARDED_THEME_ID` (BuildConfig fields of the same names). Checked: release picks them up,
+  debug keeps Google's test IDs. The real IDs are in the (git-ignored) local.properties already.
+- Home and game banners use their own units; Undo, Hint and theme unlock each preload and show their
+  own rewarded unit, and each button's "(ad)" label follows its own unit.
+- Banner size switched to `getLargeAnchoredAdaptiveBannerAdSize` (the anchored-adaptive call is
+  deprecated in Ads SDK 25). It is taller (~2×); on the test phone the board still fills the width,
+  but on short phones the board shrinks a little.
+
+## Session 2026-10-24 (14) — step 5: monetisation
+### Done
+- Libraries (all named in CLAUDE.md's stack): play-services-ads 25.5.0, UMP 4.0.0, billing-ktx 9.1.0.
+- **AdMob IDs**: `app/build.gradle.kts` puts them in `BuildConfig` + the manifest placeholder `admobAppId`.
+  Debug always uses Google's test IDs; release reads them from `local.properties` (keys: see session 15)
+  and **falls back to the test IDs if any are missing** (no revenue, but no policy risk).
+- **Consent** (`ads/ConsentManager`): UMP on every launch from `MainActivity.onCreate`; Mobile Ads is
+  initialised (background thread, once per process) only after `canRequestAds`. Settings shows
+  "Privacy options" when UMP says it's required. Debug-only testing: `ump.forceEea=true` and
+  `ump.testDeviceId=<hashed id printed by UMP in logcat>` in local.properties force the EEA form.
+- **Ads** (`ads/MobileAdsManager`, behind the `Ads` interface): anchored adaptive banner (`BannerAd`) at
+  the bottom of Home and of the game screen (below Undo/Hint, never over the board). Interstitial only
+  when leaving the result screen, capped by `InterstitialPolicy` (every 2nd finished game, ≥3 min apart,
+  also ≥3 min after launch). Rewarded + interstitial preloaded; failures retried after 60 s, otherwise ignored.
+- **Undo / Hint** (new): `GameUiState.history` (positions played on this screen) — vs computer, Undo
+  goes back to the player's previous turn (drops the AI's reply or cancels its search); 2-player,
+  one move. Hint = medium-depth search for the side to move, drawn as an arrow (a ring for placements),
+  announced on the two points for TalkBack, cleared by the next move.
+- **Rewarded rules** (`RewardOutcome`): free users see "Undo (ad)" / "Hint (ad)" only while a rewarded
+  ad is loaded; then it's watched first. Skipping the ad withholds the action; **no ad available ⇒ the
+  action is free** (offline-first). Theme unlock is permanent and needs a fully watched ad (no ad ⇒
+  "No ad is available" message).
+- **Entitlements** (`data/EntitlementRepository`): `removeAds` cache + rewarded-unlocked themes in
+  DataStore. Wood free; Stone/Cloth locked (lock badge + "Watch ad to unlock") unless unlocked or Remove
+  Ads. The drawn theme is `AppContainer.boardTheme` (falls back to Wood if the choice is locked).
+- **Remove Ads** (`billing/BillingManager`): product `remove_ads`, pending purchases supported,
+  acknowledged, restored on every launch and by "Restore Purchase"; a full purchase list revokes it
+  (refund), a single purchase update never does. Ownership rules in `RemoveAdsOwnership` (unit-tested).
+  Remove Ads hides banners/interstitials, makes Undo/Hint free and unlocks all boards.
+- `CurrentActivity` (activity lifecycle callbacks) gives ads/billing the resumed activity.
+- Instrumented tests run on `TestBaghchalApplication` via `BaghchalTestRunner`: no consent, ads or
+  billing (`AppContainer.servicesEnabled = false`, `NoAds`).
+- Tests: +26 unit (UndoHintTest, EntitlementsTest, InterstitialPolicyTest, RewardOutcomeTest,
+  RemoveAdsOwnershipTest, entitlement repository) → 143; +8 instrumented → 39. All green.
+- Checked on the emulator with test ads: Home + game banners, rewarded Undo and Hint ("Reward granted",
+  move taken back / hint shown), rewarded Stone unlock, EEA consent form on first launch and from
+  Privacy options, Remove Ads/Restore messages without Play Billing.
+
+### Not verified / to do
+- The interstitial was not seen on a device (needs 2 finished games and 3 minutes); the cap is unit-tested.
+- The real purchase flow needs the app in Play Console (internal testing track) with an active
+  one-time product `remove_ads`, and a licence-tester account on the device. The emulator here has no
+  working Play Billing ("API version 3 is not supported").
+- Release: R8 is still off (Ads/Billing ship their own
+  consumer rules); add the privacy policy URL; Data safety form must declare the Ads SDK's device IDs.
+- Undo history isn't saved, so a resumed game starts with nothing to undo.
+- Haptics still fire for moves while backgrounded (from session 12).
+
 ## Session 2026-10-24 (13) — drop the place sound
 - Placing a goat now plays `move` like any step; `place.ogg` and `SoundEffect.PLACE` removed and
   `place.wav` dropped from `scripts/convert-sounds.sh` (`design/sounds/place.wav` kept as an unused source).

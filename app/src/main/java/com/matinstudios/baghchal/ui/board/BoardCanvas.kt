@@ -53,10 +53,13 @@ private val SelectedColor = Color(0xFFFFD54F)
 private const val LOCK_BADGE_SIZE = 0.42f
 private const val LOCK_BADGE_OFFSET = 0.36f
 private val TargetColor = Color(0xB34CAF50)
+private val HintColor = Color(0xFFFFD54F)
+private val HintOutline = Color(0xD93A2416)
 
 /**
  * Square board with pieces; reports taps as engine point indices. [lastMove] is animated once
- * each time [moveNumber] changes. Each point is also its own accessibility node (see [BoardPointNodes]).
+ * each time [moveNumber] changes; [hint] is drawn as an arrow. Each point is also its own
+ * accessibility node (see [BoardPointNodes]).
  */
 @Composable
 fun BoardCanvas(
@@ -69,6 +72,7 @@ fun BoardCanvas(
     moveNumber: Int,
     onPointTapped: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    hint: Move? = null,
 ) {
     val boardPainter = painterResource(theme.drawable)
     val tigerPainter = painterResource(R.drawable.ic_tiger)
@@ -134,6 +138,7 @@ fun BoardCanvas(
                 val over = BoardGeometry.pointCenter(moving.over, boardSize)
                 drawPiece(goatPainter, over, pieceSize, alpha = PieceMotion.capturedAlpha(p))
             }
+            if (moving == null && hint != null) drawHint(hint, boardSize, scale)
             // The moving piece goes last so it passes over everything else.
             val movingSide = moving?.let { board[it.to] }
             if (moving != null && movingSide != null) {
@@ -151,6 +156,7 @@ fun BoardCanvas(
             selectedPoint = selected,
             targets = targets,
             trappedTigers = trappedTigers,
+            hint = hint,
             boardSizePx = minOf(constraints.maxWidth, constraints.maxHeight).toFloat(),
             onPointTapped = onPointTapped,
         )
@@ -171,12 +177,20 @@ private fun BoardPointNodes(
     selectedPoint: Int?,
     targets: Set<Int>,
     trappedTigers: Set<Int>,
+    hint: Move?,
     boardSizePx: Float,
     onPointTapped: (Int) -> Unit,
 ) {
     val cellPx = BoardGeometry.SPACING * BoardGeometry.scale(boardSizePx)
     val cellDp = with(LocalDensity.current) { cellPx.toDp() }
     val possibleMove = stringResource(R.string.point_possible_move)
+    val hintFrom = stringResource(R.string.point_hint_from)
+    val hintTo = stringResource(R.string.point_hint_to)
+    val hintOrigin = when (hint) {
+        is Move.Step -> hint.from
+        is Move.Jump -> hint.from
+        is Move.Place, null -> null
+    }
     for (point in 0 until Board.POINTS) {
         val piece = stringResource(
             when (board[point]) {
@@ -196,7 +210,11 @@ private fun BoardPointNodes(
                     contentDescription = description
                     role = Role.Button
                     selected = point == selectedPoint
-                    if (point in targets) stateDescription = possibleMove
+                    when (point) {
+                        hint?.to -> stateDescription = hintTo
+                        hintOrigin -> stateDescription = hintFrom
+                        in targets -> stateDescription = possibleMove
+                    }
                     onClick {
                         onPointTapped(point)
                         true
@@ -204,6 +222,15 @@ private fun BoardPointNodes(
                 },
         )
     }
+}
+
+/** A suggested step or capture is an arrow; a suggested placement rings its point (an arrow from off the board would read as a move). */
+private fun DrawScope.drawHint(hint: Move, boardSize: Float, scale: Float) {
+    if (hint !is Move.Place) return drawMoveArrow(MoveArrow.shape(hint, boardSize), scale)
+    val center = BoardGeometry.pointCenter(hint.to, boardSize)
+    val radius = BoardGeometry.PIECE_SIZE / 2 * scale
+    drawCircle(HintOutline, radius = radius, center = center, style = Stroke(width = 14f * scale))
+    drawCircle(HintColor, radius = radius, center = center, style = Stroke(width = 8f * scale))
 }
 
 @get:DrawableRes

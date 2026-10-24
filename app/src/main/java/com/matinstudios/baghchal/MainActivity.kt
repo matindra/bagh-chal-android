@@ -17,6 +17,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         lockPhonesToPortrait()
         enableEdgeToEdge()
+        val container = (application as BaghchalApplication).container
+        // Once per launch (not on rotation): no ad is requested until consent allows it.
+        if (savedInstanceState == null && container.servicesEnabled) container.consent.gather(this)
         setContent {
             BaghchalTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

@@ -3,7 +3,13 @@ package com.matinstudios.baghchal.ui
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.StringRes
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
@@ -48,6 +54,7 @@ class AppFlowTest {
                 container.settings.setSoundEnabled(true)
                 container.settings.setHapticsEnabled(true)
                 container.settings.setBoardTheme(BoardTheme.WOOD)
+                container.entitlements.reset()
             }
         }
     }
@@ -274,5 +281,51 @@ class AppFlowTest {
         text(R.string.home_resume).performClick()
         waitForText(R.string.turn_tigers)
         point(6).assertContentDescriptionEquals(str(R.string.point_description, 2, 2, str(R.string.point_goat)))
+    }
+
+    @Test
+    fun undoTakesBackTheLastMoveForFreeWithoutAds() {
+        startTwoPlayer()
+        point(12).performClick()
+        waitForText(R.string.turn_tigers)
+
+        // Tests run without ads, so Undo is free and plays no ad.
+        text(R.string.undo).performClick()
+        waitForText(R.string.turn_goats)
+        text(R.string.goats_in_hand, 20).assertIsDisplayed()
+        point(12).assertContentDescriptionEquals(str(R.string.point_description, 3, 3, str(R.string.point_empty)))
+    }
+
+    @Test
+    fun hintSuggestsAMoveOnTheBoard() {
+        startTwoPlayer()
+        text(R.string.hint).performClick()
+        compose.waitUntil(10_000) {
+            val isHintTarget = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, str(R.string.point_hint_to))
+            compose.onAllNodes(isHintTarget).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    @Test
+    fun lockedBoardsNeedAnAdAndSayWhenNoneIsAvailable() {
+        text(R.string.home_settings).performScrollTo().performClick()
+        waitForText(R.string.settings_title)
+        assertEquals(2, compose.onAllNodesWithText(str(R.string.settings_board_watch_ad)).fetchSemanticsNodes().size)
+
+        // Tests run without ads: a permanent unlock needs a watched ad, so Stone stays locked.
+        text(R.string.board_stone).performClick()
+        waitForText(R.string.message_no_ad)
+        text(R.string.board_wood).assertIsSelected()
+        text(R.string.board_stone).assertIsNotSelected()
+    }
+
+    @Test
+    fun removeAdsSaysWhenGooglePlayIsUnavailable() {
+        text(R.string.home_settings).performScrollTo().performClick()
+        waitForText(R.string.settings_title)
+        // Tests run without Play Billing, so the purchase sheet can't open.
+        compose.onNode(hasText(str(R.string.settings_remove_ads)) and hasClickAction()).performScrollTo().performClick()
+        waitForText(R.string.message_purchase_unavailable)
+        text(R.string.settings_restore_purchase).assertIsDisplayed()
     }
 }

@@ -142,4 +142,21 @@ class RepositoriesTest {
         assertEquals(Outcome.DRAW, Outcome.of(GameStatus.Drawn(DrawReason.REPETITION), Side.GOAT))
         assertNull(Outcome.of(GameStatus.InProgress, Side.GOAT))
     }
+
+    @Test
+    fun `entitlements are stored and reset`() = runBlocking {
+        val repository = EntitlementRepository(dataStore())
+        assertEquals(Entitlements(), repository.entitlements.first())
+
+        repository.unlockTheme(BoardTheme.STONE)
+        repository.unlockTheme(BoardTheme.CLOTH)
+        repository.setRemoveAds(true)
+        assertEquals(Entitlements(removeAds = true, unlockedThemes = setOf(BoardTheme.STONE, BoardTheme.CLOTH)), repository.entitlements.first())
+
+        repository.setRemoveAds(false)
+        assertEquals(Entitlements(unlockedThemes = setOf(BoardTheme.STONE, BoardTheme.CLOTH)), repository.entitlements.first(), "a refund keeps rewarded unlocks")
+
+        repository.reset()
+        assertEquals(Entitlements(), repository.entitlements.first())
+    }
 }

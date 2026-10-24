@@ -8,6 +8,8 @@
     <string name="point_tiger_trapped">trapped tiger</string>
     <string name="point_empty">empty</string>
     <string name="point_possible_move">possible move</string>
+    <string name="point_hint_from">hint: move this piece</string>
+    <string name="point_hint_to">hint: move here</string>
     <string name="turn_goats">Goats to move</string>
     <string name="turn_tigers">Tigers to move</string>
     <string name="phase_placement">Placement phase</string>
@@ -18,6 +20,11 @@
     <string name="new_game">New game</string>
     <string name="menu">Menu</string>
     <string name="ai_thinking">Thinking…</string>
+    <string name="hint_loading">Finding a hint…</string>
+    <string name="undo">Undo</string>
+    <string name="hint">Hint</string>
+    <!-- A button that first plays a rewarded video ad, e.g. "Undo (ad)". -->
+    <string name="with_ad">%1$s (ad)</string>
     <string name="result_you_win">You win!</string>
     <string name="result_you_lose">You lose</string>
 
@@ -61,6 +68,19 @@
     <string name="settings_haptics">Haptics</string>
     <string name="settings_haptics_detail">Vibrate when a goat is placed or captured</string>
     <string name="settings_board">Board</string>
+    <string name="settings_board_watch_ad">Watch ad to unlock</string>
+    <string name="settings_remove_ads">Remove Ads</string>
+    <string name="settings_remove_ads_price">Remove Ads · %1$s</string>
+    <string name="settings_remove_ads_detail">One-time purchase: no banners or ads between games, free Undo and Hint, and every board unlocked.</string>
+    <string name="settings_remove_ads_owned">Ads removed. Thank you for supporting the game!</string>
+    <string name="settings_remove_ads_pending">Your purchase is being processed. Ads will be removed once it completes.</string>
+    <string name="settings_restore_purchase">Restore Purchase</string>
+    <string name="settings_privacy_options">Privacy options</string>
+    <string name="message_no_ad">No ad is available right now. Check your connection and try again.</string>
+    <string name="message_purchase_unavailable">Purchases aren\'t available right now. Check that Google Play is set up and try again.</string>
+    <string name="message_restored">Purchase restored. Ads are removed.</string>
+    <string name="message_not_owned">No Remove Ads purchase was found for this Google account.</string>
+    <string name="message_restore_failed">Couldn\'t reach Google Play. Try again later.</string>
     <string name="board_wood">Wood</string>
     <string name="board_stone">Stone</string>
     <string name="board_cloth">Cloth</string>

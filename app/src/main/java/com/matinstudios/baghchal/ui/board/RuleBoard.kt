@@ -5,12 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -19,8 +14,6 @@ import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.engine.Move
 import com.matinstudios.baghchal.ui.screens.RuleIllustration
 
-private val ArrowFill = Color(0xFFFFD54F)
-private val ArrowOutline = Color(0xD93A2416)
 private const val GHOST_ALPHA = 0.35f
 
 /** Static mini board for the rules: the position after the move, the origin faded, and an arrow. */
@@ -63,27 +56,8 @@ fun RuleBoard(illustration: RuleIllustration, theme: BoardTheme, modifier: Modif
             }
         }
 
-        drawArrow(MoveArrow.shape(move, boardSize), scale)
+        drawMoveArrow(MoveArrow.shape(move, boardSize), scale)
     }
-}
-
-private fun DrawScope.drawArrow(arrow: ArrowShape, scale: Float) {
-    val shaft = Path().apply {
-        moveTo(arrow.start.x, arrow.start.y)
-        quadraticTo(arrow.control.x, arrow.control.y, arrow.end.x, arrow.end.y)
-    }
-    val head = Path().apply {
-        moveTo(arrow.end.x, arrow.end.y)
-        lineTo(arrow.headLeft.x, arrow.headLeft.y)
-        lineTo(arrow.headRight.x, arrow.headRight.y)
-        close()
-    }
-    // Dark outline first so the arrow reads on every board theme.
-    drawPath(shaft, ArrowOutline, style = Stroke(width = 14f * scale, cap = StrokeCap.Round))
-    drawPath(head, ArrowOutline, style = Stroke(width = 8f * scale, join = StrokeJoin.Round))
-    drawPath(head, ArrowOutline)
-    drawPath(shaft, ArrowFill, style = Stroke(width = 8f * scale, cap = StrokeCap.Round))
-    drawPath(head, ArrowFill)
 }
 
 private fun DrawScope.drawPiece(painter: Painter, center: Offset, size: Float, alpha: Float = 1f) {

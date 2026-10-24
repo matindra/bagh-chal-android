@@ -1,6 +1,7 @@
 package com.matinstudios.baghchal.ui.screens
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.ads.BannerAd
+import com.matinstudios.baghchal.ads.BannerPlacement
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.engine.DrawReason
 import com.matinstudios.baghchal.engine.GOATS_TO_WIN
@@ -62,24 +65,38 @@ fun GameScreen(
     // Null only for the moment it takes to read a saved game and settings.
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value ?: return
     val boardTheme = viewModel.boardTheme.collectAsStateWithLifecycle().value ?: return
+    val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
+    val undoNeedsAd by viewModel.undoNeedsAd.collectAsStateWithLifecycle()
+    val hintNeedsAd by viewModel.hintNeedsAd.collectAsStateWithLifecycle()
     GameContent(
         uiState = uiState,
         boardTheme = boardTheme,
+        undoNeedsAd = undoNeedsAd,
+        hintNeedsAd = hintNeedsAd,
         onPointTapped = viewModel::onPointTapped,
+        onUndo = viewModel::onUndo,
+        onHint = viewModel::onHint,
         onNewGame = viewModel::onNewGame,
         onMenu = onMenu,
         modifier = modifier,
+        banner = { if (showBanner) BannerAd(BannerPlacement.GAME) },
     )
 }
 
+/** @param banner the ad slot at the very bottom, kept well away from the board and buttons. */
 @Composable
 fun GameContent(
     uiState: GameUiState,
     boardTheme: BoardTheme,
+    undoNeedsAd: Boolean,
+    hintNeedsAd: Boolean,
     onPointTapped: (Int) -> Unit,
+    onUndo: () -> Unit,
+    onHint: () -> Unit,
     onNewGame: () -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    banner: @Composable () -> Unit = {},
 ) {
     val game = uiState.game
     Column(
@@ -98,6 +115,7 @@ fun GameContent(
             trappedTigers = uiState.trappedTigers,
             lastMove = uiState.lastMove,
             moveNumber = uiState.moveNumber,
+            hint = uiState.hint,
             onPointTapped = onPointTapped,
             modifier = Modifier
                 .widthIn(max = 600.dp)
@@ -118,11 +136,24 @@ fun GameContent(
                 Button(onClick = onNewGame) { Text(stringResource(R.string.new_game)) }
             }
         } else {
-            // Keeps the layout from jumping when the buttons appear.
-            Spacer(Modifier.height(40.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = onUndo, enabled = uiState.canUndo) {
+                    Text(assistLabel(R.string.undo, undoNeedsAd))
+                }
+                OutlinedButton(onClick = onHint, enabled = uiState.canHint) {
+                    Text(assistLabel(R.string.hint, hintNeedsAd))
+                }
+            }
         }
+        Spacer(Modifier.height(4.dp))
+        banner()
     }
 }
+
+/** Says up front when a button plays a rewarded ad, as AdMob requires. */
+@Composable
+private fun assistLabel(@StringRes label: Int, needsAd: Boolean): String =
+    if (needsAd) stringResource(R.string.with_ad, stringResource(label)) else stringResource(label)
 
 private val HapticCue.hapticType: HapticFeedbackType
     get() = when (this) {
@@ -146,9 +177,12 @@ private fun StatusLine(uiState: GameUiState) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (uiState.isAiThinking) {
+            if (uiState.isAiThinking || uiState.isHintLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                Text(stringResource(R.string.ai_thinking), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    stringResource(if (uiState.isAiThinking) R.string.ai_thinking else R.string.hint_loading),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             } else {
                 Text(subtitle(uiState), style = MaterialTheme.typography.bodyMedium)
             }
@@ -196,6 +230,16 @@ private fun Counter(@DrawableRes icon: Int, text: String) {
 @Composable
 private fun GameContentPreview() {
     BaghchalTheme {
-        GameContent(uiState = GameInteraction.newGame(), boardTheme = BoardTheme.WOOD, onPointTapped = {}, onNewGame = {}, onMenu = {})
+        GameContent(
+            uiState = GameInteraction.newGame(),
+            boardTheme = BoardTheme.WOOD,
+            undoNeedsAd = true,
+            hintNeedsAd = true,
+            onPointTapped = {},
+            onUndo = {},
+            onHint = {},
+            onNewGame = {},
+            onMenu = {},
+        )
     }
 }

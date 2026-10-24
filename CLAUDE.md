@@ -132,6 +132,12 @@ app/src/main/java/com/matinstudios/baghchal/
 - Cache entitlement in DataStore; when owned, hide banners/interstitials. Rewarded features become free.
 - Settings screen has "Remove Ads" and "Restore Purchase".
 
+### Implementation notes
+- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
+- One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME).
+- Screens see ads only through the `ads/Ads` interface; instrumented tests run on `TestBaghchalApplication` (no consent, ads or billing).
+- Undo/Hint/theme rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks are not.
+
 ## Coding conventions
 
 - Kotlin official style; no wildcard imports.
@@ -158,7 +164,7 @@ app/src/main/java/com/matinstudios/baghchal/
 ./gradlew assembleDebug
 ./gradlew installDebug
 ./gradlew test
-./gradlew connectedDebugAndroidTest   # Compose UI tests (needs a running emulator/device)
+./gradlew connectedDebugAndroidTest   # Compose UI tests (needs a running emulator/device; runs without ads/billing)
 ./gradlew lint
 ./gradlew bundleRelease      # AAB for Play Console
 scripts/convert-svgs.sh      # regenerate res/drawable + legacy launcher icons from design/*.svg

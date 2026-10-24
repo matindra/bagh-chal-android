@@ -16,6 +16,9 @@ import com.matinstudios.baghchal.engine.Side
  * @property lastMove the most recent move, for animation; null for a new or resumed game.
  * @property moveNumber counts moves played on this screen, so each one is animated exactly once.
  * @property trappedTigers tigers with no legal move right now (shown with a lock badge).
+ * @property history earlier positions of this game played on this screen, oldest first, for Undo.
+ * @property hint a suggested move for the player, shown until the next move.
+ * @property isHintLoading the hint is being worked out.
  */
 data class GameUiState(
     val game: GameState,
@@ -27,8 +30,16 @@ data class GameUiState(
     val lastMove: Move? = null,
     val moveNumber: Int = 0,
     val trappedTigers: Set<Int> = emptySet(),
+    val history: List<GameState> = emptyList(),
+    val hint: Move? = null,
+    val isHintLoading: Boolean = false,
 ) {
     val isAiTurn: Boolean get() = status == GameStatus.InProgress && game.sideToMove == aiSide
+
+    /** There is a move of the player's to take back (the computer's reply goes with it). */
+    val canUndo: Boolean get() = status == GameStatus.InProgress && GameInteraction.undoIndex(this) != null
+
+    val canHint: Boolean get() = status == GameStatus.InProgress && !isAiTurn && hint == null && !isHintLoading
 }
 
 /** Tap-to-select / tap-to-move logic, kept pure so it can be unit-tested. */
@@ -51,10 +62,38 @@ object GameInteraction {
         return ui.copy(selected = selected, targets = targets(ui.game, ui.status, selected, ui.aiSide))
     }
 
-    /** Plays [move] (from the player or the AI) and clears the selection. */
+    /** Plays [move] (from the player or the AI) and clears the selection and any hint. */
     fun applyMove(ui: GameUiState, move: Move): GameUiState =
-        uiState(Rules.apply(ui.game, move), selected = null, aiSide = ui.aiSide)
-            .copy(isAiThinking = ui.isAiThinking, lastMove = move, moveNumber = ui.moveNumber + 1)
+        uiState(Rules.apply(ui.game, move), selected = null, aiSide = ui.aiSide).copy(
+            isAiThinking = ui.isAiThinking,
+            lastMove = move,
+            moveNumber = ui.moveNumber + 1,
+            history = ui.history + ui.game,
+        )
+
+    /**
+     * Takes back the player's last move: against the computer, back to the player's previous turn
+     * (dropping the computer's reply, or its search if it is still thinking); in 2-player, one move.
+     * The restored state carries its own repetition counts, so draw detection stays exact.
+     */
+    fun undo(ui: GameUiState): GameUiState {
+        if (!ui.canUndo) return ui
+        val index = undoIndex(ui) ?: return ui
+        // No lastMove: the board snaps back instead of animating a move.
+        return uiState(ui.history[index], selected = null, aiSide = ui.aiSide)
+            .copy(moveNumber = ui.moveNumber + 1, history = ui.history.take(index))
+    }
+
+    /** Shows [move] as a hint if the position hasn't changed since it was asked for. */
+    fun showHint(ui: GameUiState, forGame: GameState, move: Move?): GameUiState {
+        val stillRelevant = ui.game == forGame && ui.status == GameStatus.InProgress
+        return ui.copy(hint = move.takeIf { stillRelevant }, isHintLoading = false)
+    }
+
+    internal fun undoIndex(ui: GameUiState): Int? {
+        val index = if (ui.aiSide == null) ui.history.lastIndex else ui.history.indexOfLast { it.sideToMove != ui.aiSide }
+        return index.takeIf { it >= 0 }
+    }
 
     private fun uiState(game: GameState, selected: Int?, aiSide: Side?): GameUiState {
         val status = Rules.status(game)

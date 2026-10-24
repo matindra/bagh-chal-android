@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.matinstudios.baghchal.BaghchalApplication
+import com.matinstudios.baghchal.ads.Ads
+import com.matinstudios.baghchal.ads.RewardedPlacement
+import com.matinstudios.baghchal.ads.grantsAssist
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.data.SavedGameRepository
 import com.matinstudios.baghchal.data.Settings
@@ -15,6 +18,7 @@ import com.matinstudios.baghchal.data.SettingsRepository
 import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.StatsRepository
 import com.matinstudios.baghchal.engine.ai.AiPlayer
+import com.matinstudios.baghchal.engine.ai.Difficulty
 import com.matinstudios.baghchal.ui.sound.SoundPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,7 +29,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -37,16 +40,23 @@ class GameViewModel(
     private val stats: StatsRepository,
     private val writer: SerialWriter,
     settingsRepository: SettingsRepository,
+    boardTheme: Flow<BoardTheme>,
     private val sounds: SoundPlayer,
+    private val ads: Ads,
 ) : ViewModel() {
 
     private val settings = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, Settings())
 
     /** Null until settings are loaded, so the board never flashes the default theme. */
-    val boardTheme: StateFlow<BoardTheme?> = settingsRepository.settings
-        .map { it.boardTheme }
+    val boardTheme: StateFlow<BoardTheme?> = boardTheme
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val showBanner: StateFlow<Boolean> = ads.bannersEnabled
+
+    /** Undo and Hint each cost a rewarded ad (shown on the buttons); free with Remove Ads or when no ad is loaded. */
+    val undoNeedsAd: StateFlow<Boolean> = ads.rewardedReady(RewardedPlacement.UNDO)
+    val hintNeedsAd: StateFlow<Boolean> = ads.rewardedReady(RewardedPlacement.HINT)
 
     private var setup = GameSetup.fromArgs(
         savedStateHandle.get<String>(GameSetup.ARG_AI),
@@ -54,6 +64,8 @@ class GameViewModel(
     )
     private var ai: AiPlayer? = null
     private var aiJob: Job? = null
+    private val hintAi = AiPlayer(HINT_DIFFICULTY)
+    private var assistJob: Job? = null
 
     /** Null until the game (new or resumed) is ready. */
     private val _uiState = MutableStateFlow<GameUiState?>(null)
@@ -89,8 +101,38 @@ class GameViewModel(
 
     fun onNewGame() {
         aiJob?.cancel()
+        assistJob?.cancel()
         update { GameInteraction.newGame(setup.aiSide) }
         startAiTurnIfNeeded()
+    }
+
+    fun onUndo() {
+        if (_uiState.value?.canUndo != true) return
+        runAssist(RewardedPlacement.UNDO) {
+            aiJob?.cancel()
+            update { it?.let(GameInteraction::undo) }
+        }
+    }
+
+    fun onHint() {
+        if (_uiState.value?.canHint != true) return
+        runAssist(RewardedPlacement.HINT) {
+            val ui = _uiState.value ?: return@runAssist
+            if (!ui.canHint) return@runAssist
+            update { it?.copy(isHintLoading = true) }
+            val move = withContext(Dispatchers.Default) { hintAi.chooseMove(ui.game) }
+            update { it?.let { current -> GameInteraction.showHint(current, ui.game, move) } }
+        }
+    }
+
+    /** Shows the rewarded ad if the buttons said so, then runs [action] unless the player closed it early. */
+    private fun runAssist(placement: RewardedPlacement, action: suspend () -> Unit) {
+        if (assistJob?.isActive == true) return
+        val needsAd = ads.rewardedReady(placement).value
+        assistJob = viewModelScope.launch {
+            if (needsAd && !ads.showRewarded(placement).grantsAssist()) return@launch
+            action()
+        }
     }
 
     /** All state changes go through here so every move is persisted and announced. Main thread only. */
@@ -138,6 +180,7 @@ class GameViewModel(
     }
 
     companion object {
+        private val HINT_DIFFICULTY = Difficulty.MEDIUM
         private const val MIN_AI_TURN_MILLIS = 400L
         private const val RESULT_DELAY_MILLIS = 1_200L
 
@@ -150,7 +193,9 @@ class GameViewModel(
                     container.stats,
                     container.writer,
                     container.settings,
+                    container.boardTheme,
                     container.sounds,
+                    container.ads,
                 )
             }
         }

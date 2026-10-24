@@ -2,6 +2,7 @@ package com.matinstudios.baghchal.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +14,7 @@ import com.matinstudios.baghchal.ui.screens.GameSetup
 import com.matinstudios.baghchal.ui.screens.HomeScreen
 import com.matinstudios.baghchal.ui.screens.HowToPlayScreen
 import com.matinstudios.baghchal.ui.screens.ResultScreen
+import com.matinstudios.baghchal.ui.screens.ResultViewModel
 import com.matinstudios.baghchal.ui.screens.SettingsScreen
 import com.matinstudios.baghchal.ui.screens.StatsScreen
 
@@ -79,10 +81,17 @@ fun BaghchalApp(modifier: Modifier = Modifier) {
                 ai = args?.getString(GameSetup.ARG_AI),
                 difficulty = args?.getString(GameSetup.ARG_DIFFICULTY),
             )
+            val resultViewModel: ResultViewModel = viewModel(factory = ResultViewModel.Factory)
             ResultScreen(
                 result = result,
-                onPlayAgain = { navController.navigate(result.setup.route) { popUpTo(HOME_ROUTE) } },
-                onHome = { navController.popBackStack(HOME_ROUTE, inclusive = false) },
+                onPlayAgain = {
+                    resultViewModel.onLeave()
+                    navController.navigate(result.setup.route) { popUpTo(HOME_ROUTE) }
+                },
+                onHome = {
+                    resultViewModel.onLeave()
+                    navController.popBackStack(HOME_ROUTE, inclusive = false)
+                },
             )
         }
         composable(STATS_ROUTE) {

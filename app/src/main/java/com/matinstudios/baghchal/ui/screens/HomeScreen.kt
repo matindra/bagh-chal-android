@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.ads.BannerAd
+import com.matinstudios.baghchal.ads.BannerPlacement
 import com.matinstudios.baghchal.data.SavedGame
 import com.matinstudios.baghchal.engine.GOATS_TO_WIN
 import com.matinstudios.baghchal.engine.Side
@@ -53,7 +55,11 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
-    HomeContent(savedGame, onStartGame, onResume, onStats, onSettings, onHowToPlay, modifier)
+    val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
+    Column(modifier.fillMaxSize()) {
+        HomeContent(savedGame, onStartGame, onResume, onStats, onSettings, onHowToPlay, Modifier.weight(1f))
+        if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp))
+    }
 }
 
 @Composable

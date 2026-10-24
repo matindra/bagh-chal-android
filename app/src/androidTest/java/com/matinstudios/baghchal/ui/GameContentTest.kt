@@ -7,6 +7,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -44,14 +46,20 @@ class GameContentTest {
     private val tapped = mutableListOf<Int>()
     private var newGameClicks = 0
     private var menuClicks = 0
+    private var undoClicks = 0
+    private var hintClicks = 0
 
-    private fun show(ui: GameUiState) {
+    private fun show(ui: GameUiState, undoNeedsAd: Boolean = false, hintNeedsAd: Boolean = false) {
         compose.setContent {
             BaghchalTheme {
                 GameContent(
                     uiState = ui,
                     boardTheme = BoardTheme.WOOD,
+                    undoNeedsAd = undoNeedsAd,
+                    hintNeedsAd = hintNeedsAd,
                     onPointTapped = { tapped += it },
+                    onUndo = { undoClicks++ },
+                    onHint = { hintClicks++ },
                     onNewGame = { newGameClicks++ },
                     onMenu = { menuClicks++ },
                 )
@@ -211,5 +219,39 @@ class GameContentTest {
         point(11).performClick()
         assertEquals(listOf(11), tapped)
         assertEquals(over, GameInteraction.onPointTapped(over, 11))
+    }
+
+    // --- Undo and Hint ---
+
+    @Test
+    fun undoIsDisabledUntilThereIsAMoveToTakeBack() {
+        show(GameInteraction.newGame())
+        compose.onNodeWithText(str(R.string.undo)).assertIsNotEnabled()
+        compose.onNodeWithText(str(R.string.hint)).assertIsEnabled()
+    }
+
+    @Test
+    fun undoAndHintButtonsReportClicks() {
+        show(GameInteraction.applyMove(GameInteraction.newGame(), Move.Place(12)))
+        compose.onNodeWithText(str(R.string.undo)).performClick()
+        compose.onNodeWithText(str(R.string.hint)).performClick()
+        assertEquals(1, undoClicks)
+        assertEquals(1, hintClicks)
+    }
+
+    @Test
+    fun buttonsSayWhenTheyPlayAnAd() {
+        show(GameInteraction.newGame(), undoNeedsAd = true, hintNeedsAd = false)
+        compose.onNodeWithText(str(R.string.with_ad, str(R.string.undo))).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.hint)).assertIsDisplayed()
+    }
+
+    @Test
+    fun hintIsAnnouncedOnItsPoints() {
+        val ui = GameInteraction.applyMove(GameInteraction.newGame(), Move.Place(12))
+        show(GameInteraction.showHint(ui, ui.game, Move.Step(0, 6)))
+        point(0).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, str(R.string.point_hint_from)))
+        point(6).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, str(R.string.point_hint_to)))
+        compose.onNodeWithText(str(R.string.hint)).assertIsNotEnabled()
     }
 }

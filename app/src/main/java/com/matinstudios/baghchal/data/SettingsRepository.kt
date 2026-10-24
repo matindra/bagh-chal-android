@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-/** Board artwork; all share the same geometry. Wood is free, the others will be unlockable (step 5). */
+/** Board artwork; all share the same geometry. Wood is free, the others are unlocked per [Entitlements]. */
 enum class BoardTheme { WOOD, STONE, CLOTH }
 
 data class Settings(
