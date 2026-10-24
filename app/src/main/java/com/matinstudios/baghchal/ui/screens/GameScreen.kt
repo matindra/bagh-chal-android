@@ -53,10 +53,7 @@ fun GameScreen(
 ) {
     val haptics = LocalHapticFeedback.current
     LaunchedEffect(viewModel) {
-        viewModel.feedback.collect { feedback ->
-            if (feedback.haptic) haptics.performHapticFeedback(feedback.event.hapticType)
-            // feedback.sound: sound effects are not bundled yet.
-        }
+        viewModel.haptics.collect { cue -> haptics.performHapticFeedback(cue.hapticType) }
     }
     val currentOnGameWon by rememberUpdatedState(onGameWon)
     LaunchedEffect(viewModel) {
@@ -127,10 +124,10 @@ fun GameContent(
     }
 }
 
-private val FeedbackEvent.hapticType: HapticFeedbackType
+private val HapticCue.hapticType: HapticFeedbackType
     get() = when (this) {
-        FeedbackEvent.GOAT_PLACED -> HapticFeedbackType.ContextClick
-        FeedbackEvent.GOAT_CAPTURED -> HapticFeedbackType.LongPress
+        HapticCue.GOAT_PLACED -> HapticFeedbackType.ContextClick
+        HapticCue.GOAT_CAPTURED -> HapticFeedbackType.LongPress
     }
 
 @Composable

@@ -15,6 +15,7 @@ import com.matinstudios.baghchal.data.SettingsRepository
 import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.StatsRepository
 import com.matinstudios.baghchal.engine.ai.AiPlayer
+import com.matinstudios.baghchal.ui.sound.SoundPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -36,6 +37,7 @@ class GameViewModel(
     private val stats: StatsRepository,
     private val writer: SerialWriter,
     settingsRepository: SettingsRepository,
+    private val sounds: SoundPlayer,
 ) : ViewModel() {
 
     private val settings = settingsRepository.settings
@@ -57,10 +59,10 @@ class GameViewModel(
     private val _uiState = MutableStateFlow<GameUiState?>(null)
     val uiState: StateFlow<GameUiState?> = _uiState.asStateFlow()
 
-    private val _feedback = Channel<Feedback>(Channel.BUFFERED)
+    private val _haptics = Channel<HapticCue>(Channel.BUFFERED)
 
-    /** Haptic/sound cues for moves, already filtered by settings. */
-    val feedback: Flow<Feedback> = _feedback.receiveAsFlow()
+    /** Haptic cues for moves, already filtered by settings (sounds are played here directly). */
+    val haptics: Flow<HapticCue> = _haptics.receiveAsFlow()
 
     private val _results = Channel<GameResult>(Channel.BUFFERED)
 
@@ -104,7 +106,10 @@ class GameViewModel(
                     writer.submit { stats.record(action.playerSide, action.difficulty, action.outcome) }
             }
         }
-        feedbackFor(previous, next, settings.value)?.let { _feedback.trySend(it) }
+        feedbackFor(previous, next, settings.value)?.let { feedback ->
+            feedback.sound?.let(sounds::play)
+            feedback.haptic?.let { _haptics.trySend(it) }
+        }
         resultFor(previous, next, setup)?.let { result ->
             viewModelScope.launch {
                 delay(RESULT_DELAY_MILLIS)
@@ -145,6 +150,7 @@ class GameViewModel(
                     container.stats,
                     container.writer,
                     container.settings,
+                    container.sounds,
                 )
             }
         }

@@ -26,6 +26,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        (application as BaghchalApplication).container.sounds.setInForeground(true)
+    }
+
+    override fun onStop() {
+        (application as BaghchalApplication).container.sounds.setInForeground(false)
+        super.onStop()
+    }
+
     /** Phones are portrait-only; tablets (smallest width >= 600dp) may rotate. Re-checked when a foldable unfolds. */
     private fun lockPhonesToPortrait() {
         if (resources.configuration.smallestScreenWidthDp < TABLET_MIN_WIDTH_DP) {

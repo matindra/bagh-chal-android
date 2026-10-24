@@ -1,6 +1,7 @@
 package com.matinstudios.baghchal.data
 
 import android.content.Context
+import com.matinstudios.baghchal.ui.sound.SoundPoolPlayer
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import kotlinx.coroutines.CoroutineScope
@@ -18,4 +19,7 @@ class AppContainer(context: Context) {
     val savedGames = SavedGameRepository(dataStore)
     val stats = StatsRepository(dataStore)
     val settings = SettingsRepository(dataStore)
+
+    /** Created at app start so every sound is loaded before the first game. */
+    val sounds = SoundPoolPlayer(context)
 }
