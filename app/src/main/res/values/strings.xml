@@ -33,6 +33,27 @@
     <string name="difficulty_hard">Hard</string>
     <string name="home_stats">Stats</string>
     <string name="home_settings">Settings</string>
+    <string name="home_how_to_play">How to play</string>
+
+    <string name="rules_title">How to play</string>
+    <string name="rules_goal">Tigers try to capture 5 goats. Goats try to trap all four tigers so none can move. Goats move first.</string>
+    <string name="rules_step_title">%1$d. %2$s</string>
+    <string name="rules_place_title">Placing goats</string>
+    <string name="rules_place_body">The 20 goats start off the board. On each goat turn, place one goat on any empty point. Goats can’t move until all 20 are on the board.</string>
+    <string name="rules_place_picture">A goat from the hand is placed on the centre point.</string>
+    <string name="rules_goat_move_title">Moving goats</string>
+    <string name="rules_goat_move_body">Once every goat is placed, a goat moves one step along a line to an empty neighbouring point. Goats never jump.</string>
+    <string name="rules_goat_move_picture">A goat steps down one point to the empty centre.</string>
+    <string name="rules_tiger_step_title">Tiger steps</string>
+    <string name="rules_tiger_step_body">Tigers can move from the start. A tiger steps one point along any line, including the diagonals where they are drawn.</string>
+    <string name="rules_tiger_step_picture">The top-left tiger steps diagonally to the next point.</string>
+    <string name="rules_capture_title">Tiger captures</string>
+    <string name="rules_capture_body">A tiger captures by jumping in a straight line over a goat to the empty point right behind it. The goat is removed. Only one capture per turn, and capturing is optional.</string>
+    <string name="rules_capture_picture">A tiger jumps over a goat to the empty point beyond it; the goat is captured.</string>
+    <string name="rules_trap_title">Trapping tigers</string>
+    <string name="rules_trap_body">A tiger is trapped when every neighbouring point is taken and it has no jump. The lock shows a trapped tiger. Trap all four on their turn and the goats win.</string>
+    <string name="rules_trap_picture">A goat closes the last gap, and the corner tiger is locked in.</string>
+    <string name="rules_draws">The game is a draw if the same position comes up three times, or after 100 moves without a capture.</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_sound">Sound</string>

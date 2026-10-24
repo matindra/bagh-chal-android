@@ -48,11 +48,12 @@ fun HomeScreen(
     onResume: () -> Unit,
     onStats: () -> Unit,
     onSettings: () -> Unit,
+    onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
-    HomeContent(savedGame, onStartGame, onResume, onStats, onSettings, modifier)
+    HomeContent(savedGame, onStartGame, onResume, onStats, onSettings, onHowToPlay, modifier)
 }
 
 @Composable
@@ -62,6 +63,7 @@ fun HomeContent(
     onResume: () -> Unit,
     onStats: () -> Unit,
     onSettings: () -> Unit,
+    onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var humanSide by rememberSaveable { mutableStateOf(Side.GOAT) }
@@ -130,6 +132,7 @@ fun HomeContent(
             ) { Text(stringResource(R.string.home_two_player)) }
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                TextButton(onClick = onHowToPlay) { Text(stringResource(R.string.home_how_to_play)) }
                 TextButton(onClick = onStats) { Text(stringResource(R.string.home_stats)) }
                 TextButton(onClick = onSettings) { Text(stringResource(R.string.home_settings)) }
             }
@@ -176,5 +179,5 @@ internal val Difficulty.label: Int
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BaghchalTheme { HomeContent(savedGame = null, onStartGame = {}, onResume = {}, onStats = {}, onSettings = {}) }
+    BaghchalTheme { HomeContent(savedGame = null, onStartGame = {}, onResume = {}, onStats = {}, onSettings = {}, onHowToPlay = {}) }
 }

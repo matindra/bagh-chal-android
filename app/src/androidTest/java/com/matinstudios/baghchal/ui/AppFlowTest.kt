@@ -88,6 +88,15 @@ class AppFlowTest {
     }
 
     @Test
+    fun homeToHowToPlayAndBack() {
+        text(R.string.home_how_to_play).performScrollTo().performClick()
+        waitForText(R.string.rules_title)
+        text(R.string.rules_goal).assertIsDisplayed()
+        Espresso.pressBack()
+        waitForText(R.string.home_vs_computer)
+    }
+
+    @Test
     fun tapToMoveOnTheBoard() {
         startTwoPlayer()
 

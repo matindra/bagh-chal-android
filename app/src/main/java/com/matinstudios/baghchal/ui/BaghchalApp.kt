@@ -11,6 +11,7 @@ import com.matinstudios.baghchal.ui.screens.GameResult
 import com.matinstudios.baghchal.ui.screens.GameScreen
 import com.matinstudios.baghchal.ui.screens.GameSetup
 import com.matinstudios.baghchal.ui.screens.HomeScreen
+import com.matinstudios.baghchal.ui.screens.HowToPlayScreen
 import com.matinstudios.baghchal.ui.screens.ResultScreen
 import com.matinstudios.baghchal.ui.screens.SettingsScreen
 import com.matinstudios.baghchal.ui.screens.StatsScreen
@@ -18,6 +19,7 @@ import com.matinstudios.baghchal.ui.screens.StatsScreen
 private const val HOME_ROUTE = "home"
 private const val STATS_ROUTE = "stats"
 private const val SETTINGS_ROUTE = "settings"
+private const val HOW_TO_PLAY_ROUTE = "how_to_play"
 
 @Composable
 fun BaghchalApp(modifier: Modifier = Modifier) {
@@ -29,6 +31,7 @@ fun BaghchalApp(modifier: Modifier = Modifier) {
                 onResume = { navController.navigate(GameSetup.RESUME_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
+                onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
             )
         }
         composable(
@@ -87,6 +90,9 @@ fun BaghchalApp(modifier: Modifier = Modifier) {
         }
         composable(SETTINGS_ROUTE) {
             SettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(HOW_TO_PLAY_ROUTE) {
+            HowToPlayScreen(onBack = { navController.popBackStack() })
         }
     }
 }

@@ -5,9 +5,29 @@
 - **Sound effects:** the Sound toggle exists and `Feedback.sound` is already filtered by it, but no
   sound files or player yet. Add files to `res/raw/` and play them in `GameScreen`'s feedback
   collector (where the `feedback.sound` comment is).
-- How to Play screen with illustrated rules.
+- ~~How to Play screen~~: done in session 11.
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
+
+## Session 2026-10-24 (11) — How to Play
+
+### Done
+- `ui/screens/HowToPlaySteps.kt`: the five rules examples as data (`RuleIllustration`: pieces before
+  the move + the move; derives pieces after and trapped tigers). Kept sparse for clarity, so they are
+  not necessarily reachable positions; `HowToPlayStepsTest` checks every move is legal geometry
+  (right piece, along a line, capture over a goat onto an empty point) and that only the trap step
+  locks a tiger, and only because of its move.
+- `ui/board/RuleBoard.kt`: static mini board in the selected theme: position after the move, moving
+  piece faded at its origin (and the captured goat faded), lock badge on trapped tigers, and a
+  yellow arrow with a dark outline (readable on all themes). Placement arrows come in from the
+  board's bottom edge; capture arrows arc over the jumped goat.
+- `ui/board/MoveArrow.kt` (pure arrow geometry) + `MoveArrowTest`.
+- `HowToPlayScreen` (goal line, 5 numbered cards with headings, described pictures, draw rule,
+  Back) via `HowToPlayViewModel` for the board theme; "How to play" button on Home.
+- Tests: 110 unit + 31 instrumented, all green. Checked on emulator with Wood and Cloth.
+
+### Note
+- Commit `beb78d6` (sessions 6–10) is still not pushed: GitHub was unreachable from this network.
 
 ## Session 2026-10-24 (10) — result screen + lock badge
 
