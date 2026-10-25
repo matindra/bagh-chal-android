@@ -26,6 +26,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:configChanges="uiMode"
             android:theme="@style/Theme.Baghchal"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

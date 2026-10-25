@@ -5,7 +5,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DrawerState
@@ -18,9 +21,13 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +35,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.data.ThemeMode
+import com.matinstudios.baghchal.ui.ThemeViewModel
 import kotlinx.coroutines.launch
 
 /** one entry in the side menu. */
@@ -43,9 +54,11 @@ fun AppMenuDrawer(
     items: List<AppMenuItem>,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModel.Factory),
     content: @Composable (openMenu: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -82,10 +95,45 @@ fun AppMenuDrawer(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     )
                 }
+                Spacer(Modifier.weight(1f))
+                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+                ThemePicker(
+                    selected = themeMode ?: ThemeMode.SYSTEM,
+                    onSelect = themeViewModel::onThemeModeChanged,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                )
             }
         },
     ) {
         content { scope.launch { drawerState.open() } }
+    }
+}
+
+/** System / Light / Dark choice at the bottom of the side menu. */
+@Composable
+private fun ThemePicker(selected: ThemeMode, onSelect: (ThemeMode) -> Unit, modifier: Modifier = Modifier) {
+    val options = listOf(
+        ThemeMode.SYSTEM to R.string.theme_system,
+        ThemeMode.LIGHT to R.string.theme_light,
+        ThemeMode.DARK to R.string.theme_dark,
+    )
+    Column(modifier) {
+        Text(
+            stringResource(R.string.menu_theme),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            options.forEachIndexed { index, (mode, label) ->
+                SegmentedButton(
+                    selected = mode == selected,
+                    onClick = { onSelect(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                    label = { Text(stringResource(label), maxLines = 1) },
+                )
+            }
+        }
     }
 }
 

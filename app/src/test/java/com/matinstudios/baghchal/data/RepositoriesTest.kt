@@ -130,6 +130,16 @@ class RepositoriesTest {
     }
 
     @Test
+    fun `theme mode defaults to system and persists`() = runBlocking {
+        val store = dataStore()
+        assertEquals(ThemeMode.SYSTEM, SettingsRepository(store).settings.first().themeMode)
+        for (mode in ThemeMode.entries) {
+            SettingsRepository(store).setThemeMode(mode)
+            assertEquals(mode, SettingsRepository(store).settings.first().themeMode)
+        }
+    }
+
+    @Test
     fun `board theme defaults to wood, persists, and ignores unknown values`() = runBlocking {
         val store = dataStore()
         val repository = SettingsRepository(store)

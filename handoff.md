@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-25 (24) — light/dark theme choice in the side menu
+- Side menu (Home, game, online game) has a "Theme" picker at the bottom: System / Light / Dark (segmented buttons). Default System.
+- Stored as `Settings.themeMode` (`ThemeMode` enum, key `settings_theme_mode`). `ui/ThemeViewModel` reads/writes it; `MainActivity` passes it to `BaghchalTheme` and re-styles the system bar icons to match.
+- Test: `RepositoriesTest` "theme mode defaults to system and persists". All unit tests pass.
+- Launch flash fixed on Android 12+: `MainActivity.applyToLaunchWindow` calls `UiModeManager.setApplicationNightMode` (YES/NO/AUTO), so the system draws the launch window in the chosen theme (remembered by the system). Manifest now has `configChanges="uiMode"` so changing theme recomposes instead of recreating the activity. Compose shows the window background until the saved theme is read. Android 7–11 can't change the launch window without AppCompat, so a brief flash remains there.
+- Checked on the emulator (API 37, phone light, app Dark): cold start dark from the first frame; switching back to System returns to light.
+
 ## Session 2026-10-25 (20) — online play (Firebase)
 
 ### Done

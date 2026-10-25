@@ -14,10 +14,14 @@ import java.io.IOException
 /** Board artwork; all share the same geometry. Wood is free, the others are unlocked per [Entitlements]. */
 enum class BoardTheme { WOOD, STONE, CLOTH }
 
+/** App colours: follow the phone's setting, or force light or dark. */
+enum class ThemeMode { SYSTEM, LIGHT, DARK }
+
 data class Settings(
     val soundEnabled: Boolean = true,
     val hapticsEnabled: Boolean = true,
     val boardTheme: BoardTheme = BoardTheme.WOOD,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
 )
 
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
@@ -29,6 +33,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 soundEnabled = prefs[SOUND] ?: true,
                 hapticsEnabled = prefs[HAPTICS] ?: true,
                 boardTheme = BoardTheme.entries.firstOrNull { it.name == prefs[BOARD_THEME] } ?: BoardTheme.WOOD,
+                themeMode = ThemeMode.entries.firstOrNull { it.name == prefs[THEME_MODE] } ?: ThemeMode.SYSTEM,
             )
         }
 
@@ -53,10 +58,15 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[BOARD_THEME] = theme.name }
     }
 
+    suspend fun setThemeMode(mode: ThemeMode) {
+        dataStore.edit { it[THEME_MODE] = mode.name }
+    }
+
     private companion object {
         val SOUND = booleanPreferencesKey("settings_sound")
         val HAPTICS = booleanPreferencesKey("settings_haptics")
         val BOARD_THEME = stringPreferencesKey("settings_board_theme")
+        val THEME_MODE = stringPreferencesKey("settings_theme_mode")
         val TUTORIAL_SEEN = booleanPreferencesKey("tutorial_seen")
     }
 }
