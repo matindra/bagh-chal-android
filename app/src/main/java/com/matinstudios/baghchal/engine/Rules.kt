@@ -75,6 +75,14 @@ object Rules {
             Board.jumps[tiger].none { state.board[it.over] == Side.GOAT && state.board[it.landing] == null }
     }
 
+    /**
+     * Goats that could not step right now: every neighbouring point is taken. Goats can't move at all
+     * while placing, so this only means something in the movement phase.
+     */
+    fun trappedGoats(state: GameState): Set<Int> = state.pointsOf(Side.GOAT).filterTo(mutableSetOf()) { goat ->
+        Board.adjacency[goat].none { state.board[it] == null }
+    }
+
     private fun drawReason(state: GameState): DrawReason? = when {
         (state.positionCounts[state.positionKey] ?: 0) >= state.config.repetitionsForDraw -> DrawReason.REPETITION
         state.pliesSinceCapture >= state.config.maxPliesWithoutCapture -> DrawReason.MOVE_LIMIT

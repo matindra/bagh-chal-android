@@ -26,7 +26,7 @@ sealed interface LobbyState {
     data object Idle : LobbyState
     data object Searching : LobbyState
     data object Creating : LobbyState
-    data class WaitingForFriend(val code: String) : LobbyState
+    data class WaitingForFriend(val code: String, val side: Side) : LobbyState
     data object Joining : LobbyState
 }
 
@@ -56,7 +56,7 @@ class OnlineLobbyViewModel(private val online: OnlineService) : ViewModel() {
     fun onCreateGame(side: Side) = start(LobbyState.Creating) {
         online.hostPrivateGame(side).collect { update ->
             when (update) {
-                is HostingUpdate.CodeReady -> _state.value = LobbyState.WaitingForFriend(update.code)
+                is HostingUpdate.CodeReady -> _state.value = LobbyState.WaitingForFriend(update.code, side)
                 is HostingUpdate.Started -> _matched.send(update.roomId)
             }
         }

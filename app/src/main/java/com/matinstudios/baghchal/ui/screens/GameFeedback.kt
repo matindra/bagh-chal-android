@@ -3,9 +3,17 @@ package com.matinstudios.baghchal.ui.screens
 import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.engine.GameStatus
 import com.matinstudios.baghchal.engine.Move
+import com.matinstudios.baghchal.engine.Phase
+import com.matinstudios.baghchal.engine.Rules
 import com.matinstudios.baghchal.ui.sound.SoundEffect
 
-enum class HapticCue { GOAT_PLACED, GOAT_CAPTURED }
+enum class HapticCue {
+    GOAT_PLACED,
+    GOAT_CAPTURED,
+
+    /** A tiger, or (in the movement phase) a goat, just lost every move. */
+    PIECE_TRAPPED,
+}
 
 /** Cues for one move, already filtered by the player's settings. */
 data class Feedback(val haptic: HapticCue?, val sound: SoundEffect?)
@@ -14,13 +22,23 @@ data class Feedback(val haptic: HapticCue?, val sound: SoundEffect?)
 fun feedbackFor(previous: GameUiState?, current: GameUiState, settings: Settings): Feedback? {
     if (previous == null || current.moveNumber == previous.moveNumber) return null
     val move = current.lastMove ?: return null
-    val haptic = when (move) {
-        is Move.Place -> HapticCue.GOAT_PLACED
-        is Move.Jump -> HapticCue.GOAT_CAPTURED
-        is Move.Step -> null
-    }.takeIf { settings.hapticsEnabled }
+    val haptic = hapticFor(previous, current, move).takeIf { settings.hapticsEnabled }
     val sound = soundFor(previous, current, move).takeIf { settings.soundEnabled }
     return if (haptic == null && sound == null) null else Feedback(haptic, sound)
+}
+
+/** One haptic per move, strongest first: a capture, then a piece becoming trapped, then a placement. */
+private fun hapticFor(previous: GameUiState, current: GameUiState, move: Move): HapticCue? = when {
+    move is Move.Jump -> HapticCue.GOAT_CAPTURED
+    newlyTrapped(previous, current) -> HapticCue.PIECE_TRAPPED
+    move is Move.Place -> HapticCue.GOAT_PLACED
+    else -> null
+}
+
+private fun newlyTrapped(previous: GameUiState, current: GameUiState): Boolean {
+    if ((current.trappedTigers - previous.trappedTigers).isNotEmpty()) return true
+    if (current.game.phase != Phase.MOVEMENT) return false
+    return (Rules.trappedGoats(current.game) - Rules.trappedGoats(previous.game)).isNotEmpty()
 }
 
 /**

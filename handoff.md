@@ -7,12 +7,78 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-25 (28) — fix: "no game with that code" for friends
+- Cause (reproduced on the emulator + Firebase REST): the host marked itself in `rooms/{id}/online` only once. Sharing the code sends the host to another app, Android pauses Bagh Chal, the server drops the mark, and nothing set it again, so `join` (which needed the host online) said NotFound forever.
+- Fix in `FirebaseOnlineService`: `stayOnline()` re-marks the player on every reconnect while waiting (private and quick match; `room()` uses it too). Joining by code no longer needs the host online (`join(needHostOnline = false)`); random rooms still do.
+- Game screen: an opponent not yet seen online in this game gets 3 min to arrive (`OPPONENT_ARRIVAL_GRACE_MILLIS`, `opponentGraceMillis` in `OnlineSession.kt`) before you win; after that the usual 45 s.
+- Checked on the emulator: host in background 2 min → mark gone; back in app → mark back. Friend joined (via REST, as a second client) while the host was away → host's app opened the game on return. Test: `OnlineSessionTest` +1; all unit tests pass.
+- The closed-testing build (vc3) has this bug; it needs a new upload (versionCode 4).
+- versionCode bumped to **4** (versionName 1.0); tests + lint pass (27 warnings, 0 errors). New `scripts/build-release.sh [--test-ads]` asks for the key passwords and writes `dist/baghchal-<name>-vc<code>[-testads].aab` + mapping.
+
+## Session 2026-10-25 (27) — Firebase room cleanup
+- No Cloud Functions (would need the Blaze plan); the apps clean up after each other.
+- A room nobody joined is now **deleted** when its host stops waiting (cancel, or quick match found another room), instead of being marked "closed". The "closed" status is gone.
+- `online/RoomCleanup.kt`: on an online action (`ready()`), at most once per 10 min per app run, the phone deletes up to 20 rooms older than 24 h (`createdAt`) and up to 20 codes older than 6 h (`at`). Fire and forget; failures are ignored.
+- Rules: `/rooms` and `/codes` can be listed only with that exact old-entries query (orderByChild + endAt ≤ now − age + limitToFirst ≤ 20); anyone signed in may delete a room older than 24 h. Added `.indexOn` for `createdAt` and `at`. **Needs publishing in the Firebase console** (until then the sweep is just refused; deleting unjoined rooms works with the old rules too).
+- Tests: `RoomCleanupTest` (3), incl. a check that the rules file uses the same ages and batch size. All unit tests pass. Not run against real Firebase.
+- Note: a game stalled for over 24 h (both still connected) would lose its room; the game screen ignores a missing room, so it would just stop updating.
+
+## 2026-10-25 — closed testing approved
+- Play Console approved the closed-testing release (`dist/baghchal-1.0-vc3-testads.aab`, versionCode 3, Google test ad IDs).
+- Before production:
+  1. Add the **Play App Signing** SHA-1/SHA-256 (Play Console → Setup → App signing) to the Firebase Android app, re-download `google-services.json` if asked, then test online play from a Play-installed copy.
+  2. Personal developer accounts need **≥12 opted-in testers for 14 continuous days** before Play allows production access.
+  3. Data safety form: include Firebase (anonymous user ID, game data) as well as AdMob.
+  4. ~~Room cleanup~~: done (below). **Paste the new `firebase/database.rules.json` into Firebase console → Realtime Database → Rules → Publish.**
+  5. Production build: versionCode 4+, **without** `-PtestAds` (real ad IDs), `./gradlew test lint` first.
+
+## Session 2026-10-25 (26) — store listing images
+- `store/screenshots/01…08-*.png` (1080×1920, captioned, phone frame) and `store/feature-graphic.png` (1024×500); all 24-bit PNG, no alpha.
+- Made by `scripts/make-store-images.py` (HTML → headless Chrome → ffmpeg) from emulator captures in `store/raw/` (debug build, demo-mode status bar). Only the top 1960 rows of each capture are shown, so the test-ad banner is cut off. Captions live in `SHOTS` in the script.
+- Also `store/icon-512.png` (from the launcher icon SVGs, by the same script) and `store/listing.md` (name, short + full description, category, tags).
+
+## Session 2026-10-25 (25) — first closed-testing build
+- Signed release bundle: `dist/baghchal-1.0-vc3.aab` (versionCode 3, versionName 1.0), R8 mapping in `dist/mapping-1.0-vc3.txt` (dist/ is git-ignored). Real AdMob IDs confirmed in the release build.
+- Signed with the upload key `~/keystores/baghchal-upload.jks` (alias `upload`, SHA-256 F3:45:18:…:18:C8) via `-Pandroid.injected.signing.*` on the command line; no signing config or password in the repo. Command: `./gradlew bundleRelease --no-configuration-cache -Pandroid.injected.signing.store.file=$HOME/keystores/baghchal-upload.jks -Pandroid.injected.signing.store.password=… -Pandroid.injected.signing.key.alias=upload -Pandroid.injected.signing.key.password=…`
+- Lint fixes: `CueVibrator` effect helpers marked `@RequiresApi(O)` (one-shot vibration needs API 26); `OnlineLobbyScreen` reads strings via `LocalResources`. Tests + lint pass.
+- Side menu (every screen) has **Privacy Policy** at the end of the list → opens https://matinstudios.com/bagh-chal-tiger-goat-game/privacy-policy in the browser (`PRIVACY_POLICY_URL` in `AppMenu.kt`, added inside `AppMenuDrawer`). Icon `ic_privacy` from `design/privacy.svg`. UI test `AppFlowTest.menuListsThePrivacyPolicy`; AppFlowTest 18/18 pass; checked on the emulator (opens Chrome). AAB above rebuilt with it.
+- **Closed-testing upload uses Google test ad IDs:** `dist/baghchal-1.0-vc3-testads.aab` (+ `mapping-1.0-vc3-testads.txt`), built with `-PtestAds=true` (new switch in `app/build.gradle.kts`; release still uses real IDs without it). Before production: rebuild without `-PtestAds`.
+- Next: next upload needs versionCode 4. After Play App Signing is on, add the Play signing SHA-1 to Firebase if Auth needs it.
+
 ## Session 2026-10-25 (24) — light/dark theme choice in the side menu
 - Side menu (Home, game, online game) has a "Theme" picker at the bottom: System / Light / Dark (segmented buttons). Default System.
 - Stored as `Settings.themeMode` (`ThemeMode` enum, key `settings_theme_mode`). `ui/ThemeViewModel` reads/writes it; `MainActivity` passes it to `BaghchalTheme` and re-styles the system bar icons to match.
 - Test: `RepositoriesTest` "theme mode defaults to system and persists". All unit tests pass.
 - Launch flash fixed on Android 12+: `MainActivity.applyToLaunchWindow` calls `UiModeManager.setApplicationNightMode` (YES/NO/AUTO), so the system draws the launch window in the chosen theme (remembered by the system). Manifest now has `configChanges="uiMode"` so changing theme recomposes instead of recreating the activity. Compose shows the window background until the saved theme is read. Android 7–11 can't change the launch window without AppCompat, so a brief flash remains there.
 - Checked on the emulator (API 37, phone light, app Dark): cold start dark from the first frame; switching back to System returns to light.
+
+## Session 2026-10-25 (24) — haptics fix + trapped vibration
+- Cause: haptics went through Compose `performHapticFeedback` (ContextClick / LongPress). That is "touch feedback": muted when the phone's system Touch feedback is off, and ContextClick does nothing on many phones.
+- Fix: `ui/haptics/CueVibrator.kt` calls the vibrator directly (predefined TICK / CLICK / HEAVY_CLICK on Android 10+, short one-shots before), marked as media/game vibration so only the in-app Haptics switch controls it. Added `VIBRATE` permission (normal, no prompt). Used by `GameScreen` and `OnlineGameScreen`.
+- New cue `HapticCue.PIECE_TRAPPED` (light click): a tiger newly trapped, or in the movement phase a goat newly boxed in (`Rules.trappedGoats`: no empty neighbour). Priority: capture > trapped > placement. Settings text updated.
+- Tests: RulesTest +1, GameFeedbackTest +2; all unit tests pass. On the emulator the vibrator log shows the cues with usage MEDIA. UI tests not re-run.
+
+## Session 2026-10-25 (23) — quick match falls back to a hidden bot
+- Quick match waits 3–5 s (random) for a real opponent; if none turns up, the game is played against the computer in a local room. Nothing on screen says it's a bot: same "Online game" screen, "Opponent" bar, thinking spinner, always connected.
+- `online/BotFallbackOnline.kt` wraps `FirebaseOnlineService` (wired in `AppContainer`). Bot rooms have ids `bot-…` and live in memory only; `sendMove`/`resign` for them never reach Firebase. Bot: random side, `SearchLimits(depth 3, 600 ms, randomMargin 30)`, waits 0.7–2.5 s before each move. Private games (codes) are unchanged.
+- `FirebaseOnlineService.findRandomMatch`: if someone joins our room just as the search is cancelled, we now resign it, so they aren't left facing an idle host.
+- Lobby: searching card shows an elapsed m:ss timer in its top-right corner (`SearchTimer`, string `online_search_time`).
+- Tests: `BotFallbackOnlineTest` (6). All unit tests pass. Checked on the emulator: timer, fallback after ~4 s, bot replies to moves.
+- Note: bot games count as online games (no stats, no undo/hint). Sign-in failures still show the connection error rather than a bot.
+
+## Session 2026-10-25 (22) — online lobby + game screen redesign
+Built from the design canvas (claude.ai artifact "Bagh Chal Online Screens", boards Online lobby / Waiting for a friend / Online game).
+- **Lobby** (`OnlineLobbyScreen.kt`, rewritten layout, same view model): top bar with back arrow; Quick match hero card (tiger VS goat, primaryContainer, Find opponent); "Play with a friend" divider; Create game card (Goats/Tigers side chips + Create); Join card with a 4-box code field (one `BasicTextField` drawn as boxes). Searching/creating/joining reuse the hero card with a spinner. While setting up, the top back button cancels.
+- **Waiting for a friend**: code in 4 big tiles, Share code + Copy (clipboard; toast on API < 33), host's piece vs empty seat, Cancel game. `LobbyState.WaitingForFriend` now carries the host's `side`.
+- **Online game**: new `OnlineGameContent.kt` — opponent bar above the board, turn banner + your bar below. The side to move gets its colours; tigers' bar shows captures as 5 pips, goats' bar shows in hand (placement) or on board (movement); opponent shows "thinking…" / "disconnected". `GameContent` lost its online-only `localControls` / `statusNote` params.
+- New icons from `design/`: back, share, copy, add, join, search, person → `ic_*` (mapping in `SvgConvert.java`). ~20 new `online_*` strings.
+- Tests: all unit + all UI pass; `OnlineScreensTest` updated for the new board/lobby. Lobby, busy and waiting screens checked on the emulator; the in-game screen only via UI test (needs two devices for a real match).
+- Not built yet from the canvas: online result screen and profile/stats (need Rematch, online stats, player name).
+
+## Session 2026-10-25 (21) — small fixes
+- Home title now reads "Bagh Chal: Tiger & Goat Game" (new `home_title` string, one line: auto-shrinks from displaySmall down to 16sp). `app_name` (launcher label, side menu) stays "Bagh Chal".
+- Home mode order is now Player vs AI, Play online, Player vs Player.
+- "No sounds" report: not an app bug. The emulator's audio service shows the app's SoundPool starting on every move; the long-running `Medium_Phone` emulator had lost host audio. Fix = cold boot the emulator / check Mac output device.
 
 ## Session 2026-10-25 (20) — online play (Firebase)
 

@@ -34,9 +34,12 @@ val adIdKeys = mapOf(
     "ADMOB_REWARDED_THEME_ID" to "ca-app-pub-3940256099942544/5224354917",
 )
 
+/** `-PtestAds=true` makes a release use Google's sample ad IDs (e.g. an early closed-testing build). */
+val forceTestAds = providers.gradleProperty("testAds").orNull.toBoolean()
+
 fun ApplicationBuildType.adIds(useRealIds: Boolean) {
     val ids = adIdKeys.mapValues { (key, testId) ->
-        if (useRealIds) localProperties.getProperty(key)?.trim()?.ifEmpty { null } ?: testId else testId
+        if (useRealIds && !forceTestAds) localProperties.getProperty(key)?.trim()?.ifEmpty { null } ?: testId else testId
     }
     manifestPlaceholders["admobAppId"] = ids.getValue("ADMOB_APP_ID")
     for ((key, id) in ids - "ADMOB_APP_ID") buildConfigField("String", key, "\"$id\"")
@@ -58,7 +61,7 @@ android {
         applicationId = "com.matinstudios.baghchal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 2
+        versionCode = 4
         versionName = "1.0"
 
         testInstrumentationRunner = "com.matinstudios.baghchal.BaghchalTestRunner"
@@ -70,9 +73,11 @@ android {
         }
         release {
             adIds(useRealIds = true)
+            // R8: shrink, optimise and obfuscate. Ads, Billing, Firebase and AndroidX ship their own keep rules.
             optimization {
-                enable = false
+                enable = true
             }
+            proguardFiles("proguard-rules.pro")
         }
     }
     compileOptions {

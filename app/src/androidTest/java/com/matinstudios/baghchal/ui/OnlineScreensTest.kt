@@ -17,7 +17,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.engine.Side
-import com.matinstudios.baghchal.ui.screens.GameContent
+import com.matinstudios.baghchal.ui.screens.OnlineGameContent
 import com.matinstudios.baghchal.ui.screens.LobbyState
 import com.matinstudios.baghchal.ui.screens.OnlineLobbyContent
 import com.matinstudios.baghchal.ui.screens.OnlineSession
@@ -69,7 +69,7 @@ class OnlineScreensTest {
         assertEquals(1, quickMatches)
 
         text(R.string.side_tigers).performScrollTo().performClick()
-        text(R.string.online_create).performScrollTo().performClick()
+        text(R.string.online_create_button).performScrollTo().performClick()
         assertEquals(listOf(Side.TIGER), created)
 
         // Only digits are typed in, at most four.
@@ -80,13 +80,13 @@ class OnlineScreensTest {
 
     @Test
     fun hostSeesTheCodeAndCanShareOrCancel() {
-        lobbyState = LobbyState.WaitingForFriend("0427")
+        lobbyState = LobbyState.WaitingForFriend("0427", Side.GOAT)
         showLobby()
         compose.onNodeWithContentDescription("0 4 2 7").assertIsDisplayed()
         text(R.string.online_waiting_friend).assertIsDisplayed()
         text(R.string.online_share).performClick()
         assertEquals(listOf("0427"), shared)
-        text(R.string.cancel).performClick()
+        text(R.string.online_cancel_game).performScrollTo().performClick()
         assertEquals(1, cancels)
     }
 
@@ -109,27 +109,32 @@ class OnlineScreensTest {
 
     @Test
     fun onlineBoardHasNoUndoOrHintAndShowsWhoseTurn() {
-        val session = OnlineSession.start(Side.GOAT, emptyList())
-        val note = "${str(R.string.online_you_play, str(R.string.side_goats))} · ${str(R.string.online_your_turn)}"
+        var session by mutableStateOf(OnlineSession.start(Side.GOAT, emptyList()))
+        var opponentAway by mutableStateOf(false)
         compose.setContent {
             BaghchalTheme {
-                GameContent(
-                    uiState = session.ui,
+                OnlineGameContent(
+                    session = session,
+                    opponentAway = opponentAway,
+                    end = null,
                     boardTheme = BoardTheme.WOOD,
-                    undoNeedsAd = false,
-                    hintNeedsAd = false,
                     onPointTapped = {},
-                    onUndo = {},
-                    onHint = {},
-                    onNewGame = {},
-                    onMenu = {},
-                    localControls = false,
-                    statusNote = note,
+                    onOpenMenu = {},
                 )
             }
         }
-        compose.onNodeWithText(note).assertIsDisplayed()
+        text(R.string.online_turn_place_goat).assertIsDisplayed()
+        text(R.string.online_player_you).assertIsDisplayed()
+        text(R.string.online_player_opponent).assertIsDisplayed()
         text(R.string.undo).assertDoesNotExist()
         text(R.string.hint).assertDoesNotExist()
+
+        // After a goat is placed it's the tigers' (the opponent's) turn.
+        session = session.tap(12).first
+        text(R.string.online_their_turn).assertIsDisplayed()
+        text(R.string.online_player_thinking, str(R.string.side_tigers)).assertIsDisplayed()
+
+        opponentAway = true
+        text(R.string.online_opponent_away).assertIsDisplayed()
     }
 }

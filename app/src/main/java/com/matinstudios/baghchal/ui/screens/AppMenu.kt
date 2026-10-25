@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +42,8 @@ import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.ThemeViewModel
 import kotlinx.coroutines.launch
+
+const val PRIVACY_POLICY_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/privacy-policy"
 
 /** one entry in the side menu. */
 data class AppMenuItem(@StringRes val label: Int, @DrawableRes val icon: Int, val onClick: () -> Unit)
@@ -58,6 +61,11 @@ fun AppMenuDrawer(
     content: @Composable (openMenu: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
+    // Every screen's menu ends with the privacy policy (opens in the browser).
+    val allItems = items + AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy) {
+        runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) }
+    }
     val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
     ModalNavigationDrawer(
@@ -80,7 +88,7 @@ fun AppMenuDrawer(
                     )
                 }
                 HorizontalDivider(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
-                items.forEach { item ->
+                allItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(stringResource(item.label)) },
                         icon = { Icon(painterResource(item.icon), contentDescription = null) },

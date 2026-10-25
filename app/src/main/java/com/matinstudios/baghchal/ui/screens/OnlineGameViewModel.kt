@@ -68,6 +68,7 @@ class OnlineGameViewModel(
     private var room: RoomSnapshot? = null
     private var awayTimer: Job? = null
     private var opponentGone = false
+    private var opponentSeen = false
 
     init {
         viewModelScope.launch {
@@ -106,9 +107,11 @@ class OnlineGameViewModel(
     private fun trackOpponent(snapshot: RoomSnapshot, me: String) {
         val opponent = snapshot.opponentOf(me)
         val away = opponent != null && opponent !in snapshot.online
+        if (opponent != null && !away) opponentSeen = true
         if (away && awayTimer == null) {
+            val grace = opponentGraceMillis(opponentSeen)
             awayTimer = viewModelScope.launch {
-                delay(OPPONENT_GRACE_MILLIS)
+                delay(grace)
                 opponentGone = true
                 _ui.value.session?.let(::show)
             }
@@ -143,7 +146,6 @@ class OnlineGameViewModel(
         fun route(roomId: String) = "$ROUTE_BASE/$roomId"
 
         /** How long a disconnected opponent has to come back before the game is theirs to lose. */
-        private const val OPPONENT_GRACE_MILLIS = 45_000L
 
         val Factory = viewModelFactory {
             initializer {

@@ -13,11 +13,13 @@ import com.google.firebase.database.ValueEventListener
 import com.matinstudios.baghchal.engine.Side
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -29,8 +31,9 @@ import kotlin.random.Random
  * Online play on Firebase: anonymous sign-in plus the Realtime Database.
  *
  * Layout (security rules in `firebase/database.rules.json`):
- * - `rooms/{id}`: host, guest, hostSide, status ("waiting" | "playing" | "closed"), code,
- *   moves/{n} = {m, by}, resigned, online/{uid}.
+ * - `rooms/{id}`: host, guest, hostSide, status ("waiting" | "playing"), code, createdAt,
+ *   moves/{n} = {m, by}, resigned, online/{uid}. A room nobody joined is deleted when its host
+ *   stops waiting; finished rooms are swept later by [RoomCleanup].
  * - `lobby/random`: the one random-match room waiting for an opponent {room, host, at}.
  * - `codes/{4 digits}`: the private room using that code {room, at}.
  *
@@ -48,13 +51,26 @@ class FirebaseOnlineService(
 
     private val rooms get() = db.getReference("rooms")
     private val randomSeat get() = db.getReference("lobby/random")
-    private fun codeRef(code: String) = db.getReference("codes/$code")
+    private val codes get() = db.getReference("codes")
+    private fun codeRef(code: String) = codes.child(code)
 
-    override suspend fun findRandomMatch(): String {
+    /** Server time of this run's last sweep of old rooms and codes. */
+    @Volatile private var lastSweepAt: Long? = null
+
+    override suspend fun findRandomMatch(): String = coroutineScope {
         val me = ready()
         val roomRef = rooms.push()
-        val roomId = roomRef.key!!
         createWaitingRoom(roomRef, me, Side.entries.random(), code = null)
+        val presence = launch { stayOnline(roomRef, me) }
+        try {
+            matchRandom(roomRef, me)
+        } finally {
+            presence.cancel()
+        }
+    }
+
+    private suspend fun matchRandom(roomRef: DatabaseReference, me: String): String {
+        val roomId = roomRef.key!!
         var matched: String? = null
         try {
             while (true) {
@@ -64,9 +80,9 @@ class FirebaseOnlineService(
                     if (withTimeoutOrNull(SEAT_REFRESH_MILLIS) { awaitGuest(roomRef) } != null) {
                         return roomId.also { matched = it }
                     }
-                } else if (closeIfUnjoined(roomRef)) {
-                    if (join(other, me) is JoinResult.Joined) return other.also { matched = it }
-                    // That room was gone; offer our own again (it was closed, so make a fresh one).
+                } else if (deleteIfUnjoined(roomRef)) {
+                    if (join(other, me, needHostOnline = true) is JoinResult.Joined) return other.also { matched = it }
+                    // That room was gone; offer ours again (it was deleted, so make a fresh one).
                     createWaitingRoom(roomRef, me, Side.entries.random(), code = null)
                 } else {
                     return roomId.also { matched = it } // someone joined ours just in time
@@ -75,7 +91,8 @@ class FirebaseOnlineService(
         } finally {
             if (matched != roomId) withContext(NonCancellable) {
                 releaseRandomSeat(roomId)
-                closeIfUnjoined(roomRef)
+                // Someone joined just as we stopped looking: concede, so they aren't left waiting.
+                if (!deleteIfUnjoined(roomRef)) roomRef.child("resigned").setValue(me)
             }
         }
     }
@@ -85,6 +102,8 @@ class FirebaseOnlineService(
         val roomRef = rooms.push()
         val roomId = roomRef.key!!
         createWaitingRoom(roomRef, me, hostSide, code = null)
+        // Sharing the code sends the host to another app, which can drop the connection.
+        val presence = launch { stayOnline(roomRef, me) }
         var code: String? = null
         var started = false
         try {
@@ -95,9 +114,10 @@ class FirebaseOnlineService(
             started = true
             send(HostingUpdate.Started(roomId))
         } finally {
+            presence.cancel()
             withContext(NonCancellable) {
                 code?.let { releaseCode(it, roomId) }
-                if (!started) closeIfUnjoined(roomRef)
+                if (!started) deleteIfUnjoined(roomRef)
             }
         }
     }
@@ -106,7 +126,8 @@ class FirebaseOnlineService(
         val me = ready()
         val roomId = codeRef(code).get().awaitOrThrow().child("room").getValue(String::class.java)
             ?: return JoinResult.NotFound
-        return join(roomId, me).also { if (it is JoinResult.Joined) releaseCode(code, roomId) }
+        // The host may still be in the app they shared the code with, so don't require them online.
+        return join(roomId, me, needHostOnline = false).also { if (it is JoinResult.Joined) releaseCode(code, roomId) }
     }
 
     override fun room(roomId: String): Flow<RoomSnapshot?> = callbackFlow {
@@ -114,19 +135,9 @@ class FirebaseOnlineService(
         val roomRef = rooms.child(roomId)
         val presence = me?.let { roomRef.child("online").child(it) }
         val roomListener = roomRef.addValueEventListener(listener { trySend(parseRoom(it)) })
-        // Re-announce on every reconnect; the server drops us from `online` when the connection goes.
-        val connectedRef = db.getReference(".info/connected")
-        val connectedListener = connectedRef.addValueEventListener(
-            listener { snapshot ->
-                if (presence != null && snapshot.getValue(Boolean::class.java) == true) {
-                    presence.onDisconnect().removeValue()
-                    presence.setValue(true)
-                }
-            },
-        )
+        if (me != null) launch { stayOnline(roomRef, me) }
         awaitClose {
             roomRef.removeEventListener(roomListener)
-            connectedRef.removeEventListener(connectedListener)
             presence?.onDisconnect()?.cancel()
             presence?.removeValue()
         }
@@ -142,6 +153,20 @@ class FirebaseOnlineService(
         rooms.child(roomId).child("resigned").setValue(me)
     }
 
+    /**
+     * Keeps [me] marked online in the room until cancelled. The server drops the mark when the
+     * connection goes (e.g. the app is paused in the background), so it is set again on every reconnect.
+     */
+    private suspend fun stayOnline(roomRef: DatabaseReference, me: String) {
+        val mine = roomRef.child("online").child(me)
+        db.getReference(".info/connected").values { it.getValue(Boolean::class.java) == true }.collect { connected ->
+            if (connected) {
+                mine.onDisconnect().removeValue()
+                mine.setValue(true)
+            }
+        }
+    }
+
     /** Signs in (anonymously, once per install) and checks the server can be reached. */
     private suspend fun ready(): String {
         val uid = auth.currentUser?.uid
@@ -151,7 +176,23 @@ class FirebaseOnlineService(
             db.getReference(".info/connected").values { it.getValue(Boolean::class.java) }.first { it == true }
         }
         if (connected == null) throw OnlineException("No connection")
+        sweepOldData()
         return uid
+    }
+
+    /** Deletes a batch of old rooms and codes (fire and forget; the next sweep retries failures). */
+    private suspend fun sweepOldData() {
+        val now = serverNow()
+        if (!RoomCleanup.isDue(lastSweepAt, now)) return
+        lastSweepAt = now
+        deleteOlderThan(rooms, "createdAt", RoomCleanup.roomCutoff(now))
+        deleteOlderThan(codes, "at", RoomCleanup.codeCutoff(now))
+    }
+
+    private fun deleteOlderThan(parent: DatabaseReference, timeField: String, cutoff: Long) {
+        // startAt(1) skips entries without the field: the rules couldn't prove they're old.
+        parent.orderByChild(timeField).startAt(1.0).endAt(cutoff.toDouble()).limitToFirst(RoomCleanup.BATCH).get()
+            .addOnSuccessListener { snapshot -> snapshot.children.forEach { it.ref.removeValue() } }
     }
 
     private suspend fun createWaitingRoom(roomRef: DatabaseReference, me: String, hostSide: Side, code: String?) {
@@ -222,8 +263,8 @@ class FirebaseOnlineService(
         }
     }
 
-    /** Takes the guest seat of a waiting room whose host is still connected. */
-    private suspend fun join(roomId: String, me: String): JoinResult {
+    /** Takes the guest seat of a waiting room (whose host is connected, if [needHostOnline]). */
+    private suspend fun join(roomId: String, me: String, needHostOnline: Boolean): JoinResult {
         var result: JoinResult = JoinResult.NotFound
         rooms.child(roomId).transact { data ->
             val host = data.child("host").getValue(String::class.java)
@@ -231,7 +272,7 @@ class FirebaseOnlineService(
             val guest = data.child("guest").getValue(String::class.java)
             val hostHere = host != null && data.child("online").hasChild(host)
             result = when {
-                host == null || host == me || !hostHere || status == STATUS_CLOSED -> JoinResult.NotFound
+                host == null || host == me || (needHostOnline && !hostHere) -> JoinResult.NotFound
                 guest != null || status != STATUS_WAITING -> JoinResult.Full
                 else -> JoinResult.Joined(roomId)
             }
@@ -247,15 +288,15 @@ class FirebaseOnlineService(
         return result
     }
 
-    /** Closes our waiting room unless a guest has joined; true if it was closed (or is gone). */
-    private suspend fun closeIfUnjoined(roomRef: DatabaseReference): Boolean {
-        var closed = false
+    /** Deletes our waiting room unless a guest has joined; true if it was deleted (or is gone). */
+    private suspend fun deleteIfUnjoined(roomRef: DatabaseReference): Boolean {
+        var deleted = false
         roomRef.transact { data ->
-            closed = data.child("guest").value == null
-            if (closed && data.value != null) data.child("status").value = STATUS_CLOSED
+            deleted = data.child("guest").value == null
+            if (deleted && data.value != null) data.value = null
             true
         }
-        return closed
+        return deleted
     }
 
     private suspend fun awaitGuest(roomRef: DatabaseReference) {
@@ -301,11 +342,10 @@ class FirebaseOnlineService(
     private companion object {
         const val STATUS_WAITING = "waiting"
         const val STATUS_PLAYING = "playing"
-        const val STATUS_CLOSED = "closed"
         const val CONNECT_TIMEOUT_MILLIS = 10_000L
         const val SEAT_REFRESH_MILLIS = 20_000L
         const val SEAT_STALE_MILLIS = 60_000L
-        const val CODE_STALE_MILLIS = 6 * 60 * 60 * 1000L
+        const val CODE_STALE_MILLIS = RoomCleanup.CODE_MAX_AGE_MILLIS
         const val CODE_ATTEMPTS = 20
     }
 }

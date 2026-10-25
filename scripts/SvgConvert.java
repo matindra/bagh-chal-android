@@ -47,7 +47,15 @@ public class SvgConvert {
             Map.entry("home.svg", "ic_home"),
             Map.entry("mode_vs_ai.svg", "ic_mode_vs_ai"),
             Map.entry("mode_vs_player.svg", "ic_mode_vs_player"),
-            Map.entry("mode_online.svg", "ic_mode_online")
+            Map.entry("mode_online.svg", "ic_mode_online"),
+            Map.entry("back.svg", "ic_back"),
+            Map.entry("share.svg", "ic_share"),
+            Map.entry("copy.svg", "ic_copy"),
+            Map.entry("add.svg", "ic_add"),
+            Map.entry("join.svg", "ic_join"),
+            Map.entry("search.svg", "ic_search"),
+            Map.entry("person.svg", "ic_person"),
+            Map.entry("privacy.svg", "ic_privacy")
     ));
 
     /** mipmap density -> legacy launcher icon size in px (48dp). */

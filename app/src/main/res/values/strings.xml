@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Bagh Chal</string>
+    <string name="home_title">Bagh Chal: Tiger &amp; Goat Game</string>
 
     <string name="cd_board">Bagh Chal board</string>
     <string name="point_description">Row %1$d, column %2$d, %3$s</string>
@@ -58,6 +59,7 @@
     <string name="home_menu">Menu</string>
     <string name="menu_home">Home</string>
     <string name="menu_theme">Theme</string>
+    <string name="menu_privacy_policy">Privacy Policy</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
@@ -86,7 +88,7 @@
     <string name="settings_sound">Sound</string>
     <string name="settings_sound_detail">Sound effects for moves and captures</string>
     <string name="settings_haptics">Haptics</string>
-    <string name="settings_haptics_detail">Vibrate when a goat is placed or captured</string>
+    <string name="settings_haptics_detail">Vibrate when a goat is placed or captured, or a piece is trapped</string>
     <string name="settings_board">Board</string>
     <string name="settings_board_watch_ad">Watch ad to unlock</string>
     <string name="settings_remove_ads">Remove Ads</string>
@@ -142,15 +144,16 @@
     <string name="result_draw_move_limit">Draw — too many moves without a capture</string>
 
     <!-- Online play -->
-    <string name="mode_online">Play online</string>
-    <string name="mode_online_detail">A random opponent, or a friend with a code</string>
+    <string name="mode_online">Play Online</string>
+    <string name="mode_online_detail">A random opponent or with a friend online</string>
     <string name="online_quick_title">Quick match</string>
     <string name="online_quick_detail">Play someone online. Sides are picked at random.</string>
     <string name="online_find">Find opponent</string>
     <string name="online_searching">Looking for an opponent…</string>
+    <string name="online_search_time" translatable="false">%1$d:%2$02d</string>
     <string name="online_friend_title">Play with a friend</string>
     <string name="online_create_detail">Create a game and share its 4-digit code.</string>
-    <string name="online_create">Create game</string>
+    <string name="online_create">Create game to play with a friend</string>
     <string name="online_creating">Creating game…</string>
     <string name="online_your_code">Your game code</string>
     <string name="online_waiting_friend">Waiting for your friend to join…</string>
@@ -185,4 +188,24 @@
     <string name="online_reason_opponent_left">Your opponent lost their connection.</string>
     <string name="online_reason_invalid">Your opponent\'s app sent a move the rules don\'t allow.</string>
     <string name="online_play_again">Play again</string>
+    <string name="online_vs">VS</string>
+    <string name="online_create_button">Create</string>
+    <string name="online_create_short">Get a 4-digit code to share</string>
+    <string name="online_code_hint">Your friend taps Join and enters this code</string>
+    <string name="online_copy">Copy code</string>
+    <string name="online_copied">Code copied</string>
+    <string name="online_keep_open">Keep this screen open until they join.</string>
+    <string name="online_cancel_game">Cancel game</string>
+    <string name="online_game_title">Online game</string>
+    <string name="online_move_number">%1$s · Move %2$d</string>
+    <string name="online_player_you">You</string>
+    <string name="online_player_opponent">Opponent</string>
+    <string name="online_player_thinking">%1$s · thinking…</string>
+    <string name="online_player_away">%1$s · disconnected</string>
+    <string name="online_in_hand">in hand</string>
+    <string name="online_on_board">on board</string>
+    <string name="online_captured">Captured %1$d/%2$d</string>
+    <string name="online_turn_place_goat">Your turn — place a goat</string>
+    <string name="online_turn_move_goat">Your turn — move a goat</string>
+    <string name="online_turn_move_tiger">Your turn — move a tiger</string>
 </resources>

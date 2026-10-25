@@ -7,6 +7,7 @@ import com.matinstudios.baghchal.ads.ConsentManager
 import com.matinstudios.baghchal.ads.MobileAdsManager
 import com.matinstudios.baghchal.ads.NoAds
 import com.matinstudios.baghchal.billing.BillingManager
+import com.matinstudios.baghchal.online.BotFallbackOnline
 import com.matinstudios.baghchal.online.FirebaseOnlineService
 import com.matinstudios.baghchal.online.NoOnline
 import com.matinstudios.baghchal.online.OnlineService
@@ -51,8 +52,15 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
     }
     val billing = BillingManager(context, entitlements, activities, appScope)
 
-    /** Online play needs a Firebase config (app/google-services.json); without one it is switched off. */
-    val online: OnlineService = if (servicesEnabled && firebaseConfigured(context)) FirebaseOnlineService() else NoOnline
+    /**
+     * Online play needs a Firebase config (app/google-services.json); without one it is switched off.
+     * Quick match falls back to a computer opponent when nobody turns up within a few seconds.
+     */
+    val online: OnlineService = if (servicesEnabled && firebaseConfigured(context)) {
+        BotFallbackOnline(FirebaseOnlineService(), appScope)
+    } else {
+        NoOnline
+    }
 
     /** Created at app start so every sound is loaded before the first game. */
     val sounds = SoundPoolPlayer(context)

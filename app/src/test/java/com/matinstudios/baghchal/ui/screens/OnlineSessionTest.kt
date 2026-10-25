@@ -138,4 +138,11 @@ class OnlineSessionTest {
         val session = OnlineSession.start(mySide, emptyList())
         return session.copy(ui = session.ui.copy(status = status))
     }
+
+    @Test
+    fun `an opponent not seen yet gets longer to arrive than one who dropped out`() {
+        assertEquals(OPPONENT_GRACE_MILLIS, opponentGraceMillis(opponentSeen = true))
+        assertEquals(OPPONENT_ARRIVAL_GRACE_MILLIS, opponentGraceMillis(opponentSeen = false))
+        assertTrue(OPPONENT_ARRIVAL_GRACE_MILLIS > OPPONENT_GRACE_MILLIS)
+    }
 }

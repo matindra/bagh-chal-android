@@ -33,11 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.ui.haptics.CueVibrator
 import com.matinstudios.baghchal.ads.BannerAd
 import com.matinstudios.baghchal.ads.BannerPlacement
 import com.matinstudios.baghchal.data.BoardTheme
@@ -68,9 +69,10 @@ fun GameScreen(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(factory = GameViewModel.Factory),
 ) {
-    val haptics = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val vibrator = remember(context) { CueVibrator(context) }
     LaunchedEffect(viewModel) {
-        viewModel.haptics.collect { cue -> haptics.performHapticFeedback(cue.hapticType) }
+        viewModel.haptics.collect(vibrator::play)
     }
     val currentOnGameWon by rememberUpdatedState(onGameWon)
     LaunchedEffect(viewModel) {
@@ -110,8 +112,6 @@ fun GameScreen(
 
 /**
  * @param onMenu leaves the game for Home; @param onOpenMenu opens the side menu.
- * @param localControls Undo / Hint, and Menu / New game after a draw; off for online games.
- * @param statusNote replaces the phase line under the turn badge while the game is on.
  */
 @Composable
 fun GameContent(
@@ -126,8 +126,6 @@ fun GameContent(
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenMenu: () -> Unit = {},
-    localControls: Boolean = true,
-    statusNote: String? = null,
 ) {
     val game = uiState.game
     Column(
@@ -140,7 +138,7 @@ fun GameContent(
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             AppMenuButton(onOpenMenu, Modifier.align(Alignment.CenterStart))
             // Side padding keeps the centred status clear of the menu button.
-            StatusLine(uiState, statusNote, Modifier.padding(horizontal = 48.dp))
+            StatusLine(uiState, Modifier.padding(horizontal = 48.dp))
         }
         BoardCanvas(
             board = game.board,
@@ -165,13 +163,12 @@ fun GameContent(
             Counter(R.drawable.ic_tiger, stringResource(R.string.goats_captured, game.goatsCaptured, GOATS_TO_WIN))
         }
         // Wins move on to the result screen; only draws end here.
-        // Online games have no Undo / Hint, and their own end-of-game dialog.
-        if (localControls && uiState.status is GameStatus.Drawn) {
+        if (uiState.status is GameStatus.Drawn) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onMenu) { Text(stringResource(R.string.menu)) }
                 Button(onClick = onNewGame) { Text(stringResource(R.string.new_game)) }
             }
-        } else if (localControls) {
+        } else {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AssistButton(
                     onClick = onUndo,
@@ -221,14 +218,8 @@ private fun AssistButton(
 private fun assistLabel(@StringRes label: Int, needsAd: Boolean): String =
     if (needsAd) stringResource(R.string.with_ad, stringResource(label)) else stringResource(label)
 
-internal val HapticCue.hapticType: HapticFeedbackType
-    get() = when (this) {
-        HapticCue.GOAT_PLACED -> HapticFeedbackType.ContextClick
-        HapticCue.GOAT_CAPTURED -> HapticFeedbackType.LongPress
-    }
-
 @Composable
-private fun StatusLine(uiState: GameUiState, note: String?, modifier: Modifier = Modifier) {
+private fun StatusLine(uiState: GameUiState, modifier: Modifier = Modifier) {
     val status = uiState.status
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         val headline = when (status) {
@@ -254,8 +245,7 @@ private fun StatusLine(uiState: GameUiState, note: String?, modifier: Modifier =
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {
-                val text = note.takeIf { status == GameStatus.InProgress } ?: subtitle(uiState)
-                Text(text, style = MaterialTheme.typography.bodyMedium)
+                Text(subtitle(uiState), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

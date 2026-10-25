@@ -303,6 +303,14 @@ class RulesTest {
         assertEquals(setOf(0, 4, 20, 24), Rules.trappedTigers(next))
     }
 
+    @Test
+    fun `a goat with every neighbour taken is trapped`() {
+        // Goat 0's neighbours are 1, 5 and 6; goat 12 still has empty neighbours.
+        val state = GameState.create(listOf(1, 5, 6, 24), listOf(0, 12), Side.GOAT, goatsInHand = 18)
+        assertEquals(setOf(0), Rules.trappedGoats(state))
+        assertEquals(emptySet(), Rules.trappedGoats(Rules.initialState()))
+    }
+
     // --- Draws ---
 
     /** Tigers on the top row, goats packed below; tiger 0<->5 and goat 9<->4 can shuffle forever. */

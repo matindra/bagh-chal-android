@@ -37,6 +37,10 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -103,11 +107,19 @@ fun HomeContent(
                 Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(64.dp))
                 Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(64.dp))
             }
-            Text(
-                stringResource(R.string.app_name),
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+            // One line on every screen: shrinks from displaySmall until it fits.
+            BasicText(
+                stringResource(R.string.home_title),
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                ),
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 16.sp,
+                    maxFontSize = MaterialTheme.typography.displaySmall.fontSize,
+                ),
             )
 
             Column(
@@ -130,20 +142,20 @@ fun HomeContent(
                     onClick = onPlayVsAi,
                 )
                 ModeCard(
-                    title = R.string.mode_vs_player,
-                    detail = R.string.mode_vs_player_detail,
-                    icon = R.drawable.ic_mode_vs_player,
-                    container = MaterialTheme.colorScheme.secondaryContainer,
-                    content = MaterialTheme.colorScheme.onSecondaryContainer,
-                    onClick = { onStartGame(GameSetup.TWO_PLAYER) },
-                )
-                ModeCard(
                     title = R.string.mode_online,
                     detail = R.string.mode_online_detail,
                     icon = R.drawable.ic_mode_online,
                     container = MaterialTheme.colorScheme.tertiaryContainer,
                     content = MaterialTheme.colorScheme.onTertiaryContainer,
                     onClick = onPlayOnline,
+                )
+                ModeCard(
+                    title = R.string.mode_vs_player,
+                    detail = R.string.mode_vs_player_detail,
+                    icon = R.drawable.ic_mode_vs_player,
+                    container = MaterialTheme.colorScheme.secondaryContainer,
+                    content = MaterialTheme.colorScheme.onSecondaryContainer,
+                    onClick = { onStartGame(GameSetup.TWO_PLAYER) },
                 )
             }
         }

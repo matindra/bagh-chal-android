@@ -94,3 +94,15 @@ fun onlineEndFor(
         else -> null
     }
 }
+
+/** How long a disconnected opponent has to come back before we win. */
+const val OPPONENT_GRACE_MILLIS = 45_000L
+
+/**
+ * Longer when the opponent hasn't been seen in this game yet: a host who shared the code may still
+ * be in the other app (where their phone pauses Bagh Chal) when the friend joins.
+ */
+const val OPPONENT_ARRIVAL_GRACE_MILLIS = 3 * 60_000L
+
+fun opponentGraceMillis(opponentSeen: Boolean): Long =
+    if (opponentSeen) OPPONENT_GRACE_MILLIS else OPPONENT_ARRIVAL_GRACE_MILLIS

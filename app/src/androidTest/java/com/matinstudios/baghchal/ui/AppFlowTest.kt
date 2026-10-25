@@ -112,6 +112,12 @@ class AppFlowTest {
     }
 
     @Test
+    fun menuListsThePrivacyPolicy() {
+        compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
+        waitForText(R.string.menu_privacy_policy)
+    }
+
+    @Test
     fun playOnlineSaysItIsUnavailableWithoutAServer() {
         // Instrumented tests run without online play, like a build without a Firebase config.
         text(R.string.mode_online).performScrollTo().performClick()

@@ -76,6 +76,29 @@ class GameFeedbackTest {
     }
 
     @Test
+    fun `a tiger becoming trapped gives the trapped haptic`() {
+        val before = GameInteraction.fromGame(
+            GameState.create(listOf(0, 4, 20, 24), listOf(1, 2, 5, 6, 10), Side.GOAT, goatsInHand = 15),
+            aiSide = null,
+        )
+        assertEquals(HapticCue.PIECE_TRAPPED, feedbackFor(before, before.play(Move.Place(12)), all)?.haptic)
+    }
+
+    @Test
+    fun `a goat becoming trapped gives the trapped haptic, but only in the movement phase`() {
+        // Tiger 2 steps to 1, taking goat 0's last free neighbour (5 and 6 are tigers).
+        val goats = listOf(0, 4, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22)
+        fun position(goatsInHand: Int) = GameInteraction.fromGame(
+            GameState.create(listOf(2, 5, 6, 24), goats, Side.TIGER, goatsInHand = goatsInHand),
+            aiSide = null,
+        )
+        val moving = position(goatsInHand = 0)
+        assertEquals(HapticCue.PIECE_TRAPPED, feedbackFor(moving, moving.play(Move.Step(2, 1)), all)?.haptic)
+        val placing = position(goatsInHand = 4)
+        assertNull(feedbackFor(placing, placing.play(Move.Step(2, 1)), all)?.haptic, "goats can't move while placing anyway")
+    }
+
+    @Test
     fun `an already trapped tiger does not replay goat_capture`() {
         val before = GameInteraction.fromGame(
             GameState.create(listOf(0, 4, 20, 24), listOf(1, 2, 5, 6, 10, 12), Side.GOAT, goatsInHand = 14),

@@ -52,7 +52,7 @@ class OnlineLobbyViewModelTest {
     @Test
     fun `hosting shows the code, and cancelling closes the game`() = runTest {
         viewModel.onCreateGame(Side.TIGER)
-        assertEquals(LobbyState.WaitingForFriend("0427"), viewModel.state.value)
+        assertEquals(LobbyState.WaitingForFriend("0427", Side.TIGER), viewModel.state.value)
         assertEquals(Side.TIGER, online.hostedSide)
 
         viewModel.onCancel()

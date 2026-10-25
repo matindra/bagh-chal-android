@@ -124,6 +124,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - The google-services plugin is applied only when `app/google-services.json` exists; the build must stay green without it.
 - No server referee: every phone replays the room's moves through the engine (`OnlineReplay`); a bad move loses for its sender.
 - Claims (random seat, codes, joining) are Realtime Database transactions. Security rules live in `firebase/database.rules.json`; keep them in sync with the data layout in `FirebaseOnlineService`.
+- No server code: unjoined rooms are deleted by their host; old rooms (24 h) and codes (6 h) are swept by clients (`online/RoomCleanup`, ages mirrored in the rules).
 - Online games: no Undo/Hint, no save/resume, not in Stats. Leaving mid-game resigns; an opponent disconnected for 45 s loses.
 
 ## Monetisation
@@ -144,7 +145,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Settings screen has "Remove Ads" and "Restore Purchase".
 
 ### Implementation notes
-- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
+- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. `-PtestAds=true` forces the test IDs in a release build (early closed testing). Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
 - One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME).
 - Screens see ads only through the `ads/Ads` interface; instrumented tests run on `TestBaghchalApplication` (no consent, ads or billing).
 - Undo/Hint/theme rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks are not.
@@ -178,8 +179,10 @@ app/src/main/java/com/matinstudios/baghchal/
 ./gradlew connectedDebugAndroidTest   # Compose UI tests (needs a running emulator/device; runs without ads/billing)
 ./gradlew lint
 ./gradlew bundleRelease      # AAB for Play Console
+scripts/build-release.sh [--test-ads]  # signed AAB + mapping into dist/ (asks for key passwords)
 scripts/convert-svgs.sh      # regenerate res/drawable + legacy launcher icons from design/*.svg
 scripts/convert-sounds.sh    # regenerate res/raw/*.ogg from design/sounds (needs ffmpeg + vorbis-tools)
+scripts/make-store-images.py # Play Store screenshots + feature graphic from store/raw (needs Chrome + ffmpeg)
 ```
 
 ## Release checklist
