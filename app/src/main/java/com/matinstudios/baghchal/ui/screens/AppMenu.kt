@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.matinstudios.baghchal.BuildConfig
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.ThemeViewModel
@@ -111,6 +112,12 @@ fun AppMenuDrawer(
                 ThemePicker(
                     selected = themeMode ?: ThemeMode.SYSTEM,
                     onSelect = themeViewModel::onThemeModeChanged,
+                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp),
+                )
+                Text(
+                    stringResource(R.string.menu_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                 )
             }
