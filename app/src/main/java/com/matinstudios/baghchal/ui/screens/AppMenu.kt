@@ -47,6 +47,7 @@ import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.ThemeViewModel
 import kotlinx.coroutines.launch
 
+const val WEBSITE_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/"
 const val PRIVACY_POLICY_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/privacy-policy"
 
 /** one entry in the side menu. */
@@ -66,10 +67,11 @@ fun AppMenuDrawer(
 ) {
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
-    // Every screen's menu ends with the privacy policy (opens in the browser).
-    val allItems = items + AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy) {
-        runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) }
-    }
+    // Every screen's menu ends with the game's web page and privacy policy (open in the browser).
+    val allItems = items + listOf(
+        AppMenuItem(R.string.menu_website, R.drawable.ic_globe) { runCatching { uriHandler.openUri(WEBSITE_URL) } },
+        AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy) { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } },
+    )
     val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
     ModalNavigationDrawer(
