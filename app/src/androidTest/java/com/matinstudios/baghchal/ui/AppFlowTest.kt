@@ -127,8 +127,16 @@ class AppFlowTest {
     }
 
     @Test
+    fun playWithAFriendSaysItIsUnavailableWithoutAServer() {
+        text(R.string.mode_friend).performScrollTo().performClick()
+        waitForText(R.string.online_unavailable)
+        Espresso.pressBack()
+        waitForText(R.string.mode_vs_player)
+    }
+
+    @Test
     fun homeToTwoPlayerGame() {
-        text(R.string.mode_vs_ai).assertIsDisplayed()
+        text(R.string.mode_vs_ai).performScrollTo().assertIsDisplayed()
         startTwoPlayer()
         text(R.string.goats_in_hand, 20).assertIsDisplayed()
         point(0).assertContentDescriptionEquals(str(R.string.point_description, 1, 1, str(R.string.point_tiger)))

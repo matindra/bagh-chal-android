@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-26 (29) — Home: four game modes
+- "Choose a game" now lists, in order: **Play Online** (random opponent), **Play with a Friend** (4-digit code), **Play with AI**, **Pass n Play** (renamed from Player vs AI / Player vs Player).
+- One lobby screen, two modes (`OnlineLobbyMode` RANDOM/FRIEND, route `online/{mode}`): Online shows only Quick match; Friend shows only Create + Join. "Play again" after an online game returns to the same lobby.
+- New icon `design/mode_friend.svg` → `ic_mode_friend`. Both online cards use the sky (tertiary) colour. Share text now says "Open Play with a Friend".
+- Home layout then changed to **grouped tiles** (design B, picked from a 3-option mockup): header = tiger · "Bagh Chal" · goat + "Tiger & Goat Game"; "ONLINE" (Online, Friend) and "ON THIS PHONE" (AI, Pass n Play) sections, 2 equal-height tiles each. Home no longer shows the prayer flags, mountains or "Choose a game" (Welcome and AI setup still use the decorations). New heading icons `design/globe.svg`, `design/phone.svg` → `ic_globe`, `ic_phone`. Pass n Play detail is now "Take turns on one phone".
+- Tests: lobby tests split per mode, + friend-mode flow test. Unit tests, lint and all UI tests pass on the emulator. Not yet released (needs a new versionCode).
+
 ## Session 2026-10-25 (28) — fix: "no game with that code" for friends
 - Cause (reproduced on the emulator + Firebase REST): the host marked itself in `rooms/{id}/online` only once. Sharing the code sends the host to another app, Android pauses Bagh Chal, the server drops the mark, and nothing set it again, so `join` (which needed the host online) said NotFound forever.
 - Fix in `FirebaseOnlineService`: `stayOnline()` re-marks the player on every reconnect while waiting (private and quick match; `room()` uses it too). Joining by code no longer needs the host online (`join(needHostOnline = false)`); random rooms still do.

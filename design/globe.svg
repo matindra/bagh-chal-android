@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- Home section heading: Online. -->
+  <circle cx="12" cy="12" r="9" fill="none" stroke="#000000" stroke-width="2"/>
+  <path d="M3 12 H21 M12 3 C15 6.5 15 17.5 12 21 M12 3 C9 6.5 9 17.5 12 21" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
+</svg>

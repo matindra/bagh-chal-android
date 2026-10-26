@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.matinstudios.baghchal.BaghchalApplication
@@ -72,7 +73,7 @@ class WelcomeFlowTest {
         text(R.string.welcome_next).assertDoesNotExist()
         text(R.string.welcome_start).performClick()
         waitForText(R.string.mode_vs_ai)
-        text(R.string.mode_vs_player).assertIsDisplayed()
+        text(R.string.mode_vs_player).performScrollTo().assertIsDisplayed()
         awaitTutorialSeen()
     }
 

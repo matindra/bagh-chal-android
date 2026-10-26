@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Bagh Chal</string>
-    <string name="home_title">Bagh Chal: Tiger &amp; Goat Game</string>
+    <string name="home_name">Bagh Chal</string>
+    <string name="home_tagline">Tiger &amp; Goat Game</string>
 
     <string name="cd_board">Bagh Chal board</string>
     <string name="point_description">Row %1$d, column %2$d, %3$s</string>
@@ -30,11 +31,12 @@
     <string name="result_you_lose">You lose</string>
     <string name="home_play_as">Play as</string>
     <string name="home_difficulty">Difficulty</string>
-    <string name="mode_title">Choose a game</string>
-    <string name="mode_vs_ai">Player vs AI</string>
+    <string name="mode_vs_ai">Play with AI</string>
     <string name="mode_vs_ai_detail">Play against the computer</string>
-    <string name="mode_vs_player">Player vs Player</string>
-    <string name="mode_vs_player_detail">Two players take turns on one device</string>
+    <string name="mode_vs_player">Pass n Play</string>
+    <string name="mode_vs_player_detail">Take turns on one phone</string>
+    <string name="home_section_online">Online</string>
+    <string name="home_section_device">On this phone</string>
     <string name="ai_setup_start">Start</string>
     <string name="side_goats_detail">Move first and trap the tigers</string>
     <string name="side_tigers_detail">Capture %1$d goats</string>
@@ -145,20 +147,21 @@
 
     <!-- Online play -->
     <string name="mode_online">Play Online</string>
-    <string name="mode_online_detail">A random opponent or with a friend online</string>
+    <string name="mode_online_detail">With a random opponent</string>
+    <string name="mode_friend">Play with a Friend</string>
+    <string name="mode_friend_detail">With your friend</string>
     <string name="online_quick_title">Quick match</string>
     <string name="online_quick_detail">Play someone online. Sides are picked at random.</string>
     <string name="online_find">Find opponent</string>
     <string name="online_searching">Looking for an opponent…</string>
     <string name="online_search_time" translatable="false">%1$d:%2$02d</string>
-    <string name="online_friend_title">Play with a friend</string>
     <string name="online_create_detail">Create a game and share its 4-digit code.</string>
     <string name="online_create">Create game to play with a friend</string>
     <string name="online_creating">Creating game…</string>
     <string name="online_your_code">Your game code</string>
     <string name="online_waiting_friend">Waiting for your friend to join…</string>
     <string name="online_share">Share code</string>
-    <string name="online_share_text">Play Bagh Chal with me! Open Play online, tap Join and enter code %1$s.</string>
+    <string name="online_share_text">Play Bagh Chal with me! Open Play with a Friend, tap Join and enter code %1$s.</string>
     <string name="online_join_title">Join a friend\'s game</string>
     <string name="online_code_label">4-digit code</string>
     <string name="online_join">Join</string>

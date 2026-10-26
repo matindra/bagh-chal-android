@@ -17,6 +17,7 @@ import com.matinstudios.baghchal.ui.screens.HomeScreen
 import com.matinstudios.baghchal.ui.screens.HowToPlayScreen
 import com.matinstudios.baghchal.ui.screens.OnlineGameScreen
 import com.matinstudios.baghchal.ui.screens.OnlineGameViewModel
+import com.matinstudios.baghchal.ui.screens.OnlineLobbyMode
 import com.matinstudios.baghchal.ui.screens.OnlineLobbyScreen
 import com.matinstudios.baghchal.ui.screens.ResultScreen
 import com.matinstudios.baghchal.ui.screens.ResultViewModel
@@ -30,7 +31,10 @@ private const val SETTINGS_ROUTE = "settings"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
 private const val WELCOME_ROUTE = "welcome"
 private const val AI_SETUP_ROUTE = "ai_setup"
-private const val ONLINE_ROUTE = "online"
+private const val ARG_ONLINE_MODE = "mode"
+private const val ONLINE_ROUTE = "online/{$ARG_ONLINE_MODE}"
+
+private fun onlineRoute(mode: OnlineLobbyMode) = "online/${mode.name}"
 
 @Composable
 fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)) {
@@ -51,7 +55,8 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
         composable(HOME_ROUTE) {
             HomeScreen(
                 onPlayVsAi = { navController.navigate(AI_SETUP_ROUTE) },
-                onPlayOnline = { navController.navigate(ONLINE_ROUTE) },
+                onPlayOnline = { navController.navigate(onlineRoute(OnlineLobbyMode.RANDOM)) },
+                onPlayWithFriend = { navController.navigate(onlineRoute(OnlineLobbyMode.FRIEND)) },
                 onStartGame = { setup -> navController.navigate(setup.route) },
                 onResume = { navController.navigate(GameSetup.RESUME_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
@@ -127,8 +132,15 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(ONLINE_ROUTE) {
+        composable(
+            ONLINE_ROUTE,
+            arguments = listOf(navArgument(ARG_ONLINE_MODE) { type = NavType.StringType }),
+        ) { entry ->
+            val mode = entry.arguments?.getString(ARG_ONLINE_MODE)
+                ?.let { name -> OnlineLobbyMode.entries.firstOrNull { it.name == name } }
+                ?: OnlineLobbyMode.RANDOM
             OnlineLobbyScreen(
+                mode = mode,
                 onMatched = { roomId -> navController.navigate(OnlineGameViewModel.route(roomId)) },
                 onBack = { navController.popBackStack() },
             )

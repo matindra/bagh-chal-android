@@ -34,7 +34,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,9 +88,16 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Which way in from Home: a random opponent, or a friend with a 4-digit code. */
+enum class OnlineLobbyMode(@StringRes val title: Int) {
+    RANDOM(R.string.mode_online),
+    FRIEND(R.string.mode_friend),
+}
+
 /** Play online: a quick match against anyone, or a private game with a 4-digit code. */
 @Composable
 fun OnlineLobbyScreen(
+    mode: OnlineLobbyMode,
     onMatched: (roomId: String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -108,6 +114,7 @@ fun OnlineLobbyScreen(
     }
     Column(modifier.fillMaxSize()) {
         OnlineLobbyContent(
+            mode = mode,
             isAvailable = viewModel.isAvailable,
             state = state,
             onQuickMatch = viewModel::onQuickMatch,
@@ -124,6 +131,7 @@ fun OnlineLobbyScreen(
 
 @Composable
 fun OnlineLobbyContent(
+    mode: OnlineLobbyMode,
     isAvailable: Boolean,
     state: LobbyState,
     onQuickMatch: () -> Unit,
@@ -134,11 +142,10 @@ fun OnlineLobbyContent(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val waiting = state is LobbyState.WaitingForFriend
     Column(modifier.fillMaxSize()) {
         // While a game is being set up, Back would strand it, so the top button cancels instead.
         LobbyTopBar(
-            title = if (waiting) R.string.online_friend_title else R.string.mode_online,
+            title = mode.title,
             onBack = if (state == LobbyState.Idle || !isAvailable) onBack else onCancel,
         )
         Column(
@@ -154,11 +161,12 @@ fun OnlineLobbyContent(
             ) {
                 when {
                     !isAvailable -> Text(stringResource(R.string.online_unavailable), style = MaterialTheme.typography.bodyLarge)
-                    state == LobbyState.Idle -> {
-                        QuickMatchCard(onQuickMatch)
-                        FriendDivider()
-                        CreateGameCard(onCreateGame)
-                        JoinGameCard(onJoin)
+                    state == LobbyState.Idle -> when (mode) {
+                        OnlineLobbyMode.RANDOM -> QuickMatchCard(onQuickMatch)
+                        OnlineLobbyMode.FRIEND -> {
+                            CreateGameCard(onCreateGame)
+                            JoinGameCard(onJoin)
+                        }
                     }
                     state is LobbyState.WaitingForFriend -> WaitingForFriend(state.code, state.side, onShareCode, onCancel)
                     else -> Busy(state, onCancel)
@@ -250,20 +258,6 @@ private fun VersusArt(pieceCircle: Dp) {
 internal fun PieceCircle(@DrawableRes piece: Int, size: Dp, background: Color, modifier: Modifier = Modifier) {
     Box(modifier.size(size).clip(CircleShape).background(background), contentAlignment = Alignment.Center) {
         Image(painterResource(piece), contentDescription = null, modifier = Modifier.size(size * 0.8f))
-    }
-}
-
-@Composable
-private fun FriendDivider() {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
-        Text(
-            stringResource(R.string.online_friend_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { heading() },
-        )
-        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
@@ -582,9 +576,28 @@ private val LobbyMessage.text: Int
 
 @Preview(showBackground = true, heightDp = 844, widthDp = 390)
 @Composable
-private fun OnlineLobbyPreview() {
+private fun RandomLobbyPreview() {
     BaghchalTheme {
         OnlineLobbyContent(
+            mode = OnlineLobbyMode.RANDOM,
+            isAvailable = true,
+            state = LobbyState.Idle,
+            onQuickMatch = {},
+            onCreateGame = {},
+            onJoin = {},
+            onCancel = {},
+            onShareCode = {},
+            onBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 844, widthDp = 390)
+@Composable
+private fun FriendLobbyPreview() {
+    BaghchalTheme {
+        OnlineLobbyContent(
+            mode = OnlineLobbyMode.FRIEND,
             isAvailable = true,
             state = LobbyState.Idle,
             onQuickMatch = {},
@@ -602,6 +615,7 @@ private fun OnlineLobbyPreview() {
 private fun WaitingForFriendPreview() {
     BaghchalTheme {
         OnlineLobbyContent(
+            mode = OnlineLobbyMode.FRIEND,
             isAvailable = true,
             state = LobbyState.WaitingForFriend("4821", Side.GOAT),
             onQuickMatch = {},

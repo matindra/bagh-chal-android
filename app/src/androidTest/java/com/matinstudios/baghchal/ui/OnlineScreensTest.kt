@@ -20,6 +20,7 @@ import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.ui.screens.OnlineGameContent
 import com.matinstudios.baghchal.ui.screens.LobbyState
 import com.matinstudios.baghchal.ui.screens.OnlineLobbyContent
+import com.matinstudios.baghchal.ui.screens.OnlineLobbyMode
 import com.matinstudios.baghchal.ui.screens.OnlineSession
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 import org.junit.Assert.assertEquals
@@ -45,10 +46,11 @@ class OnlineScreensTest {
     private val shared = mutableListOf<String>()
     private var cancels = 0
 
-    private fun showLobby(available: Boolean = true) {
+    private fun showLobby(mode: OnlineLobbyMode = OnlineLobbyMode.FRIEND, available: Boolean = true) {
         compose.setContent {
             BaghchalTheme {
                 OnlineLobbyContent(
+                    mode = mode,
                     isAvailable = available,
                     state = lobbyState,
                     onQuickMatch = { quickMatches++ },
@@ -63,10 +65,20 @@ class OnlineScreensTest {
     }
 
     @Test
-    fun lobbyOffersQuickMatchCreateAndJoin() {
-        showLobby()
+    fun randomLobbyOffersOnlyQuickMatch() {
+        showLobby(OnlineLobbyMode.RANDOM)
+        text(R.string.mode_online).assertIsDisplayed()
+        text(R.string.online_create_button).assertDoesNotExist()
+        text(R.string.online_join).assertDoesNotExist()
         text(R.string.online_find).performScrollTo().performClick()
         assertEquals(1, quickMatches)
+    }
+
+    @Test
+    fun friendLobbyOffersCreateAndJoin() {
+        showLobby(OnlineLobbyMode.FRIEND)
+        text(R.string.mode_friend).assertIsDisplayed()
+        text(R.string.online_find).assertDoesNotExist()
 
         text(R.string.side_tigers).performScrollTo().performClick()
         text(R.string.online_create_button).performScrollTo().performClick()
@@ -93,7 +105,7 @@ class OnlineScreensTest {
     @Test
     fun searchingCanBeCancelled() {
         lobbyState = LobbyState.Searching
-        showLobby()
+        showLobby(OnlineLobbyMode.RANDOM)
         text(R.string.online_searching).assertIsDisplayed()
         text(R.string.online_find).assertDoesNotExist()
         text(R.string.cancel).performClick()
@@ -102,7 +114,7 @@ class OnlineScreensTest {
 
     @Test
     fun lobbySaysWhenOnlinePlayIsUnavailable() {
-        showLobby(available = false)
+        showLobby(OnlineLobbyMode.RANDOM, available = false)
         text(R.string.online_unavailable).assertIsDisplayed()
         text(R.string.online_find).assertDoesNotExist()
     }

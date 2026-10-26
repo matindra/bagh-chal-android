@@ -8,12 +8,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.matinstudios.baghchal.ui.theme.MountainBackdrop
-import com.matinstudios.baghchal.ui.theme.MountainsHeight
-import com.matinstudios.baghchal.ui.theme.PrayerFlags
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +27,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +59,7 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 fun HomeScreen(
     onPlayVsAi: () -> Unit,
     onPlayOnline: () -> Unit,
+    onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onStats: () -> Unit,
@@ -75,88 +77,81 @@ fun HomeScreen(
     )
     Column(modifier.fillMaxSize()) {
         AppMenuDrawer(menuItems, Modifier.weight(1f)) { openMenu ->
-            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onStartGame, onResume, openMenu)
+            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onPlayWithFriend, onStartGame, onResume, openMenu)
         }
         if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp))
     }
 }
 
-/** Home: resume a saved game, or choose Player vs AI / Player vs Player. */
+/** Home: resume a saved game, or pick a mode, grouped into online and on-this-phone. */
 @Composable
 fun HomeContent(
     savedGame: SavedGame?,
     onPlayVsAi: () -> Unit,
     onPlayOnline: () -> Unit,
+    onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    MountainBackdrop(modifier.fillMaxSize()) {
+    val colors = MaterialTheme.colorScheme
+    Box(modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                // Room at the top for the menu button, and at the end so the last card clears the mountains.
-                .padding(start = 24.dp, end = 24.dp, top = 52.dp, bottom = MountainsHeight),
+                // Room at the top for the menu button.
+                .padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         ) {
-            PrayerFlags()
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(64.dp))
-                Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(64.dp))
-            }
-            // One line on every screen: shrinks from displaySmall until it fits.
-            BasicText(
-                stringResource(R.string.home_title),
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                ),
-                maxLines = 1,
-                autoSize = TextAutoSize.StepBased(
-                    minFontSize = 16.sp,
-                    maxFontSize = MaterialTheme.typography.displaySmall.fontSize,
-                ),
-            )
-
             Column(
                 modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
+                HomeHeader()
                 if (savedGame != null) ResumeCard(savedGame, onResume)
 
-                Text(
-                    stringResource(R.string.mode_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.semantics { heading() },
-                )
-                ModeCard(
-                    title = R.string.mode_vs_ai,
-                    detail = R.string.mode_vs_ai_detail,
-                    icon = R.drawable.ic_mode_vs_ai,
-                    container = MaterialTheme.colorScheme.primaryContainer,
-                    content = MaterialTheme.colorScheme.onPrimaryContainer,
-                    onClick = onPlayVsAi,
-                )
-                ModeCard(
-                    title = R.string.mode_online,
-                    detail = R.string.mode_online_detail,
-                    icon = R.drawable.ic_mode_online,
-                    container = MaterialTheme.colorScheme.tertiaryContainer,
-                    content = MaterialTheme.colorScheme.onTertiaryContainer,
-                    onClick = onPlayOnline,
-                )
-                ModeCard(
-                    title = R.string.mode_vs_player,
-                    detail = R.string.mode_vs_player_detail,
-                    icon = R.drawable.ic_mode_vs_player,
-                    container = MaterialTheme.colorScheme.secondaryContainer,
-                    content = MaterialTheme.colorScheme.onSecondaryContainer,
-                    onClick = { onStartGame(GameSetup.TWO_PLAYER) },
-                )
+                ModeSection(R.string.home_section_online, R.drawable.ic_globe) {
+                    ModeTile(
+                        title = R.string.mode_online,
+                        detail = R.string.mode_online_detail,
+                        icon = R.drawable.ic_mode_online,
+                        container = colors.tertiaryContainer,
+                        content = colors.onTertiaryContainer,
+                        onClick = onPlayOnline,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    ModeTile(
+                        title = R.string.mode_friend,
+                        detail = R.string.mode_friend_detail,
+                        icon = R.drawable.ic_mode_friend,
+                        container = colors.tertiaryContainer,
+                        content = colors.onTertiaryContainer,
+                        onClick = onPlayWithFriend,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+                ModeSection(R.string.home_section_device, R.drawable.ic_phone) {
+                    ModeTile(
+                        title = R.string.mode_vs_ai,
+                        detail = R.string.mode_vs_ai_detail,
+                        icon = R.drawable.ic_mode_vs_ai,
+                        container = colors.primaryContainer,
+                        content = colors.onPrimaryContainer,
+                        onClick = onPlayVsAi,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    ModeTile(
+                        title = R.string.mode_vs_player,
+                        detail = R.string.mode_vs_player_detail,
+                        icon = R.drawable.ic_mode_vs_player,
+                        container = colors.secondaryContainer,
+                        content = colors.onSecondaryContainer,
+                        onClick = { onStartGame(GameSetup.TWO_PLAYER) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
             }
         }
         // Drawn after the content so it sits on top of the scrolling column.
@@ -164,39 +159,99 @@ fun HomeContent(
     }
 }
 
+/** Tiger, name, goat on one line, the tagline below. */
 @Composable
-private fun ModeCard(
+private fun HomeHeader() {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(48.dp))
+            // One line on every screen: shrinks from headlineLarge until it fits.
+            BasicText(
+                stringResource(R.string.home_name),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                ),
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 16.sp,
+                    maxFontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                ),
+                modifier = Modifier.weight(1f, fill = false).semantics { heading() },
+            )
+            Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(48.dp))
+        }
+        Text(
+            stringResource(R.string.home_tagline),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** A small caps heading over two mode tiles of equal height. */
+@Composable
+private fun ModeSection(@StringRes title: Int, @DrawableRes icon: Int, tiles: @Composable RowScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.semantics(mergeDescendants = true) { heading() },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(
+                painterResource(icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                stringResource(title).uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                letterSpacing = 1.2.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp), content = tiles)
+    }
+}
+
+@Composable
+private fun ModeTile(
     @StringRes title: Int,
     @StringRes detail: Int,
     @DrawableRes icon: Int,
     container: Color,
     content: Color,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
+    Card(
         onClick = onClick,
-        colors = CardDefaults.elevatedCardColors(containerColor = container, contentColor = content),
-        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = container, contentColor = content),
+        modifier = modifier,
     ) {
-        Row(
-            Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        Column(
+            Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 18.dp, bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Box(
                 Modifier
-                    .size(64.dp)
+                    .size(76.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.7f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(52.dp))
+                Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(60.dp))
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(stringResource(detail), style = MaterialTheme.typography.bodyMedium)
-            }
-            Text("›", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.clearAndSetSemantics {})
+            Text(
+                stringResource(title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+            Text(stringResource(detail), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
         }
     }
 }
@@ -246,5 +301,5 @@ internal val Difficulty.label: Int
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onStartGame = {}, onResume = {}, onOpenMenu = {}) }
+    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onPlayWithFriend = {}, onStartGame = {}, onResume = {}, onOpenMenu = {}) }
 }
