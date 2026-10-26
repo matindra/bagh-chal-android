@@ -36,6 +36,9 @@
         },
         "resigned": {
           ".validate": "newData.val() === auth.uid"
+        },
+        "rematch": {
+          ".validate": "!data.exists() && newData.hasChildren(['room', 'by']) && newData.child('by').val() === auth.uid && newData.child('room').isString() && newData.child('room').val().length <= 40"
         }
       }
     }

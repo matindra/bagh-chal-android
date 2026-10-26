@@ -15,6 +15,7 @@ data class RoomMove(val move: String, val by: String)
  * @property moves every move so far, in order.
  * @property resignedBy uid of a player who resigned or left, if any.
  * @property online uids currently connected to the room.
+ * @property rematch a finished friend game's offer to play again, if one was made.
  */
 data class RoomSnapshot(
     val id: String,
@@ -26,7 +27,11 @@ data class RoomSnapshot(
     val moves: List<RoomMove> = emptyList(),
     val resignedBy: String? = null,
     val online: Set<String> = emptySet(),
+    val rematch: RematchOffer? = null,
 ) {
+    /** A private game played with a code, as opposed to a quick match. */
+    val isFriendGame: Boolean get() = code != null
+
     fun sideOf(uid: String): Side? = when (uid) {
         hostUid -> hostSide
         guestUid -> hostSide.opponent
@@ -69,6 +74,21 @@ sealed interface JoinResult {
 sealed interface HostingUpdate {
     data class CodeReady(val code: String) : HostingUpdate
     data class Started(val roomId: String) : HostingUpdate
+}
+
+/** One player's offer to play again: the next game is in room [roomId], made by [by]. */
+data class RematchOffer(val roomId: String, val by: String)
+
+/** Outcome of tapping Play again after a friend game. */
+sealed interface RematchResult {
+    /** Our offer is out; the next game starts in [roomId] once the friend accepts. */
+    data class Offered(val roomId: String) : RematchResult
+
+    /** The friend had already offered and we accepted: the next game in [roomId] has begun. */
+    data class Started(val roomId: String) : RematchResult
+
+    /** The friend withdrew or the room is gone. */
+    data object Unavailable : RematchResult
 }
 
 /** Online play could not start: no connection, sign-in failed, or the service refused. */

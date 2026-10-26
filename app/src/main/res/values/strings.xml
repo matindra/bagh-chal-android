@@ -191,6 +191,11 @@
     <string name="online_reason_opponent_left">Your opponent lost their connection.</string>
     <string name="online_reason_invalid">Your opponent\'s app sent a move the rules don\'t allow.</string>
     <string name="online_play_again">Play again</string>
+    <string name="online_rematch_sides">Play again and you swap sides: you\'ll be %1$s.</string>
+    <string name="online_rematch_waiting">Waiting for your friend to play again…</string>
+    <string name="online_rematch_asked">Your friend wants to play again!</string>
+    <string name="online_rematch_friend_left">Your friend has left the game.</string>
+    <string name="online_rematch_failed">Couldn\'t start the next game.</string>
     <string name="online_vs">VS</string>
     <string name="online_create_button">Create</string>
     <string name="online_create_short">Get a 4-digit code to share</string>

@@ -33,6 +33,15 @@ interface OnlineService {
 
     /** Concedes the game; the opponent wins. */
     fun resign(roomId: String)
+
+    /**
+     * After a finished friend game: offers to play again (sides swap), or accepts the friend's offer.
+     * Throws [OnlineException] when the server can't be reached.
+     */
+    suspend fun playAgain(roomId: String): RematchResult
+
+    /** Takes back this player's unanswered offer [nextRoomId] (fire and forget). */
+    fun withdrawRematch(roomId: String, nextRoomId: String)
 }
 
 /** Online play switched off: no configuration, or instrumented tests. */
@@ -45,6 +54,8 @@ object NoOnline : OnlineService {
     override fun room(roomId: String): Flow<RoomSnapshot?> = emptyFlow()
     override fun sendMove(roomId: String, index: Int, move: String) = Unit
     override fun resign(roomId: String) = Unit
+    override suspend fun playAgain(roomId: String): RematchResult = throw unavailable()
+    override fun withdrawRematch(roomId: String, nextRoomId: String) = Unit
 
     private fun unavailable() = OnlineException("Online play is not configured")
 }

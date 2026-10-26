@@ -152,6 +152,12 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
             OnlineGameScreen(
                 onHome = { navController.popBackStack(HOME_ROUTE, inclusive = false) },
                 onPlayAgain = { navController.popBackStack(ONLINE_ROUTE, inclusive = false) },
+                // The finished game makes way for the next one, so Back never returns to it.
+                onNextGame = { roomId ->
+                    navController.navigate(OnlineGameViewModel.route(roomId)) {
+                        popUpTo(OnlineGameViewModel.ROUTE_PATTERN) { inclusive = true }
+                    }
+                },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },

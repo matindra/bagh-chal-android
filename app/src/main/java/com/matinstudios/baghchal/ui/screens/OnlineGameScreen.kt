@@ -4,7 +4,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -15,16 +17,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.ui.haptics.CueVibrator
 import com.matinstudios.baghchal.ads.BannerAd
 import com.matinstudios.baghchal.ads.BannerPlacement
@@ -40,6 +48,7 @@ private const val END_DIALOG_DELAY_MILLIS = 1_200L
 fun OnlineGameScreen(
     onHome: () -> Unit,
     onPlayAgain: () -> Unit,
+    onNextGame: (roomId: String) -> Unit,
     onHowToPlay: () -> Unit,
     onStats: () -> Unit,
     onSettings: () -> Unit,
@@ -50,6 +59,10 @@ fun OnlineGameScreen(
     val vibrator = remember(context) { CueVibrator(context) }
     LaunchedEffect(viewModel) {
         viewModel.haptics.collect(vibrator::play)
+    }
+    val currentOnNextGame by rememberUpdatedState(onNextGame)
+    LaunchedEffect(viewModel) {
+        viewModel.nextGame.collect { currentOnNextGame(it) }
     }
     val ui by viewModel.ui.collectAsStateWithLifecycle()
     val boardTheme by viewModel.boardTheme.collectAsStateWithLifecycle()
@@ -121,9 +134,15 @@ fun OnlineGameScreen(
     if (end != null && showEnd) {
         EndDialog(
             end = end,
+            rematch = ui.rematch,
+            // A friend game carries on with the same friend; a quick match goes back to the lobby.
             onPlayAgain = {
-                viewModel.onLeaveFinished()
-                onPlayAgain()
+                if (ui.rematch != null) {
+                    viewModel.onRematch()
+                } else {
+                    viewModel.onLeaveFinished()
+                    onPlayAgain()
+                }
             },
             onHome = {
                 viewModel.onLeaveFinished()
@@ -147,7 +166,7 @@ private fun Connecting(modifier: Modifier = Modifier) {
 
 /** The result. Not dismissable by tapping outside: the player picks what's next. */
 @Composable
-private fun EndDialog(end: OnlineEnd, onPlayAgain: () -> Unit, onHome: () -> Unit) {
+private fun EndDialog(end: OnlineEnd, rematch: RematchUi?, onPlayAgain: () -> Unit, onHome: () -> Unit) {
     val title = end.outcome.title
     val detail = when (end.reason) {
         OnlineEndReason.RULES -> when (end.outcome) {
@@ -163,8 +182,42 @@ private fun EndDialog(end: OnlineEnd, onPlayAgain: () -> Unit, onHome: () -> Uni
     AlertDialog(
         onDismissRequest = {},
         title = { Text(stringResource(title)) },
-        text = { Text(stringResource(detail)) },
-        confirmButton = { TextButton(onClick = onPlayAgain) { Text(stringResource(R.string.online_play_again)) } },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(detail))
+                if (rematch != null) RematchStatus(rematch)
+            }
+        },
+        confirmButton = {
+            if (rematch == null || rematch.canPlayAgain) {
+                TextButton(onClick = onPlayAgain) { Text(stringResource(R.string.online_play_again)) }
+            }
+        },
         dismissButton = { TextButton(onClick = onHome) { Text(stringResource(R.string.menu_home)) } },
     )
+}
+
+/** What happens next with the friend: who asked, who left, and which side you play next. */
+@Composable
+private fun RematchStatus(rematch: RematchUi) {
+    val side = stringResource(if (rematch.nextSide == Side.TIGER) R.string.side_tigers else R.string.side_goats)
+    val status = when {
+        rematch.failed -> R.string.online_rematch_failed
+        rematch.friendLeft -> R.string.online_rematch_friend_left
+        rematch.waiting -> R.string.online_rematch_waiting
+        rematch.friendAsked -> R.string.online_rematch_asked
+        else -> null
+    }
+    Row(
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        if (rematch.waiting && !rematch.friendLeft) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+        Text(
+            if (status == null) stringResource(R.string.online_rematch_sides, side) else stringResource(status),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (rematch.friendAsked) FontWeight.Bold else null,
+        )
+    }
 }

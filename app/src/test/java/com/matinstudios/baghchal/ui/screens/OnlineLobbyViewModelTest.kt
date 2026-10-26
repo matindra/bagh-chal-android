@@ -5,6 +5,7 @@ import com.matinstudios.baghchal.online.HostingUpdate
 import com.matinstudios.baghchal.online.JoinResult
 import com.matinstudios.baghchal.online.OnlineException
 import com.matinstudios.baghchal.online.OnlineService
+import com.matinstudios.baghchal.online.RematchResult
 import com.matinstudios.baghchal.online.RoomSnapshot
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -121,5 +122,7 @@ class OnlineLobbyViewModelTest {
         override fun room(roomId: String): Flow<RoomSnapshot?> = emptyFlow()
         override fun sendMove(roomId: String, index: Int, move: String) = Unit
         override fun resign(roomId: String) = Unit
+        override suspend fun playAgain(roomId: String): RematchResult = RematchResult.Unavailable
+        override fun withdrawRematch(roomId: String, nextRoomId: String) = Unit
     }
 }

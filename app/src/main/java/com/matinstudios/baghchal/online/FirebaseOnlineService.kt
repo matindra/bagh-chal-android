@@ -32,8 +32,11 @@ import kotlin.random.Random
  *
  * Layout (security rules in `firebase/database.rules.json`):
  * - `rooms/{id}`: host, guest, hostSide, status ("waiting" | "playing"), code, createdAt,
- *   moves/{n} = {m, by}, resigned, online/{uid}. A room nobody joined is deleted when its host
- *   stops waiting; finished rooms are swept later by [RoomCleanup].
+ *   moves/{n} = {m, by}, resigned, online/{uid}, rematch = {room, by}. A room nobody joined is
+ *   deleted when its host stops waiting; finished rooms are swept later by [RoomCleanup].
+ * - Play again after a friend game: the offering player makes the next room already seated
+ *   (status "rematch", guest = the friend, sides swapped) and points the old room's `rematch` at it;
+ *   the friend accepts by setting it to "playing".
  * - `lobby/random`: the one random-match room waiting for an opponent {room, host, at}.
  * - `codes/{4 digits}`: the private room using that code {room, at}.
  *
@@ -151,6 +154,78 @@ class FirebaseOnlineService(
     override fun resign(roomId: String) {
         val me = myUid ?: return
         rooms.child(roomId).child("resigned").setValue(me)
+    }
+
+    override suspend fun playAgain(roomId: String): RematchResult {
+        val me = ready()
+        val room = parseRoom(rooms.child(roomId).get().awaitOrThrow()) ?: return RematchResult.Unavailable
+        val friend = room.opponentOf(me) ?: return RematchResult.Unavailable
+        val mySide = room.sideOf(me) ?: return RematchResult.Unavailable
+        room.rematch?.let { return answer(it, me) }
+
+        // The next room exists before the offer points at it, so the friend can always accept.
+        val nextRef = rooms.push()
+        val nextId = nextRef.key!!
+        nextRef.setValue(
+            mapOf(
+                "host" to me,
+                "guest" to friend,
+                "hostSide" to mySide.opponent.name,
+                "status" to STATUS_REMATCH,
+                "code" to room.code,
+                "createdAt" to ServerValue.TIMESTAMP,
+                "online" to mapOf(me to true),
+            ),
+        ).awaitOrThrow()
+        var offer: RematchOffer? = null
+        rooms.child(roomId).child("rematch").transact { data ->
+            offer = readOffer(data.child("room").getValue(String::class.java), data.child("by").getValue(String::class.java))
+            if (offer == null) data.value = mapOf("room" to nextId, "by" to me)
+            true
+        }
+        val theirs = offer
+        if (theirs == null) return RematchResult.Offered(nextId)
+        // The friend offered at the same moment: use theirs.
+        nextRef.removeValue()
+        return answer(theirs, me)
+    }
+
+    /** Our own earlier offer is still ours to wait on; the friend's is accepted. */
+    private suspend fun answer(offer: RematchOffer, me: String): RematchResult {
+        if (offer.by == me) return RematchResult.Offered(offer.roomId)
+        var started = false
+        rooms.child(offer.roomId).transact { data ->
+            val host = data.child("host").getValue(String::class.java)
+            val status = data.child("status").getValue(String::class.java)
+            started = data.child("guest").getValue(String::class.java) == me &&
+                (status == STATUS_REMATCH || status == STATUS_PLAYING)
+            if (started) {
+                data.child("status").value = STATUS_PLAYING
+                data.child("online").child(me).value = true
+            }
+            // An empty first run commits "no change" so the server re-runs it with the real room.
+            host == null || started
+        }
+        return if (started) RematchResult.Started(offer.roomId) else RematchResult.Unavailable
+    }
+
+    override fun withdrawRematch(roomId: String, nextRoomId: String) {
+        rooms.child(nextRoomId).runTransaction(
+            object : Transaction.Handler {
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+                    val status = currentData.child("status").getValue(String::class.java)
+                    if (status == STATUS_REMATCH) currentData.value = null
+                    return Transaction.success(currentData)
+                }
+
+                override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                    // Only clear the offer if the friend didn't accept it in the meantime.
+                    if (error == null && committed && currentData?.exists() == false) {
+                        rooms.child(roomId).child("rematch").removeValue()
+                    }
+                }
+            },
+        )
     }
 
     /**
@@ -336,12 +411,17 @@ class FirebaseOnlineService(
             moves = moves,
             resignedBy = snapshot.child("resigned").getValue(String::class.java),
             online = snapshot.child("online").children.mapNotNull { it.key }.toSet(),
+            rematch = readOffer(
+                snapshot.child("rematch").child("room").getValue(String::class.java),
+                snapshot.child("rematch").child("by").getValue(String::class.java),
+            ),
         )
     }
 
     private companion object {
         const val STATUS_WAITING = "waiting"
         const val STATUS_PLAYING = "playing"
+        const val STATUS_REMATCH = "rematch"
         const val CONNECT_TIMEOUT_MILLIS = 10_000L
         const val SEAT_REFRESH_MILLIS = 20_000L
         const val SEAT_STALE_MILLIS = 60_000L
@@ -349,6 +429,9 @@ class FirebaseOnlineService(
         const val CODE_ATTEMPTS = 20
     }
 }
+
+private fun readOffer(room: String?, by: String?): RematchOffer? =
+    if (room != null && by != null) RematchOffer(room, by) else null
 
 private fun listener(onData: (DataSnapshot) -> Unit) = object : ValueEventListener {
     override fun onDataChange(snapshot: DataSnapshot) = onData(snapshot)

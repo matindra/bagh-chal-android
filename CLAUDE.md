@@ -126,6 +126,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Claims (random seat, codes, joining) are Realtime Database transactions. Security rules live in `firebase/database.rules.json`; keep them in sync with the data layout in `FirebaseOnlineService`.
 - No server code: unjoined rooms are deleted by their host; old rooms (24 h) and codes (6 h) are swept by clients (`online/RoomCleanup`, ages mirrored in the rules).
 - Online games: no Undo/Hint, no save/resume, not in Stats. Leaving mid-game resigns; an opponent disconnected for 45 s loses.
+- Friend games end with a rematch offer (same friend, sides swap, no new code); quick matches go back to the lobby.
 
 ## Monetisation
 

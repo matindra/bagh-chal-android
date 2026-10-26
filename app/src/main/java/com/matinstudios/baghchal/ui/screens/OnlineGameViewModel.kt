@@ -14,8 +14,10 @@ import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.data.SettingsRepository
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.online.MoveCodec
+import com.matinstudios.baghchal.online.OnlineException
 import com.matinstudios.baghchal.online.OnlineReplay
 import com.matinstudios.baghchal.online.OnlineService
+import com.matinstudios.baghchal.online.RematchResult
 import com.matinstudios.baghchal.online.RoomSnapshot
 import com.matinstudios.baghchal.ui.sound.SoundPlayer
 import kotlinx.coroutines.Job
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -35,11 +38,13 @@ import kotlinx.coroutines.launch
  *
  * @property opponentAway the opponent is disconnected (they lose if they stay away too long).
  * @property end set once the game is over.
+ * @property rematch after a friend game: the state of playing again (null for quick matches).
  */
 data class OnlineGameUi(
     val session: OnlineSession? = null,
     val opponentAway: Boolean = false,
     val end: OnlineEnd? = null,
+    val rematch: RematchUi? = null,
 )
 
 class OnlineGameViewModel(
@@ -65,7 +70,15 @@ class OnlineGameViewModel(
     private val _haptics = Channel<HapticCue>(Channel.BUFFERED)
     val haptics: Flow<HapticCue> = _haptics.receiveAsFlow()
 
+    private val _nextGame = Channel<String>(Channel.BUFFERED)
+
+    /** Room id of the next game with the same friend, once it has started. */
+    val nextGame: Flow<String> = _nextGame.receiveAsFlow()
+
     private var room: RoomSnapshot? = null
+    private var rematchJob: Job? = null
+    private var myOffer: String? = null
+    private var rematchFailed = false
     private var awayTimer: Job? = null
     private var opponentGone = false
     private var opponentSeen = false
@@ -93,6 +106,42 @@ class OnlineGameViewModel(
     /** Leaving the finished game is the moment between games, where a (capped) interstitial may show. */
     fun onLeaveFinished() = ads.onGameFinished()
 
+    /** Play again with the same friend: offers a rematch, or accepts theirs. */
+    fun onRematch() {
+        if (_ui.value.rematch?.canPlayAgain != true || rematchJob?.isActive == true) return
+        rematchJob = viewModelScope.launch {
+            val result = try {
+                online.playAgain(roomId)
+            } catch (_: OnlineException) {
+                RematchResult.Unavailable
+            }
+            when (result) {
+                is RematchResult.Started -> startNext(result.roomId)
+                is RematchResult.Offered -> {
+                    myOffer = result.roomId
+                    updateRematch()
+                    online.room(result.roomId).first { it?.isPlaying == true }
+                    myOffer = null
+                    startNext(result.roomId)
+                }
+                RematchResult.Unavailable -> {
+                    rematchFailed = true
+                    updateRematch()
+                }
+            }
+        }
+    }
+
+    private fun startNext(nextRoomId: String) {
+        ads.onGameFinished()
+        _nextGame.trySend(nextRoomId)
+    }
+
+    /** An offer nobody accepted is taken back when this game is left. */
+    override fun onCleared() {
+        myOffer?.let { online.withdrawRematch(roomId, it) }
+    }
+
     private fun onRoom(snapshot: RoomSnapshot) {
         room = snapshot
         val me = online.myUid ?: return
@@ -101,6 +150,14 @@ class OnlineGameViewModel(
         val session = _ui.value.session?.syncWith(checked.moves) ?: OnlineSession.start(mySide, checked.moves)
         trackOpponent(snapshot, me)
         show(session)
+        updateRematch()
+    }
+
+    private fun updateRematch() {
+        val room = room ?: return
+        val me = online.myUid ?: return
+        if (_ui.value.end == null) return
+        _ui.value = _ui.value.copy(rematch = rematchUiFor(room, me, waiting = myOffer != null, failed = rematchFailed))
     }
 
     /** Starts the grace period when the opponent disconnects and cancels it when they're back. */
@@ -136,7 +193,10 @@ class OnlineGameViewModel(
             }
         }
         _ui.value = previous.copy(session = session, end = end)
-        if (end != null) awayTimer?.cancel()
+        if (end != null) {
+            awayTimer?.cancel()
+            updateRematch()
+        }
     }
 
     companion object {

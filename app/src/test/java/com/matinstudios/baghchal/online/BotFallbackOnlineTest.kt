@@ -142,5 +142,7 @@ class BotFallbackOnlineTest {
         override fun resign(roomId: String) {
             resignedRoom = roomId
         }
+        override suspend fun playAgain(roomId: String): RematchResult = RematchResult.Unavailable
+        override fun withdrawRematch(roomId: String, nextRoomId: String) = Unit
     }
 }

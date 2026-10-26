@@ -7,6 +7,14 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-26 (30) — Play again with the same friend
+- After a **friend** game, Play again now offers a rematch instead of going back to the join screen. The friend's dialog says "Your friend wants to play again!"; when they tap Play again, both phones open the next game. Sides swap every game. Quick matches still go back to the lobby.
+- Data: the offering player creates the next room already seated (`status: "rematch"`, guest = friend) and sets `rooms/{old}/rematch = {room, by}`; the friend accepts by setting it to "playing". Same-moment offers: the transaction keeps the first, the other is deleted. Leaving with an unanswered offer withdraws it (next room deleted, `rematch` cleared).
+- Code: `OnlineService.playAgain` / `withdrawRematch`, `RoomSnapshot.rematch`, `ui/screens/OnlineRematch.kt` (`rematchUiFor`, tested in `OnlineRematchTest`), end dialog in `OnlineGameScreen`.
+- Rules: new `rematch` validation in `firebase/database.rules.json`. **Works with the published rules too** (host/guest may already write their room); publish the new file to tighten it.
+- Checked on the emulator against real Firebase (second player via REST): friend offers → accept → next game; I offer → friend accepts → next game; offer then Home → withdrawn. Unit tests + lint pass.
+- versionCode bumped to **5** (versionName 1.0) for closed testing with test ads: `scripts/build-release.sh --test-ads` → `dist/baghchal-1.0-vc5-testads.aab`. Tests, lint and an unsigned `bundleRelease` (R8) pass.
+
 ## Session 2026-10-26 (29) — Home: four game modes
 - "Choose a game" now lists, in order: **Play Online** (random opponent), **Play with a Friend** (4-digit code), **Play with AI**, **Pass n Play** (renamed from Player vs AI / Player vs Player).
 - One lobby screen, two modes (`OnlineLobbyMode` RANDOM/FRIEND, route `online/{mode}`): Online shows only Quick match; Friend shows only Create + Join. "Play again" after an online game returns to the same lobby.
