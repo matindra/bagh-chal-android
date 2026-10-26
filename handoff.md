@@ -14,6 +14,7 @@
 - Rules: new `rematch` validation in `firebase/database.rules.json`. **Works with the published rules too** (host/guest may already write their room); publish the new file to tighten it.
 - Checked on the emulator against real Firebase (second player via REST): friend offers → accept → next game; I offer → friend accepts → next game; offer then Home → withdrawn. Unit tests + lint pass.
 - versionCode bumped to **5** (versionName 1.0) for closed testing with test ads: `scripts/build-release.sh --test-ads` → `dist/baghchal-1.0-vc5-testads.aab`. Tests, lint and an unsigned `bundleRelease` (R8) pass.
+- 2026-10-26: `dist/baghchal-1.0-vc5-testads.aab` uploaded to Play Console (closed testing).
 
 ## Session 2026-10-26 (29) — Home: four game modes
 - "Choose a game" now lists, in order: **Play Online** (random opponent), **Play with a Friend** (4-digit code), **Play with AI**, **Pass n Play** (renamed from Player vs AI / Player vs Player).
