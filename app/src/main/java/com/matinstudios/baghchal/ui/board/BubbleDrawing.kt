@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 private val DotColor = Color(0xEB2E8B57)
 
 private const val DOT_RADIUS = 17f
+private const val HOVER_SCALE = 1.35f
 
 /** 0..1 back and forth, for the markers' gentle breathe. */
 @Composable
@@ -26,9 +27,12 @@ fun rememberBubbleBob(): State<Float> = rememberInfiniteTransition(label = "bubb
     label = "bob",
 )
 
-/** A legal-move marker at [center]; [scale] is the board's px per art unit, [bob] is 0..1. */
-fun DrawScope.drawMoveBubble(center: Offset, scale: Float, bob: Float) {
+/**
+ * A legal-move marker at [center]; [scale] is the board's px per art unit, [bob] is 0..1.
+ * [hovered]: a carried piece is over it, so it swells.
+ */
+fun DrawScope.drawMoveBubble(center: Offset, scale: Float, bob: Float, hovered: Boolean = false) {
     // A gentle breathe in size; no movement.
-    val r = DOT_RADIUS * scale * (1f + 0.08f * bob)
+    val r = DOT_RADIUS * scale * (1f + 0.08f * bob) * (if (hovered) HOVER_SCALE else 1f)
     drawCircle(DotColor, radius = r, center = center)
 }

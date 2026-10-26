@@ -46,6 +46,7 @@ import com.matinstudios.baghchal.engine.Phase
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.engine.TOTAL_GOATS
 import com.matinstudios.baghchal.ui.board.BoardCanvas
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 /**
@@ -201,7 +202,7 @@ private fun PlayerBar(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         PieceCircle(
-            if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat,
+            if (isTiger) LocalPieceArt.current.tiger else LocalPieceArt.current.goat,
             44.dp,
             if (active) colors.surface else sideContainer,
         )

@@ -105,7 +105,7 @@ app/src/main/java/com/matinstudios/baghchal/
 ## UI / UX
 
 - Board drawn with Compose `Canvas`; scale to screen, portrait-first, support tablets.
-- Tap to select a piece, highlight legal destinations; tap destination to move.
+- Tap to select a piece, highlight legal destinations; tap destination to move. Or drag a piece onto a destination (same rules: a drag is two taps).
 - Animate steps and jumps; fade out captured goats.
 - HUD: goats in hand, goats captured (x/5), whose turn, phase indicator.
 - Undo (1 move vs AI; can be gated behind a rewarded ad for free users).
@@ -218,12 +218,13 @@ scripts/make-store-images.py # Play Store screenshots + feature graphic from sto
 
 - Source SVGs live in `design/`. Convert them to VectorDrawables in `res/drawable/`; never edit the generated XML by hand.
 - Run `scripts/convert-svgs.sh` after changing any SVG (uses Android Studio's Svg2Vector; needs Android Studio installed and `cwebp`). Name mapping lives in `scripts/SvgConvert.java` (`board.svg` → `board_wood`, `tiger_piece.svg` → `ic_tiger`, `goat_piece.svg` → `ic_goat`).
-- Pieces: `ic_tiger`, `ic_goat`. Button icons: `ic_undo`, `ic_hint` (single-colour, tinted in code).
+- Pieces come in sets (`PieceSet`): Classic `ic_tiger`/`ic_goat` (free), plus `ic_tiger_token`/`ic_goat_token`, `ic_tiger_glyph`/`ic_goat_glyph`, `ic_tiger_mask`/`ic_goat_chyangra`, `ic_tiger_snow`/`ic_goat_black` (unlocked like boards). Always draw pieces via `LocalPieceArt.current`, never the drawables directly. Button icons: `ic_undo`, `ic_hint` (single-colour, tinted in code).
+- App icons: one `<activity-alias>` per `AppIcon` (only Classic enabled in the manifest), switched by `data/LauncherIcons.kt`. Layers come from `design/launcher_*_{background,foreground}.svg`; add new ones to `LAUNCHER_ICONS` in `SvgConvert.java`.
 - Decorations: `deco_prayer_flags` (header ornament), `deco_mountains` (bottom of `MountainBackdrop`). Purely decorative, never clickable, never behind or touching an ad; keep the game screen free of them.
-- Colours: app palette lives in `ui/theme/` (tiger orange = primary, goat green = secondary, sky = tertiary, light + dark). Dynamic colour is off on purpose. Tigers use primary/primaryContainer and goats secondary/secondaryContainer everywhere.
+- Colours: app palette lives in `ui/theme/` (tiger orange = primary, goat green = secondary, sky = tertiary, light + dark). Dynamic colour is off on purpose. Tigers use primary/primaryContainer and goats secondary/secondaryContainer everywhere. The neutral and tertiary colours follow the selected board (`ui/theme/BoardTint.kt`; Wood = the base palette); primary/secondary never change.
 - Sounds: sources in `design/sounds/`, converted by `scripts/convert-sounds.sh` to `res/raw/*.ogg` (mono, 44.1 kHz, Vorbis q4, silence trimmed, -18 LUFS). Never edit the .ogg files by hand.
 - Result art: `result_bg_tiger`, `result_bg_goat` (300×200); `lock_badge` marks a trapped tiger (board and Goats Win art).
-- Boards: `board_wood`, `board_stone`, `board_cloth`, all 600×600 units with identical geometry.
+- Boards: `board_wood`, `board_stone`, `board_cloth`, `board_night`, `board_thangka`, `board_jungle`, `board_mandala`, `board_dhaka`, `board_brass`, `board_ink`, `board_snow`, all 600×600 units with identical geometry. Keep ornaments off the 25 points (pieces sit there).
 - The 25 board points are at x/y = 75, 187.5, 300, 412.5, 525 (spacing 112.5). Scale these to the on-screen board size.
 - Pieces are drawn at ~90 units (80% of spacing), centered on points.
-- Board themes: Wood is free; Stone and Cloth are unlockable (rewarded ad, or included with Remove Ads). Store the selected theme in DataStore.
+- Board themes: Wood is free; every other board is unlockable (rewarded ad, or included with Remove Ads). Picked on the Boards screen (side menu); store the selected theme in DataStore.

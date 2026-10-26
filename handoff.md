@@ -7,6 +7,37 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-26 (36) — closed-testing build vc6
+- versionCode bumped to **6** (versionName 1.0). Unit tests, lint (0 errors) and an unsigned `bundleRelease -PtestAds=true` (R8) pass.
+- Signed bundle: `scripts/build-release.sh --test-ads` → `dist/baghchal-1.0-vc6-testads.aab` (needs the keystore password, run by the user).
+- Includes sessions 30–35 (rematch, buttons, menu, Home animation, drag and drop, new boards, piece sets, app icons, board-tinted colours). Testers may see their home-screen icon drop once (launcher activity-alias change).
+
+## Session 2026-10-26 (35) — app colours follow the board
+- Picking a board re-colours the whole app in a lighter shade of it (a darker one in dark mode): backgrounds, cards, outlines and body text take the board's hue, and the third colour (online cards, Home demo sky) becomes the board's accent. Tiger orange and goat green never change. Wood keeps the original palette.
+- Code: `ui/theme/BoardTint.kt` (`BoardTheme.tint` hue/saturation + accent per board, `ColorScheme.tinted`), `BaghchalTheme(boardTheme = …)`, `ThemeViewModel.boardTheme`, passed in `MainActivity`.
+- `BoardTintTest` checks text contrast (WCAG 7:1 body, 4.5:1 secondary/accents) for every board, light and dark. Unit tests + all 56 UI tests pass. Checked every board in light and dark with screenshots of Home and Settings.
+
+## Session 2026-10-26 (35) — piece sets and app icons
+- Designs from the canvas https://claude.ai/artifact/4uKGyVPCMPo77NLNhE1Lrg are now in the app.
+- **Piece sets** (`PieceSet`: Classic, Bold, Glyph, Festival, Snow Tiger): Classic is free; the others unlock like boards (rewarded ad, THEME placement, or Remove Ads). Saved in DataStore (`settings_piece_set`, `entitlement_unlocked_piece_sets`). Drawn everywhere through `LocalPieceArt` (`ui/board/PieceArt.kt`), provided in `MainActivity`; no screen uses `R.drawable.ic_tiger/ic_goat` directly any more (ChaseBanner switched by the Home-animation session).
+- **App icons** (`AppIcon`: Classic, Face-off, Glyph, On the board, Night eyes, Festival mask), free. The LAUNCHER filter moved off `MainActivity` onto six `<activity-alias>`es (`.LauncherClassic` enabled by default); `data/LauncherIcons.kt` enables one and disables the rest (`DONT_KILL_APP`). Current icon is read from PackageManager, not stored. Closed-testing testers may see their home-screen shortcut drop once on update (component name changed).
+- The Boards screen is now "Boards & Pieces" (menu item too) with Board / Pieces / App icon sections; piece tiles preview on the selected board.
+- Assets: `design/{tiger,goat}_*.svg`, `design/launcher_*_{background,foreground}.svg`; `SvgConvert.java` maps them and renders legacy mipmaps for every launcher icon (`LAUNCHER_ICONS`). Adaptive XML in `mipmap-anydpi-v26/ic_launcher_*.xml` (hand-written, monochrome = foreground).
+- Tests: `EntitlementsTest` + `RepositoriesTest` cover piece sets; `AppFlowTest` locked test counts boards + piece sets and tries a locked piece set. Unit tests + AppFlowTest pass; checked the screen and an icon switch (Night) on the emulator. The emulator is left on the Night icon (shell can't reset it; pick Classic in the app).
+- Full check after: unit tests, all 56 UI tests and lint pass (0 errors, 40 warnings, none from this change; removed MainActivity's now-redundant label).
+- Not done: translations for the new strings.
+
+## Session 2026-10-26 (34) — eight new board themes
+- New boards (each unlocked by a rewarded ad, or with Remove Ads): Night (starry navy, glowing lines, mountains), Thangka (red/gold, lotus at the centre), Jungle (grass, dirt paths, leafy frame), Mandala (cream/saffron/teal rings), Dhaka (dhaka-topi woven border), Brass (hammered plate, engraved lines), Ink (rice paper, brush lines, ink-wash hills, red seal), Snow (ice-blue, snowflakes).
+- SVGs in `design/board_*.svg` → `res/drawable/board_*.xml` via `scripts/convert-svgs.sh` (mappings added to `SvgConvert.java`). `BoardTheme` enum, `drawable` and `label` mappings, strings `board_*`.
+- Board picker moved out of Settings into its own **Boards** screen (`ui/screens/BoardsScreen.kt` + `BoardsViewModel.kt`, route `boards`), opened from a new "Boards" item (icon `ic_boards` from `design/boards.svg`) in the side menu on Home, the game screen and the online game screen. 3-column grid; locked boards still offer a rewarded ad. Settings now has only sound/haptics and Remove Ads.
+- Unit tests and all 56 UI tests pass (`AppFlowTest` locked-boards test now goes through the menu). Checked the menu and Boards screen on the emulator. Not checked yet: whether the move bubbles stand out on Night and Brass. Hindi/Odia/Nepali names still to translate.
+
+## Session 2026-10-26 (33) — drag and drop pieces
+- Tigers and goats can be dragged: press a piece and move (= tapping it, so it selects and the bubbles show), carry it (follows the finger, 15% bigger, soft shadow; the bubble under it swells), drop on a bubble (= tapping that point). The move lands where dropped without replaying the slide; a jumped goat still fades. Dropping anywhere else puts the piece back, still selected. Taps work as before, and only presses that start on a piece become drags, so a shaky tap on an empty point still places a goat. Placement is still by tap.
+- Goes through `onPointTapped`, so it works vs AI, Pass n Play and online with no logic changes. Code: `ui/board/PieceDrag.kt` (gesture), `BoardCanvas.kt` (carry/drop drawing).
+- Tests: `GameContentTest` drag move, drag capture, drop on a non-move. Unit + all UI tests pass; checked on the emulator (horizontal drags don't open the side menu).
+
 ## Session 2026-10-26 (32) — Home animation
 - Home has a wordless animated scene above the Online section (150 dp, rounded, not clickable, hidden from TalkBack): on a stretch of board line in front of soft hills, goats hop in point to point, the tiger crouches and leaps over a goat (it vanishes in a puff with sparks), two more goats hop in from the right and box the tiger in, it shakes, a gold ring pulses and the lock pops on, and the goats bounce for joy. Fades out and loops (~8.6 s).
 - First version was a mini board with captions and a "How to play" link; the user didn't want a tutorial, so it was replaced.

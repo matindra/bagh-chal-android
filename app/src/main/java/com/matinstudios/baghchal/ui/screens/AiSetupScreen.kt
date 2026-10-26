@@ -11,6 +11,7 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
 import com.matinstudios.baghchal.ui.theme.PrayerFlags
 import androidx.compose.foundation.BorderStroke
@@ -171,7 +172,7 @@ internal fun SideOption(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Image(
-                painterResource(if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat),
+                painterResource(if (isTiger) LocalPieceArt.current.tiger else LocalPieceArt.current.goat),
                 contentDescription = null,
                 modifier = Modifier.size(56.dp),
             )

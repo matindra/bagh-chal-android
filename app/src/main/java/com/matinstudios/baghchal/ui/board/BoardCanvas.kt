@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -52,6 +54,8 @@ private val SelectedColor = Color(0xFFFFD54F)
 /** Lock badge on a trapped tiger: size and offset of its centre to the top-right, relative to the piece. */
 private const val LOCK_BADGE_SIZE = 0.42f
 private const val LOCK_BADGE_OFFSET = 0.36f
+private val CarryShadow = Color(0x59000000)
+private const val CARRY_SCALE = 1.15f
 private val HintColor = Color(0xFFFFD54F)
 private val HintOutline = Color(0xD93A2416)
 
@@ -74,22 +78,33 @@ fun BoardCanvas(
     hint: Move? = null,
 ) {
     val boardPainter = painterResource(theme.drawable)
-    val tigerPainter = painterResource(R.drawable.ic_tiger)
-    val goatPainter = painterResource(R.drawable.ic_goat)
+    val tigerPainter = painterResource(LocalPieceArt.current.tiger)
+    val goatPainter = painterResource(LocalPieceArt.current.goat)
     val lockPainter = painterResource(R.drawable.lock_badge)
     val currentOnPointTapped by rememberUpdatedState(onPointTapped)
     val description = stringResource(R.string.cd_board)
 
     val progress = remember { Animatable(1f) }
+    // A piece the player is carrying, and the point it was just dropped on.
+    var drag by remember { mutableStateOf<PieceDrag?>(null) }
+    var droppedOn by remember { mutableStateOf<Int?>(null) }
+    var landedByDrag by remember { mutableStateOf(false) }
     // Saved so a recreated screen (e.g. tablet rotation) doesn't replay the last move.
     var animatedMoveNumber by rememberSaveable { mutableIntStateOf(moveNumber) }
     LaunchedEffect(moveNumber) {
         if (moveNumber == animatedMoveNumber) return@LaunchedEffect
         animatedMoveNumber = moveNumber
-        val move = lastMove ?: return@LaunchedEffect
+        val move = lastMove
+        // A dropped piece is already where it belongs: no slide, but a jumped goat still fades.
+        landedByDrag = move != null && move.to == droppedOn
+        droppedOn = null
+        if (move == null || (landedByDrag && move !is Move.Jump)) return@LaunchedEffect
         progress.snapTo(0f)
         progress.animateTo(1f, tween(PieceMotion.durationMillis(move), easing = FastOutSlowInEasing))
     }
+    val currentBoard by rememberUpdatedState(board)
+    val currentSelected by rememberUpdatedState(selected)
+    val currentTargets by rememberUpdatedState(targets)
 
     // Only ticks while there are bubbles to show.
     val bob = if (targets.isNotEmpty()) rememberBubbleBob() else null
@@ -103,6 +118,27 @@ fun BoardCanvas(
                     detectTapGestures { offset ->
                         BoardGeometry.pointAt(offset, minOf(size.width, size.height).toFloat())?.let(currentOnPointTapped)
                     }
+                }
+                .pointerInput(Unit) {
+                    // Drag = tap the piece (selects it), carry it, tap the point it is dropped on.
+                    detectPieceDrags(
+                        boardSizePx = { minOf(size.width, size.height).toFloat() },
+                        hasPiece = { currentBoard[it] != null },
+                        onStart = { point, at ->
+                            if (currentSelected != point) currentOnPointTapped(point)
+                            drag = PieceDrag(point, at)
+                        },
+                        onMove = { at -> drag = drag?.copy(position = at) },
+                        onEnd = { point ->
+                            val from = drag?.from
+                            drag = null
+                            if (point != null && from != null && currentSelected == from && point in currentTargets) {
+                                droppedOn = point
+                                currentOnPointTapped(point)
+                            }
+                        },
+                        onCancel = { drag = null },
+                    )
                 },
         ) {
             val boardSize = size.minDimension
@@ -110,12 +146,15 @@ fun BoardCanvas(
             val pieceSize = BoardGeometry.PIECE_SIZE * scale
             val p = progress.value
             val moving = lastMove?.takeIf { p < 1f }
+            // Only a piece the game let the player pick up is carried.
+            val carried = drag?.takeIf { it.from == selected && board[it.from] != null }
+            val hovered = carried?.let { BoardGeometry.pointAt(it.position, boardSize) }
 
             with(boardPainter) { draw(Size(boardSize, boardSize)) }
 
             // Targets appear once the move has landed, so they don't show through a fading goat.
             if (moving == null) for (point in targets) {
-                drawMoveBubble(BoardGeometry.pointCenter(point, boardSize), scale, bob?.value ?: 0f)
+                drawMoveBubble(BoardGeometry.pointCenter(point, boardSize), scale, bob?.value ?: 0f, hovered = point == hovered)
             }
 
             board.forEachIndexed { point, side ->
@@ -129,6 +168,7 @@ fun BoardCanvas(
                         style = Stroke(width = 7f * scale),
                     )
                 }
+                if (point == carried?.from) return@forEachIndexed
                 drawPiece(if (side == Side.TIGER) tigerPainter else goatPainter, center, pieceSize)
                 if (point in trappedTigers) {
                     val offset = pieceSize * LOCK_BADGE_OFFSET
@@ -146,9 +186,24 @@ fun BoardCanvas(
             if (moving != null && movingSide != null) {
                 drawPiece(
                     painter = if (movingSide == Side.TIGER) tigerPainter else goatPainter,
-                    center = PieceMotion.center(moving, p, boardSize),
-                    size = pieceSize * PieceMotion.scale(moving, p),
+                    center = if (landedByDrag) BoardGeometry.pointCenter(moving.to, boardSize) else PieceMotion.center(moving, p, boardSize),
+                    size = pieceSize * if (landedByDrag) 1f else PieceMotion.scale(moving, p),
                     alpha = PieceMotion.alpha(moving, p),
+                )
+            }
+            // The carried piece floats above everything, a little bigger, with a shadow.
+            val carriedSide = carried?.let { board[it.from] }
+            if (carried != null && carriedSide != null) {
+                val shadowCenter = carried.position + Offset(0f, pieceSize * 0.2f)
+                drawCircle(
+                    Brush.radialGradient(listOf(CarryShadow, Color.Transparent), shadowCenter, pieceSize * 0.6f),
+                    radius = pieceSize * 0.6f,
+                    center = shadowCenter,
+                )
+                drawPiece(
+                    painter = if (carriedSide == Side.TIGER) tigerPainter else goatPainter,
+                    center = carried.position,
+                    size = pieceSize * CARRY_SCALE,
                 )
             }
         }
@@ -241,6 +296,14 @@ val BoardTheme.drawable: Int
         BoardTheme.WOOD -> R.drawable.board_wood
         BoardTheme.STONE -> R.drawable.board_stone
         BoardTheme.CLOTH -> R.drawable.board_cloth
+        BoardTheme.NIGHT -> R.drawable.board_night
+        BoardTheme.THANGKA -> R.drawable.board_thangka
+        BoardTheme.JUNGLE -> R.drawable.board_jungle
+        BoardTheme.MANDALA -> R.drawable.board_mandala
+        BoardTheme.DHAKA -> R.drawable.board_dhaka
+        BoardTheme.BRASS -> R.drawable.board_brass
+        BoardTheme.INK -> R.drawable.board_ink
+        BoardTheme.SNOW -> R.drawable.board_snow
     }
 
 private fun DrawScope.drawPiece(painter: Painter, center: Offset, size: Float, alpha: Float = 1f) {

@@ -5,6 +5,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.graphics.Color
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -65,6 +66,7 @@ fun GameScreen(
     onGameWon: (GameResult) -> Unit,
     onHowToPlay: () -> Unit,
     onStats: () -> Unit,
+    onBoards: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(factory = GameViewModel.Factory),
@@ -88,6 +90,7 @@ fun GameScreen(
         AppMenuItem(R.string.menu_home, R.drawable.ic_home, onMenu),
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
+        AppMenuItem(R.string.menu_boards, R.drawable.ic_boards, onBoards),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
     Column(modifier.fillMaxSize()) {
@@ -179,8 +182,8 @@ private fun ColumnScope.GameBody(
             modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Counter(R.drawable.ic_goat, stringResource(R.string.goats_in_hand, game.goatsInHand))
-            Counter(R.drawable.ic_tiger, stringResource(R.string.goats_captured, game.goatsCaptured, GOATS_TO_WIN))
+            Counter(LocalPieceArt.current.goat, stringResource(R.string.goats_in_hand, game.goatsInHand))
+            Counter(LocalPieceArt.current.tiger, stringResource(R.string.goats_captured, game.goatsCaptured, GOATS_TO_WIN))
         }
         // Wins move on to the result screen; only draws end here.
         if (uiState.status is GameStatus.Drawn) {
@@ -291,7 +294,7 @@ private fun TurnBadge(side: Side, text: String) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Image(
-            painterResource(if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat),
+            painterResource(if (isTiger) LocalPieceArt.current.tiger else LocalPieceArt.current.goat),
             contentDescription = null,
             modifier = Modifier.size(36.dp),
         )

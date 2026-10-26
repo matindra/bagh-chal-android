@@ -1,0 +1,55 @@
+<!-- Generated from design/tiger_glyph.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:pathData="M26.6,24.8m-9.9,0a9.9,9.9 0,1 1,19.8 0a9.9,9.9 0,1 1,-19.8 0"
+      android:strokeWidth="2.7"
+      android:fillColor="#E8862A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M26.6,24.8m-4.05,0a4.05,4.05 0,1 1,8.1 0a4.05,4.05 0,1 1,-8.1 0"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M73.4,24.8m-9.9,0a9.9,9.9 0,1 1,19.8 0a9.9,9.9 0,1 1,-19.8 0"
+      android:strokeWidth="2.7"
+      android:fillColor="#E8862A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M73.4,24.8m-4.05,0a4.05,4.05 0,1 1,8.1 0a4.05,4.05 0,1 1,-8.1 0"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M50,53.6m-36,0a36,36 0,1 1,72 0a36,36 0,1 1,-72 0"
+      android:strokeWidth="3.15"
+      android:fillColor="#F29A3A"
+      android:strokeColor="#3A2416"/>
+  <path
+      android:pathData="M42.8,21.2Q50,31.1 57.2,21.2"
+      android:strokeWidth="5.4"
+      android:fillColor="#00000000"
+      android:strokeColor="#3A2416"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M16.7,46.4Q24.8,47.3 30.2,52.7M17.6,62.6Q24.8,61.7 30.2,65.3M83.3,46.4Q75.2,47.3 69.8,52.7M82.4,62.6Q75.2,61.7 69.8,65.3"
+      android:strokeWidth="5.4"
+      android:fillColor="#00000000"
+      android:strokeColor="#3A2416"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M34.7,46.4L44.6,50M65.3,46.4L55.4,50"
+      android:strokeWidth="5.4"
+      android:fillColor="#00000000"
+      android:strokeColor="#3A2416"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M44.6,60.8L55.4,60.8L50,67.1Z"
+      android:fillColor="#3A2416"/>
+  <path
+      android:pathData="M50,67.1Q45.5,73.4 40.1,69.8M50,67.1Q54.5,73.4 59.9,69.8"
+      android:strokeWidth="3.6"
+      android:fillColor="#00000000"
+      android:strokeColor="#3A2416"
+      android:strokeLineCap="round"/>
+</vector>

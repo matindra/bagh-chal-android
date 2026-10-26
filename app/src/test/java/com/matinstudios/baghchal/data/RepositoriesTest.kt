@@ -153,6 +153,19 @@ class RepositoriesTest {
     }
 
     @Test
+    fun `piece set defaults to classic, persists, and ignores unknown values`() = runBlocking {
+        val store = dataStore()
+        val repository = SettingsRepository(store)
+        assertEquals(PieceSet.CLASSIC, repository.settings.first().pieceSet)
+        for (set in PieceSet.entries) {
+            repository.setPieceSet(set)
+            assertEquals(set, repository.settings.first().pieceSet)
+        }
+        store.edit { it[stringPreferencesKey("settings_piece_set")] = "PLASTIC" }
+        assertEquals(PieceSet.CLASSIC, repository.settings.first().pieceSet)
+    }
+
+    @Test
     fun `outcome is from the player's point of view`() {
         val tigersWin = GameStatus.Won(Side.TIGER, WinReason.CAPTURES)
         assertEquals(Outcome.WIN, Outcome.of(tigersWin, Side.TIGER))
@@ -168,11 +181,16 @@ class RepositoriesTest {
 
         repository.unlockTheme(BoardTheme.STONE)
         repository.unlockTheme(BoardTheme.CLOTH)
+        repository.unlockPieceSet(PieceSet.GLYPH)
         repository.setRemoveAds(true)
-        assertEquals(Entitlements(removeAds = true, unlockedThemes = setOf(BoardTheme.STONE, BoardTheme.CLOTH)), repository.entitlements.first())
+        val rewarded = Entitlements(
+            unlockedThemes = setOf(BoardTheme.STONE, BoardTheme.CLOTH),
+            unlockedPieceSets = setOf(PieceSet.GLYPH),
+        )
+        assertEquals(rewarded.copy(removeAds = true), repository.entitlements.first())
 
         repository.setRemoveAds(false)
-        assertEquals(Entitlements(unlockedThemes = setOf(BoardTheme.STONE, BoardTheme.CLOTH)), repository.entitlements.first(), "a refund keeps rewarded unlocks")
+        assertEquals(rewarded, repository.entitlements.first(), "a refund keeps rewarded unlocks")
 
         repository.reset()
         assertEquals(Entitlements(), repository.entitlements.first())

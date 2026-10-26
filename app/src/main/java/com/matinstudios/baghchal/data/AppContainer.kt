@@ -44,6 +44,14 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
         owned.effectiveTheme(settings.boardTheme)
     }
 
+    /** The pieces to draw: the selected set if it is unlocked, otherwise the free one. */
+    val pieceSet: Flow<PieceSet> = combine(settings.settings, entitlements.entitlements) { settings, owned ->
+        owned.effectivePieceSet(settings.pieceSet)
+    }
+
+    /** Which launcher icon the home screen shows. */
+    val launcherIcons = LauncherIcons(context)
+
     val consent = ConsentManager(context)
     val ads: Ads = if (servicesEnabled) {
         MobileAdsManager(context, consent, entitlements.entitlements, activities, appScope)

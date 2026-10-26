@@ -39,6 +39,7 @@ import com.matinstudios.baghchal.data.Record
 import com.matinstudios.baghchal.data.Stats
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.engine.ai.Difficulty
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
@@ -73,8 +74,8 @@ fun StatsContent(stats: Stats, onBack: () -> Unit, onReset: () -> Unit, modifier
                 textAlign = TextAlign.Center,
             )
             Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                SideCard(stats, Side.GOAT, R.drawable.ic_goat, R.string.stats_as_goats)
-                SideCard(stats, Side.TIGER, R.drawable.ic_tiger, R.string.stats_as_tigers)
+                SideCard(stats, Side.GOAT, LocalPieceArt.current.goat, R.string.stats_as_goats)
+                SideCard(stats, Side.TIGER, LocalPieceArt.current.tiger, R.string.stats_as_tigers)
             }
             TextButton(onClick = { confirmReset = true }) { Text(stringResource(R.string.stats_reset)) }
         }

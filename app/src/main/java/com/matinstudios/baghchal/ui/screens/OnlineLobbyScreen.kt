@@ -80,6 +80,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.online.RoomCode
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -219,14 +220,14 @@ private fun VersusArt(pieceCircle: Dp) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        PieceCircle(R.drawable.ic_tiger, pieceCircle, colors.surface)
+        PieceCircle(LocalPieceArt.current.tiger, pieceCircle, colors.surface)
         Box(
             Modifier.size(44.dp).clip(CircleShape).background(colors.primary),
             contentAlignment = Alignment.Center,
         ) {
             Text(stringResource(R.string.online_vs), color = colors.onPrimary, fontSize = 15.sp, fontWeight = FontWeight.Black)
         }
-        PieceCircle(R.drawable.ic_goat, pieceCircle, colors.surface)
+        PieceCircle(LocalPieceArt.current.goat, pieceCircle, colors.surface)
     }
 }
 
@@ -302,7 +303,7 @@ private fun SideChip(side: Side, selected: Boolean, onClick: () -> Unit, modifie
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
-        Image(painterResource(if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(32.dp))
+        Image(painterResource(if (isTiger) LocalPieceArt.current.tiger else LocalPieceArt.current.goat), contentDescription = null, modifier = Modifier.size(32.dp))
         Text(
             stringResource(if (isTiger) R.string.side_tigers else R.string.side_goats),
             style = MaterialTheme.typography.titleSmall,
@@ -440,7 +441,7 @@ private fun WaitingForFriend(code: String, side: Side, onShareCode: (String) -> 
         ) {
             val isTiger = side == Side.TIGER
             PieceCircle(
-                if (isTiger) R.drawable.ic_tiger else R.drawable.ic_goat,
+                if (isTiger) LocalPieceArt.current.tiger else LocalPieceArt.current.goat,
                 72.dp,
                 colors.surface,
                 Modifier.border(3.dp, if (isTiger) colors.primary else colors.secondary, CircleShape),

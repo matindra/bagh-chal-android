@@ -1,6 +1,10 @@
 package com.matinstudios.baghchal.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -12,10 +16,12 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.matinstudios.baghchal.R
@@ -23,6 +29,7 @@ import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.engine.GameState
 import com.matinstudios.baghchal.engine.Move
 import com.matinstudios.baghchal.engine.Side
+import com.matinstudios.baghchal.ui.board.BoardGeometry
 import com.matinstudios.baghchal.ui.board.boardPointTestTag
 import com.matinstudios.baghchal.ui.screens.GameContent
 import com.matinstudios.baghchal.ui.screens.GameInteraction
@@ -253,5 +260,75 @@ class GameContentTest {
         point(0).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, str(R.string.point_hint_from)))
         point(6).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, str(R.string.point_hint_to)))
         compose.onNodeWithText(str(R.string.hint)).assertIsNotEnabled()
+    }
+
+    // --- Drag and drop ---
+
+    /** Like [show], but taps change the state, as the view model would. */
+    private fun play(start: GameUiState): () -> GameUiState {
+        var ui by mutableStateOf(start)
+        compose.setContent {
+            BaghchalTheme {
+                GameContent(
+                    uiState = ui,
+                    boardTheme = BoardTheme.WOOD,
+                    undoNeedsAd = false,
+                    hintNeedsAd = false,
+                    onPointTapped = { tapped += it; ui = GameInteraction.onPointTapped(ui, it) },
+                    onUndo = {},
+                    onHint = {},
+                    onNewGame = {},
+                    onMenu = {},
+                )
+            }
+        }
+        return { ui }
+    }
+
+    /** Picks up the piece on [from], lets the screen redraw (as a real finger would), drops it on [to]. */
+    private fun dragOnBoard(from: Int, to: Int) {
+        val board = compose.onNodeWithContentDescription(str(R.string.cd_board))
+        board.performTouchInput {
+            val start = BoardGeometry.pointCenter(from, minOf(width, height).toFloat())
+            down(start)
+            moveTo(start + Offset(30f, 30f))
+        }
+        compose.waitForIdle()
+        board.performTouchInput {
+            moveTo(BoardGeometry.pointCenter(to, minOf(width, height).toFloat()))
+            up()
+        }
+        compose.waitForIdle()
+    }
+
+    /** Tiger's turn, with a goat on row 1, column 2 (next to the top-left tiger). */
+    private fun tigersTurn() = GameInteraction.applyMove(GameInteraction.newGame(), Move.Place(1))
+
+    @Test
+    fun draggingATigerOntoALegalPointMovesIt() {
+        val ui = play(tigersTurn())
+        dragOnBoard(0, 6)
+        assertEquals(listOf(0, 6), tapped)
+        assertEquals(Side.TIGER, ui().game.board[6])
+        assertEquals(null, ui().game.board[0])
+    }
+
+    @Test
+    fun draggingATigerOverAGoatCapturesIt() {
+        val ui = play(tigersTurn())
+        dragOnBoard(0, 2)
+        assertEquals(listOf(0, 2), tapped)
+        assertEquals(Side.TIGER, ui().game.board[2])
+        assertEquals(null, ui().game.board[1])
+        assertEquals(1, ui().game.goatsCaptured)
+    }
+
+    @Test
+    fun droppingOnAPointThatIsNotAMoveLeavesThePieceSelected() {
+        val ui = play(tigersTurn())
+        dragOnBoard(0, 12)
+        assertEquals(listOf(0), tapped)
+        assertEquals(Side.TIGER, ui().game.board[0])
+        assertEquals(0, ui().selected)
     }
 }

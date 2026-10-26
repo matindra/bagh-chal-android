@@ -29,6 +29,7 @@ import com.matinstudios.baghchal.BaghchalApplication
 import com.matinstudios.baghchal.MainActivity
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.BoardTheme
+import com.matinstudios.baghchal.data.PieceSet
 import com.matinstudios.baghchal.data.SavedGame
 import com.matinstudios.baghchal.engine.GameState
 import com.matinstudios.baghchal.engine.Side
@@ -387,15 +388,24 @@ class AppFlowTest {
 
     @Test
     fun lockedBoardsNeedAnAdAndSayWhenNoneIsAvailable() {
-        openMenuItem(R.string.home_settings)
-        waitForText(R.string.settings_title)
-        assertEquals(2, compose.onAllNodesWithText(str(R.string.settings_board_watch_ad)).fetchSemanticsNodes().size)
+        openMenuItem(R.string.menu_boards)
+        // Every board but Wood and every piece set but Classic is locked. (The title is also the menu
+        // item's text, so wait for the tiles.)
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText(str(R.string.boards_watch_ad)).fetchSemanticsNodes().size ==
+                BoardTheme.entries.size - 1 + PieceSet.entries.size - 1
+        }
 
         // Tests run without ads: a permanent unlock needs a watched ad, so Stone stays locked.
         text(R.string.board_stone).performClick()
         waitForText(R.string.message_no_ad)
         text(R.string.board_wood).assertIsSelected()
         text(R.string.board_stone).assertIsNotSelected()
+
+        // Piece sets unlock the same way.
+        text(R.string.piece_set_festival).performScrollTo().performClick()
+        waitForText(R.string.message_no_ad)
+        text(R.string.piece_set_festival).assertIsNotSelected()
     }
 
     @Test

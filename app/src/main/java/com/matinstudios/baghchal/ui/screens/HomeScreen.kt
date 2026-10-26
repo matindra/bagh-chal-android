@@ -54,6 +54,7 @@ import com.matinstudios.baghchal.data.SavedGame
 import com.matinstudios.baghchal.engine.GOATS_TO_WIN
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.engine.ai.Difficulty
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
@@ -64,6 +65,7 @@ fun HomeScreen(
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onStats: () -> Unit,
+    onBoards: () -> Unit,
     onSettings: () -> Unit,
     onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
@@ -74,6 +76,7 @@ fun HomeScreen(
     val menuItems = listOf(
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
+        AppMenuItem(R.string.menu_boards, R.drawable.ic_boards, onBoards),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
     Column(modifier.fillMaxSize()) {
@@ -172,7 +175,7 @@ fun HomeContent(
 private fun HomeHeader() {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(48.dp))
+            Image(painterResource(LocalPieceArt.current.tiger), contentDescription = null, modifier = Modifier.size(48.dp))
             // One line on every screen: shrinks from headlineLarge until it fits.
             BasicText(
                 stringResource(R.string.home_name),
@@ -187,7 +190,7 @@ private fun HomeHeader() {
                 ),
                 modifier = Modifier.weight(1f, fill = false).semantics { heading() },
             )
-            Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(48.dp))
+            Image(painterResource(LocalPieceArt.current.goat), contentDescription = null, modifier = Modifier.size(48.dp))
         }
         Text(
             stringResource(R.string.home_tagline),

@@ -29,10 +29,36 @@ public class SvgConvert {
             Map.entry("board.svg", "board_wood"),
             Map.entry("board_stone.svg", "board_stone"),
             Map.entry("board_cloth.svg", "board_cloth"),
+            Map.entry("board_night.svg", "board_night"),
+            Map.entry("board_thangka.svg", "board_thangka"),
+            Map.entry("board_jungle.svg", "board_jungle"),
+            Map.entry("board_mandala.svg", "board_mandala"),
+            Map.entry("board_dhaka.svg", "board_dhaka"),
+            Map.entry("board_brass.svg", "board_brass"),
+            Map.entry("board_ink.svg", "board_ink"),
+            Map.entry("board_snow.svg", "board_snow"),
             Map.entry("tiger_piece.svg", "ic_tiger"),
             Map.entry("goat_piece.svg", "ic_goat"),
+            Map.entry("tiger_token.svg", "ic_tiger_token"),
+            Map.entry("goat_token.svg", "ic_goat_token"),
+            Map.entry("tiger_glyph.svg", "ic_tiger_glyph"),
+            Map.entry("goat_glyph.svg", "ic_goat_glyph"),
+            Map.entry("tiger_mask.svg", "ic_tiger_mask"),
+            Map.entry("goat_chyangra.svg", "ic_goat_chyangra"),
+            Map.entry("tiger_snow.svg", "ic_tiger_snow"),
+            Map.entry("goat_black.svg", "ic_goat_black"),
             Map.entry("ic_launcher_background.svg", "ic_launcher_background"),
             Map.entry("ic_launcher_foreground.svg", "ic_launcher_foreground"),
+            Map.entry("launcher_faceoff_background.svg", "ic_launcher_faceoff_background"),
+            Map.entry("launcher_faceoff_foreground.svg", "ic_launcher_faceoff_foreground"),
+            Map.entry("launcher_glyph_background.svg", "ic_launcher_glyph_background"),
+            Map.entry("launcher_glyph_foreground.svg", "ic_launcher_glyph_foreground"),
+            Map.entry("launcher_board_background.svg", "ic_launcher_board_background"),
+            Map.entry("launcher_board_foreground.svg", "ic_launcher_board_foreground"),
+            Map.entry("launcher_night_background.svg", "ic_launcher_night_background"),
+            Map.entry("launcher_night_foreground.svg", "ic_launcher_night_foreground"),
+            Map.entry("launcher_mask_background.svg", "ic_launcher_mask_background"),
+            Map.entry("launcher_mask_foreground.svg", "ic_launcher_mask_foreground"),
             Map.entry("result_bg_tiger.svg", "result_bg_tiger"),
             Map.entry("result_bg_goat.svg", "result_bg_goat"),
             Map.entry("lock_badge.svg", "lock_badge"),
@@ -43,6 +69,7 @@ public class SvgConvert {
             Map.entry("menu.svg", "ic_menu"),
             Map.entry("help.svg", "ic_help"),
             Map.entry("stats.svg", "ic_stats"),
+            Map.entry("boards.svg", "ic_boards"),
             Map.entry("settings.svg", "ic_settings"),
             Map.entry("home.svg", "ic_home"),
             Map.entry("mode_vs_ai.svg", "ic_mode_vs_ai"),
@@ -60,6 +87,12 @@ public class SvgConvert {
             Map.entry("person.svg", "ic_person"),
             Map.entry("privacy.svg", "ic_privacy")
     ));
+
+    /** Launcher icons (one per choice in the app); each has drawable/<name>_background and _foreground. */
+    private static final String[] LAUNCHER_ICONS = {
+            "ic_launcher", "ic_launcher_faceoff", "ic_launcher_glyph",
+            "ic_launcher_board", "ic_launcher_night", "ic_launcher_mask",
+    };
 
     /** mipmap density -> legacy launcher icon size in px (48dp). */
     private static final Map<String, Integer> DENSITIES = new TreeMap<>(Map.of(
@@ -89,15 +122,17 @@ public class SvgConvert {
             System.out.println(svg.getName() + " -> drawable/" + name + ".xml");
         }
 
-        String background = Files.readString(drawableDir.resolve("ic_launcher_background.xml"));
-        String foreground = Files.readString(drawableDir.resolve("ic_launcher_foreground.xml"));
-        for (Map.Entry<String, Integer> e : DENSITIES.entrySet()) {
-            int size = e.getValue();
-            Path dir = pngOutDir.resolve("mipmap-" + e.getKey());
-            Files.createDirectories(dir);
-            BufferedImage full = renderAdaptive(background, foreground, size);
-            ImageIO.write(mask(full, size, false), "png", dir.resolve("ic_launcher.png").toFile());
-            ImageIO.write(mask(full, size, true), "png", dir.resolve("ic_launcher_round.png").toFile());
+        for (String icon : LAUNCHER_ICONS) {
+            String background = Files.readString(drawableDir.resolve(icon + "_background.xml"));
+            String foreground = Files.readString(drawableDir.resolve(icon + "_foreground.xml"));
+            for (Map.Entry<String, Integer> e : DENSITIES.entrySet()) {
+                int size = e.getValue();
+                Path dir = pngOutDir.resolve("mipmap-" + e.getKey());
+                Files.createDirectories(dir);
+                BufferedImage full = renderAdaptive(background, foreground, size);
+                ImageIO.write(mask(full, size, false), "png", dir.resolve(icon + ".png").toFile());
+                ImageIO.write(mask(full, size, true), "png", dir.resolve(icon + "_round.png").toFile());
+            }
         }
         System.out.println("Legacy launcher PNGs -> " + pngOutDir);
     }

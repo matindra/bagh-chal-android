@@ -45,6 +45,7 @@ import com.matinstudios.baghchal.BuildConfig
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.ThemeViewModel
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import kotlinx.coroutines.launch
 
 const val WEBSITE_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/"
@@ -84,8 +85,8 @@ fun AppMenuDrawer(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(36.dp))
-                    Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(36.dp))
+                    Image(painterResource(LocalPieceArt.current.tiger), contentDescription = null, modifier = Modifier.size(36.dp))
+                    Image(painterResource(LocalPieceArt.current.goat), contentDescription = null, modifier = Modifier.size(36.dp))
                     Text(
                         stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge,

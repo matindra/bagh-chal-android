@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.matinstudios.baghchal.ui.screens.AiSetupScreen
+import com.matinstudios.baghchal.ui.screens.BoardsScreen
 import com.matinstudios.baghchal.ui.screens.GameResult
 import com.matinstudios.baghchal.ui.screens.GameScreen
 import com.matinstudios.baghchal.ui.screens.GameSetup
@@ -28,6 +29,7 @@ import com.matinstudios.baghchal.ui.screens.WelcomeScreen
 private const val HOME_ROUTE = "home"
 private const val STATS_ROUTE = "stats"
 private const val SETTINGS_ROUTE = "settings"
+private const val BOARDS_ROUTE = "boards"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
 private const val WELCOME_ROUTE = "welcome"
 private const val AI_SETUP_ROUTE = "ai_setup"
@@ -60,6 +62,7 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onStartGame = { setup -> navController.navigate(setup.route) },
                 onResume = { navController.navigate(GameSetup.RESUME_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
+                onBoards = { navController.navigate(BOARDS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
             )
@@ -87,6 +90,7 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onGameWon = { result -> navController.navigate(result.route) { popUpTo(HOME_ROUTE) } },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
+                onBoards = { navController.navigate(BOARDS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
@@ -160,11 +164,15 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
+                onBoards = { navController.navigate(BOARDS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
         composable(STATS_ROUTE) {
             StatsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(BOARDS_ROUTE) {
+            BoardsScreen(onBack = { navController.popBackStack() })
         }
         composable(SETTINGS_ROUTE) {
             SettingsScreen(onBack = { navController.popBackStack() })

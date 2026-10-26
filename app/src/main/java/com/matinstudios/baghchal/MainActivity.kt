@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.BaghchalApp
 import com.matinstudios.baghchal.ui.ThemeViewModel
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
+import com.matinstudios.baghchal.ui.board.art
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,17 +37,22 @@ class MainActivity : ComponentActivity() {
         // Once per launch (not on rotation): no ad is requested until consent allows it.
         if (savedInstanceState == null && container.servicesEnabled) container.consent.gather(this)
         setContent {
+            val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModel.Factory)
             // Blank (window background) for the moment it takes to read the saved theme.
-            val darkTheme = isDarkTheme() ?: return@setContent
+            val darkTheme = isDarkTheme(themeViewModel) ?: return@setContent
+            val pieceSet = themeViewModel.pieceSet.collectAsStateWithLifecycle().value ?: return@setContent
+            val boardTheme = themeViewModel.boardTheme.collectAsStateWithLifecycle().value ?: return@setContent
             // Status and navigation bar icons follow the app's theme, not the phone's.
             DisposableEffect(darkTheme) {
                 val style = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { darkTheme }
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose {}
             }
-            BaghchalTheme(darkTheme = darkTheme) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BaghchalApp(modifier = Modifier.padding(innerPadding))
+            BaghchalTheme(darkTheme = darkTheme, boardTheme = boardTheme) {
+                CompositionLocalProvider(LocalPieceArt provides pieceSet.art) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        BaghchalApp(modifier = Modifier.padding(innerPadding))
+                    }
                 }
             }
         }
@@ -52,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
     /** Null until the saved theme is read. */
     @Composable
-    private fun isDarkTheme(themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModel.Factory)): Boolean? {
+    private fun isDarkTheme(themeViewModel: ThemeViewModel): Boolean? {
         val mode by themeViewModel.themeMode.collectAsStateWithLifecycle()
         val systemDark = isSystemInDarkTheme()
         val current = mode ?: return null

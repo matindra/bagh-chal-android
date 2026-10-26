@@ -20,8 +20,8 @@ private const val GHOST_ALPHA = 0.35f
 @Composable
 fun RuleBoard(illustration: RuleIllustration, theme: BoardTheme, modifier: Modifier = Modifier) {
     val boardPainter = painterResource(theme.drawable)
-    val tigerPainter = painterResource(R.drawable.ic_tiger)
-    val goatPainter = painterResource(R.drawable.ic_goat)
+    val tigerPainter = painterResource(LocalPieceArt.current.tiger)
+    val goatPainter = painterResource(LocalPieceArt.current.goat)
     val lockPainter = painterResource(R.drawable.lock_badge)
     val tigers = illustration.tigersAfter
     val goats = illustration.goatsAfter

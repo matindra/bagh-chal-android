@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.BoardTheme
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 import com.matinstudios.baghchal.ui.theme.MountainBackdrop
 import com.matinstudios.baghchal.ui.theme.PrayerFlags
@@ -121,8 +122,8 @@ private fun IntroPage() {
     WelcomePage {
         PrayerFlags()
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.size(96.dp))
-            Image(painterResource(R.drawable.ic_goat), contentDescription = null, modifier = Modifier.size(96.dp))
+            Image(painterResource(LocalPieceArt.current.tiger), contentDescription = null, modifier = Modifier.size(96.dp))
+            Image(painterResource(LocalPieceArt.current.goat), contentDescription = null, modifier = Modifier.size(96.dp))
         }
         Text(
             stringResource(R.string.welcome_title),

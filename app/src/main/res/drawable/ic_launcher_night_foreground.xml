@@ -1,0 +1,37 @@
+<!-- Generated from design/launcher_night_foreground.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <path
+      android:pathData="M38,26Q54,40 70,26M46,30L54,42L62,30M22,62Q32,60 40,67M24,74Q32,72 38,77M86,62Q76,60 68,67M84,74Q76,72 70,77"
+      android:strokeLineJoin="round"
+      android:strokeWidth="5"
+      android:fillColor="#00000000"
+      android:strokeColor="#2A3548"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M40,52m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0"
+      android:fillColor="#F7A53A"
+      android:fillAlpha="0.12"/>
+  <path
+      android:pathData="M68,52m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0"
+      android:fillColor="#F7A53A"
+      android:fillAlpha="0.12"/>
+  <path
+      android:pathData="M29,53Q39,41 50,52Q40,59 29,53Z"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M79,53Q69,41 58,52Q68,59 79,53Z"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M40,45Q42.5,51 40,57Q37.5,51 40,45Z"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M68,45Q70.5,51 68,57Q65.5,51 68,45Z"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M48,66L60,66L54,72Z"
+      android:fillColor="#2A3548"/>
+</vector>

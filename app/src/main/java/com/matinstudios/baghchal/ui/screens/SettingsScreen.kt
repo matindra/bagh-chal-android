@@ -1,25 +1,16 @@
 package com.matinstudios.baghchal.ui.screens
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import com.matinstudios.baghchal.data.Entitlements
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -33,9 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -44,9 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
-import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.data.Settings
-import com.matinstudios.baghchal.ui.board.drawable
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
@@ -62,7 +49,6 @@ fun SettingsScreen(
         message = message,
         onSoundChanged = viewModel::onSoundChanged,
         onHapticsChanged = viewModel::onHapticsChanged,
-        onBoardThemeSelected = viewModel::onBoardThemeSelected,
         onRemoveAds = viewModel::onRemoveAds,
         onRestorePurchase = viewModel::onRestorePurchase,
         onPrivacyOptions = viewModel::onPrivacyOptions,
@@ -77,7 +63,6 @@ fun SettingsContent(
     message: SettingsMessage?,
     onSoundChanged: (Boolean) -> Unit,
     onHapticsChanged: (Boolean) -> Unit,
-    onBoardThemeSelected: (BoardTheme) -> Unit,
     onRemoveAds: () -> Unit,
     onRestorePurchase: () -> Unit,
     onPrivacyOptions: () -> Unit,
@@ -105,25 +90,6 @@ fun SettingsContent(
                 ToggleRow(R.string.settings_sound, R.string.settings_sound_detail, settings.soundEnabled, onSoundChanged)
                 HorizontalDivider()
                 ToggleRow(R.string.settings_haptics, R.string.settings_haptics_detail, settings.hapticsEnabled, onHapticsChanged)
-            }
-            Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.settings_board), style = MaterialTheme.typography.titleMedium)
-                    Row(
-                        modifier = Modifier.fillMaxWidth().selectableGroup(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        for (theme in BoardTheme.entries) {
-                            ThemeOption(
-                                theme = theme,
-                                selected = theme == uiState.boardTheme,
-                                locked = !uiState.entitlements.isUnlocked(theme),
-                                onSelect = { onBoardThemeSelected(theme) },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                    }
-                }
             }
             RemoveAdsCard(uiState, onRemoveAds, onRestorePurchase)
             message?.let {
@@ -169,7 +135,6 @@ private fun RemoveAdsCard(uiState: SettingsUiState, onRemoveAds: () -> Unit, onR
 
 private val SettingsMessage.text: Int
     get() = when (this) {
-        SettingsMessage.NO_AD_AVAILABLE -> R.string.message_no_ad
         SettingsMessage.PURCHASE_UNAVAILABLE -> R.string.message_purchase_unavailable
         SettingsMessage.RESTORED -> R.string.message_restored
         SettingsMessage.NOT_OWNED -> R.string.message_not_owned
@@ -188,67 +153,6 @@ private fun ToggleRow(@StringRes title: Int, @StringRes detail: Int, checked: Bo
     )
 }
 
-@Composable
-private fun ThemeOption(
-    theme: BoardTheme,
-    selected: Boolean,
-    locked: Boolean,
-    onSelect: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val borderColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
-    Column(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onSelect)
-            .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Box {
-            Image(
-                painterResource(theme.drawable),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .border(3.dp, borderColor, MaterialTheme.shapes.small)
-                    .padding(5.dp)
-                    .alpha(if (locked) LOCKED_ALPHA else 1f),
-            )
-            if (locked) {
-                Image(
-                    painterResource(R.drawable.lock_badge),
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(28.dp),
-                )
-            }
-        }
-        Text(
-            stringResource(theme.label),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-        )
-        // Tapping a locked board plays a rewarded ad, so say so before the tap.
-        if (locked) {
-            Text(
-                stringResource(R.string.settings_board_watch_ad),
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
-
-private val BoardTheme.label: Int
-    get() = when (this) {
-        BoardTheme.WOOD -> R.string.board_wood
-        BoardTheme.STONE -> R.string.board_stone
-        BoardTheme.CLOTH -> R.string.board_cloth
-    }
-
-private const val LOCKED_ALPHA = 0.6f
-
 @Preview(showBackground = true)
 @Composable
 private fun SettingsContentPreview() {
@@ -258,7 +162,6 @@ private fun SettingsContentPreview() {
             message = null,
             onSoundChanged = {},
             onHapticsChanged = {},
-            onBoardThemeSelected = {},
             onRemoveAds = {},
             onRestorePurchase = {},
             onPrivacyOptions = {},

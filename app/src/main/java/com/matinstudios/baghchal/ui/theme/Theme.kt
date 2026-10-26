@@ -10,6 +10,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import com.matinstudios.baghchal.data.BoardTheme
 
 private val LightColorScheme = lightColorScheme(
     primary = TigerOrange40,
@@ -105,16 +106,19 @@ object BaghchalThemeExtras {
 
 /**
  * The app's own palette in light and dark. Dynamic (wallpaper) colour is deliberately off:
- * it washed the warm artwork out to greys.
+ * it washed the warm artwork out to greys. The neutral colours follow the chosen [boardTheme].
  */
 @Composable
 fun BaghchalTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    boardTheme: BoardTheme = BoardTheme.WOOD,
     content: @Composable () -> Unit,
 ) {
+    val base = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = boardTheme.tint?.let { base.tinted(it, darkTheme) } ?: base
     CompositionLocalProvider(LocalGameColors provides if (darkTheme) DarkGameColors else LightGameColors) {
         MaterialTheme(
-            colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+            colorScheme = colorScheme,
             typography = Typography,
             content = content,
         )

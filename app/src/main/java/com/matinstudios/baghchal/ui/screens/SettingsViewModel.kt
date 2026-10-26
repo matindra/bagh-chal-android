@@ -7,15 +7,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.matinstudios.baghchal.BaghchalApplication
 import com.matinstudios.baghchal.CurrentActivity
-import com.matinstudios.baghchal.ads.Ads
 import com.matinstudios.baghchal.ads.ConsentManager
-import com.matinstudios.baghchal.ads.RewardOutcome
-import com.matinstudios.baghchal.ads.RewardedPlacement
-import com.matinstudios.baghchal.ads.grantsThemeUnlock
 import com.matinstudios.baghchal.billing.BillingManager
 import com.matinstudios.baghchal.billing.PurchaseLaunch
 import com.matinstudios.baghchal.billing.RestoreResult
-import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.data.EntitlementRepository
 import com.matinstudios.baghchal.data.Entitlements
 import com.matinstudios.baghchal.data.SerialWriter
@@ -40,19 +35,15 @@ data class SettingsUiState(
     val removeAdsPrice: String?,
     val purchasePending: Boolean,
     val privacyOptionsRequired: Boolean,
-) {
-    /** The theme shown as selected: a locked choice falls back to the free board. */
-    val boardTheme: BoardTheme get() = entitlements.effectiveTheme(settings.boardTheme)
-}
+)
 
-/** One-line feedback shown in Settings after an ad or purchase action. */
-enum class SettingsMessage { NO_AD_AVAILABLE, PURCHASE_UNAVAILABLE, RESTORED, NOT_OWNED, RESTORE_FAILED }
+/** One-line feedback shown in Settings after a purchase action. */
+enum class SettingsMessage { PURCHASE_UNAVAILABLE, RESTORED, NOT_OWNED, RESTORE_FAILED }
 
 class SettingsViewModel(
     private val repository: SettingsRepository,
     private val entitlements: EntitlementRepository,
     private val writer: SerialWriter,
-    private val ads: Ads,
     private val billing: BillingManager,
     private val consent: ConsentManager,
     private val activities: CurrentActivity,
@@ -80,25 +71,6 @@ class SettingsViewModel(
 
     fun onHapticsChanged(enabled: Boolean) {
         writer.submit { repository.setHapticsEnabled(enabled) }
-    }
-
-    /** A locked theme is offered for a rewarded ad; watching it to the end unlocks it for good. */
-    fun onBoardThemeSelected(theme: BoardTheme) {
-        val state = uiState.value ?: return
-        if (state.entitlements.isUnlocked(theme)) {
-            writer.submit { repository.setBoardTheme(theme) }
-            return
-        }
-        runAction {
-            val outcome = ads.showRewarded(RewardedPlacement.THEME)
-            when {
-                outcome.grantsThemeUnlock() -> writer.submit {
-                    entitlements.unlockTheme(theme)
-                    repository.setBoardTheme(theme)
-                }
-                outcome == RewardOutcome.UNAVAILABLE -> _message.value = SettingsMessage.NO_AD_AVAILABLE
-            }
-        }
     }
 
     fun onRemoveAds() {
@@ -132,7 +104,6 @@ class SettingsViewModel(
                     container.settings,
                     container.entitlements,
                     container.writer,
-                    container.ads,
                     container.billing,
                     container.consent,
                     container.activities,

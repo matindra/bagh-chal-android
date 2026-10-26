@@ -58,8 +58,8 @@ fun ChaseBanner(modifier: Modifier = Modifier) {
         animationSpec = infiniteRepeatable(tween(ChaseScene.CYCLE_MILLIS, easing = LinearEasing), RepeatMode.Restart),
         label = "chaseClock",
     )
-    val tiger = painterResource(R.drawable.ic_tiger)
-    val goat = painterResource(R.drawable.ic_goat)
+    val tiger = painterResource(LocalPieceArt.current.tiger)
+    val goat = painterResource(LocalPieceArt.current.goat)
     val lock = painterResource(R.drawable.lock_badge)
     val colors = MaterialTheme.colorScheme
     val sky = listOf(colors.tertiaryContainer.copy(alpha = 0.75f), colors.surfaceContainerLow)

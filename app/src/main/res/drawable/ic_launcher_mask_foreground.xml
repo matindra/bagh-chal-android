@@ -1,0 +1,78 @@
+<!-- Generated from design/launcher_mask_foreground.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <path
+      android:pathData="M30.96,40.48Q29.68,25.12 46.32,28.96Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.92"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M77.04,40.48Q78.32,25.12 61.68,28.96Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.92"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M54,28.96C73.2,28.96 79.6,43.04 78.32,55.84C77.04,69.92 66.8,80.16 54,80.16C41.2,80.16 30.96,69.92 29.68,55.84C28.4,43.04 34.8,28.96 54,28.96Z"
+      android:strokeWidth="2.24"
+      android:fillColor="#E2611E"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M54,32.16L57.84,38.56L54,44.96L50.16,38.56Z"
+      android:strokeWidth="1.28"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M34.8,46.88Q43.12,37.92 51.44,46.24Q43.12,43.04 34.8,46.88Z"
+      android:strokeWidth="1.28"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M73.2,46.88Q64.88,37.92 56.56,46.24Q64.88,43.04 73.2,46.88Z"
+      android:strokeWidth="1.28"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M44.4,53.28m-5.12,0a5.12,5.12 0,1 1,10.24 0a5.12,5.12 0,1 1,-10.24 0"
+      android:strokeWidth="1.6"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M44.4,53.28m-2.56,0a2.56,2.56 0,1 1,5.12 0a2.56,2.56 0,1 1,-5.12 0"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M63.6,53.28m-5.12,0a5.12,5.12 0,1 1,10.24 0a5.12,5.12 0,1 1,-10.24 0"
+      android:strokeWidth="1.6"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M63.6,53.28m-2.56,0a2.56,2.56 0,1 1,5.12 0a2.56,2.56 0,1 1,-5.12 0"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M30.96,58.4L38.64,59.68L31.6,63.52ZM77.04,58.4L69.36,59.68L76.4,63.52Z"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M44.4,64.8Q54,58.4 63.6,64.8Q62.96,73.76 54,76.32Q45.04,73.76 44.4,64.8Z"
+      android:strokeWidth="1.28"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M50.8,61.6L57.2,61.6L54,65.44Z"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M48.24,68.64Q54,72.48 59.76,68.64"
+      android:strokeWidth="1.6"
+      android:fillColor="#00000000"
+      android:strokeColor="#2A140C"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M49.84,69.6L51.12,73.76L52.4,70.56ZM58.16,69.6L56.88,73.76L55.6,70.56Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="0.96"
+      android:fillColor="#FFFFFF"
+      android:strokeColor="#2A140C"/>
+</vector>

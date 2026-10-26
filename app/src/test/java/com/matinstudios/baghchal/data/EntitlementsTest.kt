@@ -13,6 +13,7 @@ class EntitlementsTest {
         assertTrue(free.isUnlocked(BoardTheme.WOOD))
         assertFalse(free.isUnlocked(BoardTheme.STONE))
         assertFalse(free.isUnlocked(BoardTheme.CLOTH))
+        assertEquals(listOf(BoardTheme.WOOD), BoardTheme.entries.filter(free::isUnlocked))
     }
 
     @Test
@@ -34,5 +35,25 @@ class EntitlementsTest {
         assertEquals(BoardTheme.WOOD, Entitlements().effectiveTheme(BoardTheme.CLOTH))
         assertEquals(BoardTheme.CLOTH, Entitlements(removeAds = true).effectiveTheme(BoardTheme.CLOTH))
         assertEquals(BoardTheme.STONE, Entitlements(unlockedThemes = setOf(BoardTheme.STONE)).effectiveTheme(BoardTheme.STONE))
+    }
+
+    @Test
+    fun `only classic pieces are free`() {
+        assertEquals(listOf(PieceSet.CLASSIC), PieceSet.entries.filter(Entitlements()::isUnlocked))
+    }
+
+    @Test
+    fun `a rewarded unlock opens just that piece set, and remove ads opens them all`() {
+        val glyph = Entitlements(unlockedPieceSets = setOf(PieceSet.GLYPH))
+        assertTrue(glyph.isUnlocked(PieceSet.GLYPH))
+        assertFalse(glyph.isUnlocked(PieceSet.TOKEN))
+        assertTrue(PieceSet.entries.all(Entitlements(removeAds = true)::isUnlocked))
+    }
+
+    @Test
+    fun `a selected piece set that is not unlocked falls back to classic`() {
+        assertEquals(PieceSet.CLASSIC, Entitlements().effectivePieceSet(PieceSet.FESTIVAL))
+        assertEquals(PieceSet.FESTIVAL, Entitlements(removeAds = true).effectivePieceSet(PieceSet.FESTIVAL))
+        assertEquals(PieceSet.SNOW, Entitlements(unlockedPieceSets = setOf(PieceSet.SNOW)).effectivePieceSet(PieceSet.SNOW))
     }
 }

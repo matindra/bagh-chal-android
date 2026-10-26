@@ -1,0 +1,78 @@
+<!-- Generated from design/tiger_mask.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:pathData="M17.6,33.8Q15.8,12.2 39.2,17.6Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="2.7"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M82.4,33.8Q84.2,12.2 60.8,17.6Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="2.7"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M50,17.6C77,17.6 86,37.4 84.2,55.4C82.4,75.2 68,89.6 50,89.6C32,89.6 17.6,75.2 15.8,55.4C14,37.4 23,17.6 50,17.6Z"
+      android:strokeWidth="3.15"
+      android:fillColor="#E2611E"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M50,22.1L55.4,31.1L50,40.1L44.6,31.1Z"
+      android:strokeWidth="1.8"
+      android:fillColor="#E8B23A"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M23,42.8Q34.7,30.2 46.4,41.9Q34.7,37.4 23,42.8Z"
+      android:strokeWidth="1.8"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M77,42.8Q65.3,30.2 53.6,41.9Q65.3,37.4 77,42.8Z"
+      android:strokeWidth="1.8"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M36.5,51.8m-7.2,0a7.2,7.2 0,1 1,14.4 0a7.2,7.2 0,1 1,-14.4 0"
+      android:strokeWidth="2.25"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M36.5,51.8m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M63.5,51.8m-7.2,0a7.2,7.2 0,1 1,14.4 0a7.2,7.2 0,1 1,-14.4 0"
+      android:strokeWidth="2.25"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M63.5,51.8m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M17.6,59L28.4,60.8L18.5,66.2ZM82.4,59L71.6,60.8L81.5,66.2Z"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M36.5,68Q50,59 63.5,68Q62.6,80.6 50,84.2Q37.4,80.6 36.5,68Z"
+      android:strokeWidth="1.8"
+      android:fillColor="#FFF4E0"
+      android:strokeColor="#2A140C"/>
+  <path
+      android:pathData="M45.5,63.5L54.5,63.5L50,68.9Z"
+      android:fillColor="#2A140C"/>
+  <path
+      android:pathData="M41.9,73.4Q50,78.8 58.1,73.4"
+      android:strokeWidth="2.25"
+      android:fillColor="#00000000"
+      android:strokeColor="#2A140C"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M44.15,74.75L45.95,80.6L47.75,76.1ZM55.85,74.75L54.05,80.6L52.25,76.1Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.35"
+      android:fillColor="#FFFFFF"
+      android:strokeColor="#2A140C"/>
+</vector>

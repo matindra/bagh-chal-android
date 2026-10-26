@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.engine.ai.Difficulty
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -114,7 +115,7 @@ private fun TigersWinArt() {
     BoxWithConstraints(Modifier.fillMaxSize().semantics { contentDescription = description }) {
         Background(R.drawable.result_bg_tiger)
         Image(
-            painterResource(R.drawable.ic_tiger),
+            painterResource(LocalPieceArt.current.tiger),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.Center)
@@ -150,7 +151,7 @@ private fun GoatsWinArt() {
                 .offset(y = maxHeight * 0.1f)
                 .size(tigerSize),
         ) {
-            Image(painterResource(R.drawable.ic_tiger), contentDescription = null, modifier = Modifier.fillMaxSize())
+            Image(painterResource(LocalPieceArt.current.tiger), contentDescription = null, modifier = Modifier.fillMaxSize())
             Image(
                 painterResource(R.drawable.lock_badge),
                 contentDescription = null,
@@ -177,7 +178,7 @@ private fun GoatsWinArt() {
 @Composable
 private fun BoxWithConstraintsScope.Goat(size: Dp, x: Dp, riseFrom: Dp, progress: Float) {
     Image(
-        painterResource(R.drawable.ic_goat),
+        painterResource(LocalPieceArt.current.goat),
         contentDescription = null,
         modifier = Modifier
             .align(Alignment.BottomCenter)
