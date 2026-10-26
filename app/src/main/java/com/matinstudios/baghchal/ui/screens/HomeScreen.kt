@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.ads.BannerAd
 import com.matinstudios.baghchal.ads.BannerPlacement
+import com.matinstudios.baghchal.ui.board.ChaseBanner
 import com.matinstudios.baghchal.data.SavedGame
 import com.matinstudios.baghchal.engine.GOATS_TO_WIN
 import com.matinstudios.baghchal.engine.Side
@@ -110,6 +112,13 @@ fun HomeContent(
             ) {
                 HomeHeader()
                 if (savedGame != null) ResumeCard(savedGame, onResume)
+                ChaseBanner(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clearAndSetSemantics {},
+                )
 
                 ModeSection(R.string.home_section_online, R.drawable.ic_globe) {
                     ModeTile(

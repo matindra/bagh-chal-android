@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-26 (32) — Home animation
+- Home has a wordless animated scene above the Online section (150 dp, rounded, not clickable, hidden from TalkBack): on a stretch of board line in front of soft hills, goats hop in point to point, the tiger crouches and leaps over a goat (it vanishes in a puff with sparks), two more goats hop in from the right and box the tiger in, it shakes, a gold ring pulses and the lock pops on, and the goats bounce for joy. Fades out and loops (~8.6 s).
+- First version was a mini board with captions and a "How to play" link; the user didn't want a tutorial, so it was replaced.
+- Code: `ui/board/ChaseScene.kt` (pure: `frameAt(millis)` → sprites, burst, lock), `ui/board/ChaseBanner.kt` (Canvas). One infinite transition, so it only runs while Home is on screen. With system animations off it shows a still of the trapped tiger.
+- Tests: `ChaseSceneTest` (loop fades in/out, leap + capture, tiger boxed in on both sides at the end, no pieces overlapping on screen). Unit tests pass.
+- Legal-move markers: the water bubbles are now plain flat green dots (no outline, shine or shadow), radius 17 instead of 26 art units, with a gentle size breathe. Same function names in `ui/board/BubbleDrawing.kt`.
+
 ## Session 2026-10-26 (31) — menu button in one place
 - The ☰ button was pinned top-left on Home but sat lower on the game screens (it was inside the vertically centred content). New shared `MenuTopBar` (`ui/screens/AppMenu.kt`) pins it at the same spot (4 dp from the top-left, 56 dp bar) on Home, the AI / Pass n Play game screen and the online game screen. The bar grows for taller content (game status + phase line); the button stays put.
 - Checked on the emulator (Home vs Pass n Play: same position). Unit tests + all UI tests pass. Not yet released.
