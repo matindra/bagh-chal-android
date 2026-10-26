@@ -52,7 +52,6 @@ private val SelectedColor = Color(0xFFFFD54F)
 /** Lock badge on a trapped tiger: size and offset of its centre to the top-right, relative to the piece. */
 private const val LOCK_BADGE_SIZE = 0.42f
 private const val LOCK_BADGE_OFFSET = 0.36f
-private val TargetColor = Color(0xB34CAF50)
 private val HintColor = Color(0xFFFFD54F)
 private val HintOutline = Color(0xD93A2416)
 
@@ -92,6 +91,9 @@ fun BoardCanvas(
         progress.animateTo(1f, tween(PieceMotion.durationMillis(move), easing = FastOutSlowInEasing))
     }
 
+    // Only ticks while there are bubbles to show.
+    val bob = if (targets.isNotEmpty()) rememberBubbleBob() else null
+
     BoxWithConstraints(modifier) {
         Canvas(
             Modifier
@@ -113,7 +115,7 @@ fun BoardCanvas(
 
             // Targets appear once the move has landed, so they don't show through a fading goat.
             if (moving == null) for (point in targets) {
-                drawCircle(TargetColor, radius = 24f * scale, center = BoardGeometry.pointCenter(point, boardSize))
+                drawMoveBubble(BoardGeometry.pointCenter(point, boardSize), scale, bob?.value ?: 0f)
             }
 
             board.forEachIndexed { point, side ->

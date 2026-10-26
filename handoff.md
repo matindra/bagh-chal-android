@@ -16,6 +16,7 @@
 
 - Side menu shows "Version 1.0 (5)" under the theme picker (from `BuildConfig.VERSION_NAME` / `VERSION_CODE`, string `menu_version`).
 - Side menu has a "Website" item (globe icon, above Privacy Policy) that opens https://matinstudios.com/bagh-chal-tiger-goat-game/ (`WEBSITE_URL` in `AppMenu.kt`).
+- Legal-move markers are now green water bubbles (clear middle, coloured edge, white shine, soft shadow) that bob gently; `ui/board/BubbleDrawing.kt`. The bob only runs while bubbles are shown.
 ## Session 2026-10-26 (30) — Play again with the same friend
 - After a **friend** game, Play again now offers a rematch instead of going back to the join screen. The friend's dialog says "Your friend wants to play again!"; when they tap Play again, both phones open the next game. Sides swap every game. Quick matches still go back to the lobby.
 - Data: the offering player creates the next room already seated (`status: "rematch"`, guest = friend) and sets `rooms/{old}/rematch = {room, by}`; the friend accepts by setting it to "playing". Same-moment offers: the transaction keeps the first, the other is deleted. Leaving with an unanswered offer withdraws it (next room deleted, `rematch` cleared).
