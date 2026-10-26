@@ -31,28 +31,24 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -144,9 +140,9 @@ fun OnlineLobbyContent(
 ) {
     Column(modifier.fillMaxSize()) {
         // While a game is being set up, Back would strand it, so the top button cancels instead.
-        LobbyTopBar(
-            title = mode.title,
+        BackTopBar(
             onBack = if (state == LobbyState.Idle || !isAvailable) onBack else onCancel,
+            title = mode.title,
         )
         Column(
             modifier = Modifier
@@ -173,24 +169,6 @@ fun OnlineLobbyContent(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun LobbyTopBar(@StringRes title: Int, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().height(64.dp).padding(start = 4.dp, end = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
-        }
-        Text(
-            stringResource(title),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.semantics { heading() },
-        )
     }
 }
 
@@ -223,14 +201,12 @@ private fun QuickMatchCard(onQuickMatch: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
         }
-        Button(
+        PrimaryButton(
+            text = stringResource(R.string.online_find),
             onClick = onQuickMatch,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-        ) {
-            Icon(painterResource(R.drawable.ic_search), contentDescription = null, modifier = Modifier.size(22.dp))
-            Text(stringResource(R.string.online_find), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 10.dp))
-        }
+            modifier = Modifier.fillMaxWidth(),
+            icon = R.drawable.ic_search,
+        )
     }
 }
 
@@ -299,11 +275,12 @@ private fun CreateGameCard(onCreateGame: (Side) -> Unit) {
             SideChip(Side.GOAT, selected = side == Side.GOAT, onClick = { side = Side.GOAT }, modifier = Modifier.weight(1f))
             SideChip(Side.TIGER, selected = side == Side.TIGER, onClick = { side = Side.TIGER }, modifier = Modifier.weight(1f))
         }
-        OutlinedButton(
+        PrimaryButton(
+            text = stringResource(R.string.online_create_button),
             onClick = { onCreateGame(side) },
-            modifier = Modifier.fillMaxWidth().height(48.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.tertiary),
-        ) { Text(stringResource(R.string.online_create_button)) }
+            modifier = Modifier.fillMaxWidth(),
+            icon = R.drawable.ic_add,
+        )
     }
 }
 
@@ -341,11 +318,7 @@ private fun JoinGameCard(onJoin: (String) -> Unit) {
         FriendCardHeader(R.drawable.ic_join, R.string.online_join_title, R.string.online_code_label)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             CodeField(code = code, onCodeChange = { code = it }, onDone = { onJoin(code) }, modifier = Modifier.weight(1f))
-            Button(
-                onClick = { onJoin(code) },
-                modifier = Modifier.height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
-            ) { Text(stringResource(R.string.online_join)) }
+            PrimaryButton(text = stringResource(R.string.online_join), onClick = { onJoin(code) })
         }
     }
 }
@@ -429,14 +402,12 @@ private fun WaitingForFriend(code: String, side: Side, onShareCode: (String) -> 
         }
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(
+        PrimaryButton(
+            text = stringResource(R.string.online_share),
             onClick = { onShareCode(code) },
-            modifier = Modifier.weight(1f).height(56.dp),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-        ) {
-            Icon(painterResource(R.drawable.ic_share), contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(stringResource(R.string.online_share), modifier = Modifier.padding(start = 10.dp))
-        }
+            modifier = Modifier.weight(1f),
+            icon = R.drawable.ic_share,
+        )
         OutlinedIconButton(
             onClick = {
                 scope.launch {
@@ -533,7 +504,7 @@ private fun Busy(state: LobbyState, onCancel: () -> Unit) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
-            OutlinedButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
+            SecondaryButton(stringResource(R.string.cancel), onCancel)
         }
         if (state == LobbyState.Searching) {
             SearchTimer(Modifier.align(Alignment.TopEnd).padding(top = 14.dp, end = 18.dp))

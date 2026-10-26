@@ -10,6 +10,9 @@
 ## Session 2026-10-26 (31) — menu button in one place
 - The ☰ button was pinned top-left on Home but sat lower on the game screens (it was inside the vertically centred content). New shared `MenuTopBar` (`ui/screens/AppMenu.kt`) pins it at the same spot (4 dp from the top-left, 56 dp bar) on Home, the AI / Pass n Play game screen and the online game screen. The bar grows for taller content (game status + phase line); the button stays put.
 - Checked on the emulator (Home vs Pass n Play: same position). Unit tests + all UI tests pass. Not yet released.
+- **One button system** (design canvas "Bagh Chal button system", https://claude.ai/artifact/Yb9tuQqjjSrXRbAxMDwkTZ): new `ui/screens/AppButtons.kt` with `PrimaryButton`, `SecondaryButton`, `ButtonPair`, `BackTopBar`. Every main button is now filled orange, 56 dp, Title Medium (Create/Join/Find/Share in the lobby, Start, Next, Resume, Remove Ads, Play again, New game); Home/Menu/Cancel are outlined 56 dp in pairs; Undo/Hint 48 dp tonal; small actions stay text buttons. Create and Join are orange now (sky only for online cards/icons).
+- Settings, Stats, How to Play and AI setup lost their bottom Back buttons; `BackTopBar`'s arrow sits exactly where the menu button does (also used by the lobby top bar, now 56 dp instead of 64). UI tests tap the arrow by content description.
+- Unit tests, all UI tests and lint pass (lint warnings unchanged). Checked Friend lobby, Settings and AI setup on the emulator.
 
 ## Session 2026-10-26 (30) — Play again with the same friend
 - After a **friend** game, Play again now offers a rematch instead of going back to the join screen. The friend's dialog says "Your friend wants to play again!"; when they tap Play again, both phones open the next game. Sides swap every game. Quick matches still go back to the lobby.

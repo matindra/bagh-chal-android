@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -93,10 +90,13 @@ fun ResultScreen(
             pluralStringResource(R.plurals.result_moves, result.moveCount, result.moveCount),
             style = MaterialTheme.typography.titleMedium,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onHome) { Text(stringResource(R.string.home)) }
-            Button(onClick = onPlayAgain) { Text(stringResource(R.string.play_again)) }
-        }
+        ButtonPair(
+            secondary = stringResource(R.string.home),
+            onSecondary = onHome,
+            primary = stringResource(R.string.play_again),
+            onPrimary = onPlayAgain,
+            modifier = Modifier.widthIn(max = 480.dp),
+        )
     }
 }
 

@@ -116,6 +116,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Stats: wins/losses per side and difficulty.
 - Localisation-ready: all strings in `strings.xml` (plan for English + Hindi + Odia + Nepali).
 - Portrait only on phones.
+- Buttons (`ui/screens/AppButtons.kt`): `PrimaryButton` (one main action, filled orange, 56 dp), `SecondaryButton` (outlined, beside it; `ButtonPair` = secondary left, primary right), tonal Undo/Hint (48 dp, game screen only), `TextButton` for small actions and dialogs. No bottom "Back" buttons: `BackTopBar`'s arrow sits where `MenuTopBar`'s menu button does.
 
 ## Online play
 

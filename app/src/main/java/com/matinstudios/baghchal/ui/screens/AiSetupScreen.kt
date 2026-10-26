@@ -30,17 +30,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -64,58 +62,60 @@ fun AiSetupScreen(onStart: (GameSetup) -> Unit, onBack: () -> Unit, modifier: Mo
     var humanSide by rememberSaveable { mutableStateOf(Side.GOAT) }
     var difficulty by rememberSaveable { mutableStateOf(Difficulty.MEDIUM) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-    ) {
-        PrayerFlags()
-        Text(
-            stringResource(R.string.mode_vs_ai),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { heading() },
-        )
-
+    Column(modifier.fillMaxSize()) {
+        BackTopBar(onBack)
         Column(
-            modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         ) {
-            SectionLabel(R.string.home_play_as)
-            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SideOption(
-                    side = Side.GOAT,
-                    selected = humanSide == Side.GOAT,
-                    onClick = { humanSide = Side.GOAT },
-                    detail = stringResource(R.string.side_goats_detail),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                )
-                SideOption(
-                    side = Side.TIGER,
-                    selected = humanSide == Side.TIGER,
-                    onClick = { humanSide = Side.TIGER },
-                    detail = stringResource(R.string.side_tigers_detail, GOATS_TO_WIN),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                )
-            }
+            PrayerFlags()
+            Text(
+                stringResource(R.string.mode_vs_ai),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics { heading() },
+            )
 
-            SectionLabel(R.string.home_difficulty)
-            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (level in Difficulty.entries) {
-                    DifficultyOption(level, selected = difficulty == level, onClick = { difficulty = level })
+            Column(
+                modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                SectionLabel(R.string.home_play_as)
+                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SideOption(
+                        side = Side.GOAT,
+                        selected = humanSide == Side.GOAT,
+                        onClick = { humanSide = Side.GOAT },
+                        detail = stringResource(R.string.side_goats_detail),
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    SideOption(
+                        side = Side.TIGER,
+                        selected = humanSide == Side.TIGER,
+                        onClick = { humanSide = Side.TIGER },
+                        detail = stringResource(R.string.side_tigers_detail, GOATS_TO_WIN),
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
                 }
-            }
 
-            Button(
-                onClick = { onStart(GameSetup.vsComputer(humanSide, difficulty)) },
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            ) { Text(stringResource(R.string.ai_setup_start)) }
-            TextButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text(stringResource(R.string.back))
+                SectionLabel(R.string.home_difficulty)
+                Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (level in Difficulty.entries) {
+                        DifficultyOption(level, selected = difficulty == level, onClick = { difficulty = level })
+                    }
+                }
+
+                PrimaryButton(
+                    text = stringResource(R.string.ai_setup_start),
+                    onClick = { onStart(GameSetup.vsComputer(humanSide, difficulty)) },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
             }
         }
     }

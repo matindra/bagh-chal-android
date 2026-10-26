@@ -23,17 +23,16 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -185,10 +184,13 @@ private fun ColumnScope.GameBody(
         }
         // Wins move on to the result screen; only draws end here.
         if (uiState.status is GameStatus.Drawn) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onMenu) { Text(stringResource(R.string.menu)) }
-                Button(onClick = onNewGame) { Text(stringResource(R.string.new_game)) }
-            }
+            ButtonPair(
+                secondary = stringResource(R.string.menu),
+                onSecondary = onMenu,
+                primary = stringResource(R.string.new_game),
+                onPrimary = onNewGame,
+                modifier = Modifier.widthIn(max = 600.dp),
+            )
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AssistButton(
@@ -224,6 +226,7 @@ private fun AssistButton(
 ) {
     FilledTonalButton(
         onClick = onClick,
+        modifier = Modifier.heightIn(min = 48.dp),
         enabled = enabled,
         colors = ButtonDefaults.filledTonalButtonColors(containerColor = container, contentColor = content),
         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,

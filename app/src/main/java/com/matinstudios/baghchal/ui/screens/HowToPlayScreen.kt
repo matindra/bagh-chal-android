@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,43 +42,46 @@ fun HowToPlayScreen(
 
 @Composable
 fun HowToPlayContent(boardTheme: BoardTheme, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(
-            stringResource(R.string.rules_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { heading() },
-        )
-        Text(stringResource(R.string.rules_goal), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+    Column(modifier.fillMaxSize()) {
+        BackTopBar(onBack)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                stringResource(R.string.rules_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { heading() },
+            )
+            Text(stringResource(R.string.rules_goal), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
 
-        HOW_TO_PLAY_STEPS.forEachIndexed { index, step ->
-            Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        stringResource(R.string.rules_step_title, index + 1, stringResource(step.title)),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.semantics { heading() },
-                    )
-                    RulePicture(step, boardTheme, Modifier.fillMaxWidth())
-                    Text(stringResource(step.body), style = MaterialTheme.typography.bodyLarge)
+            HOW_TO_PLAY_STEPS.forEachIndexed { index, step ->
+                Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            stringResource(R.string.rules_step_title, index + 1, stringResource(step.title)),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.semantics { heading() },
+                        )
+                        RulePicture(step, boardTheme, Modifier.fillMaxWidth())
+                        Text(stringResource(step.body), style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
             }
-        }
 
-        Text(
-            stringResource(R.string.rules_draws),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.widthIn(max = 480.dp),
-        )
-        OutlinedButton(onClick = onBack) { Text(stringResource(R.string.back)) }
+            Text(
+                stringResource(R.string.rules_draws),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.widthIn(max = 480.dp),
+            )
+        }
     }
 }
 

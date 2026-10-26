@@ -6,9 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import com.matinstudios.baghchal.data.Entitlements
@@ -29,10 +27,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -87,51 +85,54 @@ fun SettingsContent(
     modifier: Modifier = Modifier,
 ) {
     val settings = uiState.settings
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(
-            stringResource(R.string.settings_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
-            ToggleRow(R.string.settings_sound, R.string.settings_sound_detail, settings.soundEnabled, onSoundChanged)
-            HorizontalDivider()
-            ToggleRow(R.string.settings_haptics, R.string.settings_haptics_detail, settings.hapticsEnabled, onHapticsChanged)
-        }
-        Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.settings_board), style = MaterialTheme.typography.titleMedium)
-                Row(
-                    modifier = Modifier.fillMaxWidth().selectableGroup(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    for (theme in BoardTheme.entries) {
-                        ThemeOption(
-                            theme = theme,
-                            selected = theme == uiState.boardTheme,
-                            locked = !uiState.entitlements.isUnlocked(theme),
-                            onSelect = { onBoardThemeSelected(theme) },
-                            modifier = Modifier.weight(1f),
-                        )
+    Column(modifier.fillMaxSize()) {
+        BackTopBar(onBack)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                stringResource(R.string.settings_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
+                ToggleRow(R.string.settings_sound, R.string.settings_sound_detail, settings.soundEnabled, onSoundChanged)
+                HorizontalDivider()
+                ToggleRow(R.string.settings_haptics, R.string.settings_haptics_detail, settings.hapticsEnabled, onHapticsChanged)
+            }
+            Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.settings_board), style = MaterialTheme.typography.titleMedium)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().selectableGroup(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        for (theme in BoardTheme.entries) {
+                            ThemeOption(
+                                theme = theme,
+                                selected = theme == uiState.boardTheme,
+                                locked = !uiState.entitlements.isUnlocked(theme),
+                                onSelect = { onBoardThemeSelected(theme) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }
+            RemoveAdsCard(uiState, onRemoveAds, onRestorePurchase)
+            message?.let {
+                Text(stringResource(it.text), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+            }
+            if (uiState.privacyOptionsRequired) {
+                TextButton(onClick = onPrivacyOptions) { Text(stringResource(R.string.settings_privacy_options)) }
+            }
         }
-        RemoveAdsCard(uiState, onRemoveAds, onRestorePurchase)
-        message?.let {
-            Text(stringResource(it.text), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-        }
-        if (uiState.privacyOptionsRequired) {
-            TextButton(onClick = onPrivacyOptions) { Text(stringResource(R.string.settings_privacy_options)) }
-        }
-        OutlinedButton(onClick = onBack) { Text(stringResource(R.string.back)) }
     }
 }
 
@@ -145,16 +146,16 @@ private fun RemoveAdsCard(uiState: SettingsUiState, onRemoveAds: () -> Unit, onR
                 uiState.purchasePending -> Text(stringResource(R.string.settings_remove_ads_pending))
                 else -> {
                     Text(stringResource(R.string.settings_remove_ads_detail), style = MaterialTheme.typography.bodyMedium)
-                    Button(onClick = onRemoveAds, modifier = Modifier.fillMaxWidth()) {
-                        val price = uiState.removeAdsPrice
-                        Text(
-                            if (price == null) {
-                                stringResource(R.string.settings_remove_ads)
-                            } else {
-                                stringResource(R.string.settings_remove_ads_price, price)
-                            },
-                        )
-                    }
+                    val price = uiState.removeAdsPrice
+                    PrimaryButton(
+                        text = if (price == null) {
+                            stringResource(R.string.settings_remove_ads)
+                        } else {
+                            stringResource(R.string.settings_remove_ads_price, price)
+                        },
+                        onClick = onRemoveAds,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
             if (!uiState.entitlements.removeAds) {

@@ -152,7 +152,7 @@ class AppFlowTest {
         text(R.string.difficulty_easy).assertIsSelected()
         text(R.string.difficulty_medium).assertIsNotSelected()
 
-        text(R.string.back).performScrollTo().performClick()
+        compose.onNodeWithContentDescription(str(R.string.back)).performClick()
         waitForText(R.string.mode_vs_player)
     }
 

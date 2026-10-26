@@ -20,7 +20,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -102,7 +101,8 @@ fun WelcomeContent(boardTheme: BoardTheme, onFinished: () -> Unit, modifier: Mod
 
             PageDots(current = pagerState.currentPage, count = WELCOME_PAGE_COUNT, Modifier.padding(vertical = 16.dp))
 
-            Button(
+            PrimaryButton(
+                text = stringResource(if (isLastPage) R.string.welcome_start else R.string.welcome_next),
                 onClick = {
                     if (isLastPage) {
                         onFinished()
@@ -111,7 +111,7 @@ fun WelcomeContent(boardTheme: BoardTheme, onFinished: () -> Unit, modifier: Mod
                     }
                 },
                 modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-            ) { Text(stringResource(if (isLastPage) R.string.welcome_start else R.string.welcome_next)) }
+            )
         }
     }
 }

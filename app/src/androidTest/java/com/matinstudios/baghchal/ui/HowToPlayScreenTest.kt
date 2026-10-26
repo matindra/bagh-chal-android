@@ -63,7 +63,7 @@ class HowToPlayScreenTest {
     @Test
     fun backButtonWorks() {
         show()
-        compose.onNodeWithText(str(R.string.back)).performScrollTo().performClick()
+        compose.onNodeWithContentDescription(str(R.string.back)).performClick()
         assertEquals(1, backClicks)
     }
 }
