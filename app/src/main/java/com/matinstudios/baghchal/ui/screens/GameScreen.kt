@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -128,18 +129,38 @@ fun GameContent(
     onOpenMenu: () -> Unit = {},
 ) {
     val game = uiState.game
+    Column(modifier.fillMaxSize()) {
+        MenuTopBar(onOpenMenu) {
+            // End padding matches the menu button, so the status is centred on the screen.
+            Box(Modifier.weight(1f).padding(end = MenuButtonSpace), contentAlignment = Alignment.Center) {
+                StatusLine(uiState)
+            }
+        }
+        GameBody(uiState, boardTheme, undoNeedsAd, hintNeedsAd, onPointTapped, onUndo, onHint, onNewGame, onMenu)
+    }
+}
+
+@Composable
+private fun ColumnScope.GameBody(
+    uiState: GameUiState,
+    boardTheme: BoardTheme,
+    undoNeedsAd: Boolean,
+    hintNeedsAd: Boolean,
+    onPointTapped: (Int) -> Unit,
+    onUndo: () -> Unit,
+    onHint: () -> Unit,
+    onNewGame: () -> Unit,
+    onMenu: () -> Unit,
+) {
+    val game = uiState.game
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            AppMenuButton(onOpenMenu, Modifier.align(Alignment.CenterStart))
-            // Side padding keeps the centred status clear of the menu button.
-            StatusLine(uiState, Modifier.padding(horizontal = 48.dp))
-        }
         BoardCanvas(
             board = game.board,
             theme = boardTheme,

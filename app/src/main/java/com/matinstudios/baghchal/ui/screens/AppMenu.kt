@@ -7,8 +7,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DrawerState
@@ -144,6 +147,28 @@ private fun ThemePicker(selected: ThemeMode, onSelect: (ThemeMode) -> Unit, modi
         }
     }
 }
+
+/**
+ * The top strip of every screen with the side menu: the menu button always sits in the same
+ * top-left spot, with [content] (title, status) beside it.
+ */
+@Composable
+fun MenuTopBar(onOpenMenu: () -> Unit, modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit = {}) {
+    // The bar grows for tall content, but the button stays pinned to the top-left corner.
+    Box(modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = MenuTopBarHeight).padding(start = MenuButtonSpace),
+            verticalAlignment = Alignment.CenterVertically,
+            content = content,
+        )
+        AppMenuButton(onOpenMenu, Modifier.padding(4.dp))
+    }
+}
+
+/** Width the menu button takes from the left edge (button plus its margin). */
+val MenuButtonSpace = 52.dp
+
+val MenuTopBarHeight = 56.dp
 
 @Composable
 fun AppMenuButton(onClick: () -> Unit, modifier: Modifier = Modifier) {

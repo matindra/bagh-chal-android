@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -61,21 +62,10 @@ fun OnlineGameContent(
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val uiState = session.ui
-    val game = uiState.game
-    val mySide = session.mySide
-    val playing = end == null && uiState.status == GameStatus.InProgress
-    val myTurn = playing && game.sideToMove == mySide
-    val theirTurn = playing && !myTurn
-
-    Column(
-        modifier = modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            AppMenuButton(onOpenMenu)
-            Column {
+    val game = session.ui.game
+    Column(modifier.fillMaxSize()) {
+        MenuTopBar(onOpenMenu) {
+            Column(Modifier.padding(start = 4.dp)) {
                 Text(
                     stringResource(R.string.online_game_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -89,6 +79,29 @@ fun OnlineGameContent(
                 )
             }
         }
+        OnlineGameBody(session, opponentAway, end, boardTheme, onPointTapped)
+    }
+}
+
+@Composable
+private fun ColumnScope.OnlineGameBody(
+    session: OnlineSession,
+    opponentAway: Boolean,
+    end: OnlineEnd?,
+    boardTheme: BoardTheme,
+    onPointTapped: (Int) -> Unit,
+) {
+    val uiState = session.ui
+    val game = uiState.game
+    val mySide = session.mySide
+    val playing = end == null && uiState.status == GameStatus.InProgress
+    val myTurn = playing && game.sideToMove == mySide
+    val theirTurn = playing && !myTurn
+    Column(
+        modifier = Modifier.weight(1f).fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+    ) {
         val barWidth = Modifier.widthIn(max = 600.dp).fillMaxWidth()
         PlayerBar(
             side = mySide.opponent,

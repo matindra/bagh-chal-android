@@ -102,7 +102,7 @@ fun HomeContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 // Room at the top for the menu button.
-                .padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 20.dp),
+                .padding(start = 20.dp, end = 20.dp, top = MenuTopBarHeight, bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
@@ -155,7 +155,7 @@ fun HomeContent(
             }
         }
         // Drawn after the content so it sits on top of the scrolling column.
-        AppMenuButton(onOpenMenu, Modifier.align(Alignment.TopStart).padding(4.dp))
+        MenuTopBar(onOpenMenu, Modifier.align(Alignment.TopStart))
     }
 }
 

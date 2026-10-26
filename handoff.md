@@ -7,6 +7,10 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-26 (31) — menu button in one place
+- The ☰ button was pinned top-left on Home but sat lower on the game screens (it was inside the vertically centred content). New shared `MenuTopBar` (`ui/screens/AppMenu.kt`) pins it at the same spot (4 dp from the top-left, 56 dp bar) on Home, the AI / Pass n Play game screen and the online game screen. The bar grows for taller content (game status + phase line); the button stays put.
+- Checked on the emulator (Home vs Pass n Play: same position). Unit tests + all UI tests pass. Not yet released.
+
 ## Session 2026-10-26 (30) — Play again with the same friend
 - After a **friend** game, Play again now offers a rematch instead of going back to the join screen. The friend's dialog says "Your friend wants to play again!"; when they tap Play again, both phones open the next game. Sides swap every game. Quick matches still go back to the lobby.
 - Data: the offering player creates the next room already seated (`status: "rematch"`, guest = friend) and sets `rooms/{old}/rematch = {room, by}`; the friend accepts by setting it to "playing". Same-moment offers: the transaction keeps the first, the other is deleted. Leaving with an unanswered offer withdraws it (next room deleted, `rematch` cleared).
