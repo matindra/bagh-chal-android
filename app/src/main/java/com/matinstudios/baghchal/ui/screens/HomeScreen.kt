@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +26,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +68,7 @@ fun HomeScreen(
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
     onStats: () -> Unit,
-    onBoards: () -> Unit,
+    onShop: () -> Unit,
     onSettings: () -> Unit,
     onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
@@ -76,12 +79,11 @@ fun HomeScreen(
     val menuItems = listOf(
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
-        AppMenuItem(R.string.menu_boards, R.drawable.ic_boards, onBoards),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
     Column(modifier.fillMaxSize()) {
         AppMenuDrawer(menuItems, Modifier.weight(1f)) { openMenu ->
-            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onPlayWithFriend, onStartGame, onResume, openMenu)
+            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onPlayWithFriend, onStartGame, onResume, onShop, openMenu)
         }
         if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp))
     }
@@ -96,6 +98,7 @@ fun HomeContent(
     onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
+    onShop: () -> Unit,
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -166,7 +169,20 @@ fun HomeContent(
             }
         }
         // Drawn after the content so it sits on top of the scrolling column.
-        MenuTopBar(onOpenMenu, Modifier.align(Alignment.TopStart))
+        MenuTopBar(onOpenMenu, Modifier.align(Alignment.TopStart)) {
+            Spacer(Modifier.weight(1f))
+            ShopButton(onShop, Modifier.padding(end = 12.dp))
+        }
+    }
+}
+
+/** Opens the Shop: top right, across from the menu button. */
+@Composable
+private fun ShopButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    FilledTonalButton(onClick = onClick, modifier = modifier, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) {
+        Icon(painterResource(R.drawable.ic_shop), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(stringResource(R.string.home_shop))
     }
 }
 
@@ -310,5 +326,5 @@ internal val Difficulty.label: Int
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onPlayWithFriend = {}, onStartGame = {}, onResume = {}, onOpenMenu = {}) }
+    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onPlayWithFriend = {}, onStartGame = {}, onResume = {}, onShop = {}, onOpenMenu = {}) }
 }

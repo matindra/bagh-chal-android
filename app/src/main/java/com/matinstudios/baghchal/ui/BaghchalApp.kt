@@ -23,13 +23,17 @@ import com.matinstudios.baghchal.ui.screens.OnlineLobbyScreen
 import com.matinstudios.baghchal.ui.screens.ResultScreen
 import com.matinstudios.baghchal.ui.screens.ResultViewModel
 import com.matinstudios.baghchal.ui.screens.SettingsScreen
+import com.matinstudios.baghchal.ui.screens.ShopScreen
+import com.matinstudios.baghchal.ui.screens.ShopSection
 import com.matinstudios.baghchal.ui.screens.StatsScreen
 import com.matinstudios.baghchal.ui.screens.WelcomeScreen
 
 private const val HOME_ROUTE = "home"
 private const val STATS_ROUTE = "stats"
 private const val SETTINGS_ROUTE = "settings"
-private const val BOARDS_ROUTE = "boards"
+private const val SHOP_ROUTE = "shop"
+private const val ARG_SHOP_SECTION = "section"
+private const val SHOP_SECTION_ROUTE = "shop/{$ARG_SHOP_SECTION}"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
 private const val WELCOME_ROUTE = "welcome"
 private const val AI_SETUP_ROUTE = "ai_setup"
@@ -37,6 +41,8 @@ private const val ARG_ONLINE_MODE = "mode"
 private const val ONLINE_ROUTE = "online/{$ARG_ONLINE_MODE}"
 
 private fun onlineRoute(mode: OnlineLobbyMode) = "online/${mode.name}"
+
+private fun shopSectionRoute(section: ShopSection) = "shop/${section.name}"
 
 @Composable
 fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)) {
@@ -62,7 +68,7 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onStartGame = { setup -> navController.navigate(setup.route) },
                 onResume = { navController.navigate(GameSetup.RESUME_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
-                onBoards = { navController.navigate(BOARDS_ROUTE) },
+                onShop = { navController.navigate(SHOP_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
             )
@@ -90,7 +96,6 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onGameWon = { result -> navController.navigate(result.route) { popUpTo(HOME_ROUTE) } },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
-                onBoards = { navController.navigate(BOARDS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
@@ -164,15 +169,26 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
-                onBoards = { navController.navigate(BOARDS_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
         composable(STATS_ROUTE) {
             StatsScreen(onBack = { navController.popBackStack() })
         }
-        composable(BOARDS_ROUTE) {
-            BoardsScreen(onBack = { navController.popBackStack() })
+        composable(SHOP_ROUTE) {
+            ShopScreen(
+                onOpenSection = { section -> navController.navigate(shopSectionRoute(section)) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(
+            SHOP_SECTION_ROUTE,
+            arguments = listOf(navArgument(ARG_SHOP_SECTION) { type = NavType.StringType }),
+        ) { entry ->
+            val section = entry.arguments?.getString(ARG_SHOP_SECTION)
+                ?.let { name -> ShopSection.entries.firstOrNull { it.name == name } }
+                ?: ShopSection.BOARDS
+            BoardsScreen(section = section, onBack = { navController.popBackStack() })
         }
         composable(SETTINGS_ROUTE) {
             SettingsScreen(onBack = { navController.popBackStack() })

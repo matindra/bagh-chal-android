@@ -388,14 +388,17 @@ class AppFlowTest {
 
     @Test
     fun lockedBoardsNeedAnAdAndSayWhenNoneIsAvailable() {
-        openMenuItem(R.string.menu_boards)
-        // Every board but Wood and every piece set but Classic is locked. (The title is also the menu
-        // item's text, so wait for the tiles.)
-        compose.waitUntil(10_000) {
-            compose.onAllNodesWithText(str(R.string.boards_watch_ad)).fetchSemanticsNodes().size ==
-                BoardTheme.entries.size - 1 + PieceSet.entries.size - 1
-        }
+        text(R.string.home_shop).performClick()
+        // The Shop counts what is unlocked: only Wood and Classic to start with.
+        waitForText(R.string.shop_unlocked, 1, BoardTheme.entries.size)
+        text(R.string.shop_unlocked, 1, PieceSet.entries.size).assertIsDisplayed()
+        text(R.string.shop_all_free).assertIsDisplayed()
 
+        text(R.string.shop_boards).performClick()
+        // Every board but Wood is locked.
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText(str(R.string.boards_watch_ad)).fetchSemanticsNodes().size == BoardTheme.entries.size - 1
+        }
         // Tests run without ads: a permanent unlock needs a watched ad, so Stone stays locked.
         text(R.string.board_stone).performClick()
         waitForText(R.string.message_no_ad)
@@ -403,6 +406,11 @@ class AppFlowTest {
         text(R.string.board_stone).assertIsNotSelected()
 
         // Piece sets unlock the same way.
+        compose.onNodeWithContentDescription(str(R.string.back)).performClick()
+        text(R.string.shop_pieces).performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText(str(R.string.boards_watch_ad)).fetchSemanticsNodes().size == PieceSet.entries.size - 1
+        }
         text(R.string.piece_set_festival).performScrollTo().performClick()
         waitForText(R.string.message_no_ad)
         text(R.string.piece_set_festival).assertIsNotSelected()

@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-27 (37) — Shop
+- "Boards & Pieces" left the side menu. Home has a **Shop** button top-right, across from the menu button (tonal, bag icon `ic_shop` from `design/shop.svg`, string `home_shop`). The game screens no longer link to it; boards/pieces are picked from Home only.
+- New Shop screen (`ui/screens/ShopScreen.kt`, route `shop`): three cards, each showing what is in use — Boards ("x of 11 unlocked"), Pieces ("x of 5 unlocked"), App icons ("All free"). Each opens its own picker (`BoardsScreen(section: ShopSection)`, route `shop/{section}`); the pickers work as before (rewarded ad to unlock).
+- Removed strings `boards_title`, `menu_boards`, `boards_section_*`; new `home_shop`, `shop_*`.
+- `AppFlowTest` locked-boards test now goes Home Shop button → Boards, then Back → Pieces. Unit tests and all UI tests pass; checked menu, Shop and Pieces on the emulator.
+- Not done: translations for the new strings. Remove Ads is still in Settings (could also be offered in the Shop).
+
 ## Session 2026-10-26 (36) — closed-testing build vc6
 - versionCode bumped to **6** (versionName 1.0). Unit tests, lint (0 errors) and an unsigned `bundleRelease -PtestAds=true` (R8) pass.
 - Signed bundle: `scripts/build-release.sh --test-ads` → `dist/baghchal-1.0-vc6-testads.aab` (needs the keystore password, run by the user).

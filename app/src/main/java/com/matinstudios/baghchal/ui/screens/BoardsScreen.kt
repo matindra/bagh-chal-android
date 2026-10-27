@@ -52,9 +52,17 @@ import com.matinstudios.baghchal.ui.board.art
 import com.matinstudios.baghchal.ui.board.drawable
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
-/** Board, piece set and app icon pickers, opened from the side menu. */
+/** What the Shop offers; each opens its own picker. */
+enum class ShopSection(@StringRes val title: Int) {
+    BOARDS(R.string.shop_boards),
+    PIECES(R.string.shop_pieces),
+    APP_ICONS(R.string.shop_app_icons),
+}
+
+/** One Shop section's picker: boards, piece sets or app icons. */
 @Composable
 fun BoardsScreen(
+    section: ShopSection,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BoardsViewModel = viewModel(factory = BoardsViewModel.Factory),
@@ -63,6 +71,7 @@ fun BoardsScreen(
     val noAdAvailable by viewModel.noAdAvailable.collectAsStateWithLifecycle()
     val appIcon by viewModel.appIcon.collectAsStateWithLifecycle()
     BoardsContent(
+        section = section,
         uiState = uiState,
         noAdAvailable = noAdAvailable,
         onBoardSelected = viewModel::onBoardSelected,
@@ -76,6 +85,7 @@ fun BoardsScreen(
 
 @Composable
 fun BoardsContent(
+    section: ShopSection,
     uiState: BoardsUiState,
     noAdAvailable: Boolean,
     onBoardSelected: (BoardTheme) -> Unit,
@@ -97,72 +107,60 @@ fun BoardsContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                stringResource(R.string.boards_title),
+                stringResource(section.title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { heading() },
             )
             if (noAdAvailable) {
                 Text(stringResource(R.string.message_no_ad), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
             }
             val sectionModifier = Modifier.widthIn(max = 480.dp).fillMaxWidth()
-
-            SectionHeading(R.string.boards_section_boards, sectionModifier)
-            OptionGrid(BoardTheme.entries, sectionModifier) { theme, tileModifier ->
-                val locked = !uiState.entitlements.isUnlocked(theme)
-                ChoiceTile(
-                    label = theme.label,
-                    selected = theme == uiState.selected,
-                    locked = locked,
-                    onSelect = { onBoardSelected(theme) },
-                    modifier = tileModifier,
-                ) {
-                    Image(painterResource(theme.drawable), contentDescription = null, modifier = Modifier.fillMaxSize())
+            when (section) {
+                ShopSection.BOARDS -> OptionGrid(BoardTheme.entries, sectionModifier) { theme, tileModifier ->
+                    ChoiceTile(
+                        label = theme.label,
+                        selected = theme == uiState.selected,
+                        locked = !uiState.entitlements.isUnlocked(theme),
+                        onSelect = { onBoardSelected(theme) },
+                        modifier = tileModifier,
+                    ) {
+                        Image(painterResource(theme.drawable), contentDescription = null, modifier = Modifier.fillMaxSize())
+                    }
                 }
-            }
-
-            SectionHeading(R.string.boards_section_pieces, sectionModifier)
-            OptionGrid(PieceSet.entries, sectionModifier) { set, tileModifier ->
-                ChoiceTile(
-                    label = set.label,
-                    selected = set == uiState.selectedPieces,
-                    locked = !uiState.entitlements.isUnlocked(set),
-                    onSelect = { onPieceSetSelected(set) },
-                    modifier = tileModifier,
-                ) {
-                    PiecePairPicture(set, uiState.selected)
+                ShopSection.PIECES -> OptionGrid(PieceSet.entries, sectionModifier) { set, tileModifier ->
+                    ChoiceTile(
+                        label = set.label,
+                        selected = set == uiState.selectedPieces,
+                        locked = !uiState.entitlements.isUnlocked(set),
+                        onSelect = { onPieceSetSelected(set) },
+                        modifier = tileModifier,
+                    ) {
+                        PiecePairPicture(set, uiState.selected)
+                    }
                 }
-            }
-
-            SectionHeading(R.string.boards_section_app_icon, sectionModifier)
-            Text(
-                stringResource(R.string.boards_app_icon_note),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = sectionModifier,
-            )
-            OptionGrid(AppIcon.entries, sectionModifier) { icon, tileModifier ->
-                ChoiceTile(
-                    label = icon.label,
-                    selected = icon == appIcon,
-                    locked = false,
-                    onSelect = { onAppIconSelected(icon) },
-                    modifier = tileModifier,
-                    shape = CircleShape,
-                ) {
-                    LauncherIconPicture(icon)
+                ShopSection.APP_ICONS -> {
+                    Text(
+                        stringResource(R.string.boards_app_icon_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = sectionModifier,
+                    )
+                    OptionGrid(AppIcon.entries, sectionModifier) { icon, tileModifier ->
+                        ChoiceTile(
+                            label = icon.label,
+                            selected = icon == appIcon,
+                            locked = false,
+                            onSelect = { onAppIconSelected(icon) },
+                            modifier = tileModifier,
+                            shape = CircleShape,
+                        ) {
+                            LauncherIconPicture(icon)
+                        }
+                    }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun SectionHeading(@StringRes text: Int, modifier: Modifier) {
-    Text(
-        stringResource(text),
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier.padding(top = 8.dp).semantics { heading() },
-    )
 }
 
 /** A radio group laid out [OPTIONS_PER_ROW] to a row, every tile the same size. */
@@ -236,7 +234,7 @@ private fun ChoiceTile(
 
 /** The set's tiger and goat side by side on the board in use, as they will look in a game. */
 @Composable
-private fun PiecePairPicture(set: PieceSet, board: BoardTheme) {
+internal fun PiecePairPicture(set: PieceSet, board: BoardTheme) {
     Image(painterResource(board.drawable), contentDescription = null, modifier = Modifier.fillMaxSize())
     Row(Modifier.fillMaxSize().padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(painterResource(set.art.tiger), contentDescription = null, modifier = Modifier.weight(1f).aspectRatio(1f))
@@ -246,7 +244,7 @@ private fun PiecePairPicture(set: PieceSet, board: BoardTheme) {
 
 /** The adaptive icon's two layers, scaled so the launcher's visible 72 of 108 units fill the circle. */
 @Composable
-private fun LauncherIconPicture(icon: AppIcon) {
+internal fun LauncherIconPicture(icon: AppIcon) {
     val layers = Modifier.fillMaxSize().scale(ADAPTIVE_ICON_ZOOM)
     Image(painterResource(icon.background), contentDescription = null, modifier = layers)
     Image(painterResource(icon.foreground), contentDescription = null, modifier = layers)
@@ -315,11 +313,12 @@ private const val LOCKED_ALPHA = 0.6f
 private const val OPTIONS_PER_ROW = 3
 private const val ADAPTIVE_ICON_ZOOM = 108f / 72f
 
-@Preview(showBackground = true, heightDp = 1800)
+@Preview(showBackground = true)
 @Composable
 private fun BoardsContentPreview() {
     BaghchalTheme {
         BoardsContent(
+            ShopSection.PIECES,
             BoardsUiState(
                 BoardTheme.WOOD,
                 Entitlements(unlockedThemes = setOf(BoardTheme.NIGHT), unlockedPieceSets = setOf(PieceSet.TOKEN)),

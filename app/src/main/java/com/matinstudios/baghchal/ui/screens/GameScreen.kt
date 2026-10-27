@@ -66,7 +66,6 @@ fun GameScreen(
     onGameWon: (GameResult) -> Unit,
     onHowToPlay: () -> Unit,
     onStats: () -> Unit,
-    onBoards: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(factory = GameViewModel.Factory),
@@ -90,7 +89,6 @@ fun GameScreen(
         AppMenuItem(R.string.menu_home, R.drawable.ic_home, onMenu),
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
-        AppMenuItem(R.string.menu_boards, R.drawable.ic_boards, onBoards),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
     Column(modifier.fillMaxSize()) {
