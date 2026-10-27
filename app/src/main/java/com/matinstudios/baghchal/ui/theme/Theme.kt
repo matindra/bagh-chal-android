@@ -80,6 +80,10 @@ data class GameColors(
     val hard: Color,
     val hintContainer: Color,
     val onHintContainer: Color,
+    val friend: Color,
+    val onFriend: Color,
+    val friendContainer: Color,
+    val onFriendContainer: Color,
     val mountainsAlpha: Float,
     val flagsAlpha: Float,
 )
@@ -88,12 +92,20 @@ private val LightGameColors = GameColors(
     EasyLight, MediumLight, HardLight,
     hintContainer = HintContainerLight,
     onHintContainer = OnHintContainerLight,
+    friend = RhododendronLight,
+    onFriend = Color.White,
+    friendContainer = RhododendronContainerLight,
+    onFriendContainer = OnRhododendronContainerLight,
     mountainsAlpha = 0.6f, flagsAlpha = 1f,
 )
 private val DarkGameColors = GameColors(
     EasyDark, MediumDark, HardDark,
     hintContainer = HintContainerDark,
     onHintContainer = OnHintContainerDark,
+    friend = RhododendronDark,
+    onFriend = OnRhododendronDark,
+    friendContainer = RhododendronContainerDark,
+    onFriendContainer = OnRhododendronContainerDark,
     mountainsAlpha = 0.15f, flagsAlpha = 0.75f,
 )
 

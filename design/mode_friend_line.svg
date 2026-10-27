@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- Play with a Friend card: two people (line glyph, tinted in code). -->
+  <circle cx="8" cy="9" r="3" fill="none" stroke="#000000" stroke-width="2"/>
+  <circle cx="16" cy="9" r="3" fill="none" stroke="#000000" stroke-width="2"/>
+  <path d="M3 19 C3 16 5.2 14 8 14 C10.8 14 13 16 13 19 M11 19 C11 16 13.2 14 16 14 C18.8 14 21 16 21 19" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

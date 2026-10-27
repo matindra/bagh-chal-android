@@ -1,6 +1,5 @@
 package com.matinstudios.baghchal.ui.board
 
-import android.provider.Settings
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -11,7 +10,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -25,7 +23,6 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.matinstudios.baghchal.R
 import kotlin.math.PI
@@ -48,10 +45,7 @@ private const val TRAP_PULSE_MILLIS = 900f
  */
 @Composable
 fun ChaseBanner(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val animationsOn = remember {
-        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
-    }
+    val animationsOn = rememberAnimationsOn()
     val clock by rememberInfiniteTransition(label = "chase").animateFloat(
         initialValue = 0f,
         targetValue = ChaseScene.CYCLE_MILLIS.toFloat(),

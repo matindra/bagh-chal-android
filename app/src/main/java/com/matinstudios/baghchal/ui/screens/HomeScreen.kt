@@ -1,13 +1,7 @@
 package com.matinstudios.baghchal.ui.screens
 
-import androidx.annotation.StringRes
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,13 +21,22 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,7 +47,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +61,7 @@ import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.engine.ai.Difficulty
 import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
+import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
 
 @Composable
 fun HomeScreen(
@@ -103,6 +106,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
+    val extras = BaghchalThemeExtras.colors
     Box(modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -114,57 +118,72 @@ fun HomeContent(
         ) {
             Column(
                 modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 HomeHeader()
-                if (savedGame != null) ResumeCard(savedGame, onResume)
                 ChaseBanner(
                     Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
+                        .height(138.dp)
                         .clip(RoundedCornerShape(20.dp))
                         .clearAndSetSemantics {},
                 )
+                if (savedGame != null) ResumeCard(savedGame, onResume)
 
-                ModeSection(R.string.home_section_online, R.drawable.ic_globe) {
-                    ModeTile(
-                        title = R.string.mode_online,
-                        detail = R.string.mode_online_detail,
-                        icon = R.drawable.ic_mode_online,
-                        container = colors.tertiaryContainer,
-                        content = colors.onTertiaryContainer,
-                        onClick = onPlayOnline,
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
-                    ModeTile(
-                        title = R.string.mode_friend,
-                        detail = R.string.mode_friend_detail,
-                        icon = R.drawable.ic_mode_friend,
-                        container = colors.tertiaryContainer,
-                        content = colors.onTertiaryContainer,
-                        onClick = onPlayWithFriend,
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
-                }
-                ModeSection(R.string.home_section_device, R.drawable.ic_phone) {
-                    ModeTile(
-                        title = R.string.mode_vs_ai,
-                        detail = R.string.mode_vs_ai_detail,
-                        icon = R.drawable.ic_mode_vs_ai,
-                        container = colors.primaryContainer,
-                        content = colors.onPrimaryContainer,
-                        onClick = onPlayVsAi,
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
-                    ModeTile(
-                        title = R.string.mode_vs_player,
-                        detail = R.string.mode_vs_player_detail,
-                        icon = R.drawable.ic_mode_vs_player,
-                        container = colors.secondaryContainer,
-                        content = colors.onSecondaryContainer,
-                        onClick = { onStartGame(GameSetup.TWO_PLAYER) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                    )
+                // Four modes in a 2×2 grid, each its own colour; a friend game leads.
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ModeRow {
+                        ModeTile(
+                            title = R.string.mode_friend,
+                            detail = R.string.mode_friend_detail,
+                            icon = R.drawable.ic_mode_friend_line,
+                            container = extras.friendContainer,
+                            content = extras.onFriendContainer,
+                            accent = extras.friend,
+                            onAccent = extras.onFriend,
+                            phase = 0,
+                            onClick = onPlayWithFriend,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                        ModeTile(
+                            title = R.string.mode_online,
+                            detail = R.string.mode_online_detail,
+                            icon = R.drawable.ic_mode_online_line,
+                            container = colors.tertiaryContainer,
+                            content = colors.onTertiaryContainer,
+                            accent = colors.tertiary,
+                            onAccent = colors.onTertiary,
+                            phase = 1,
+                            onClick = onPlayOnline,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                    }
+                    ModeRow {
+                        ModeTile(
+                            title = R.string.mode_vs_ai,
+                            detail = R.string.mode_vs_ai_detail,
+                            icon = R.drawable.ic_mode_vs_ai_line,
+                            container = colors.primaryContainer,
+                            content = colors.onPrimaryContainer,
+                            accent = colors.primary,
+                            onAccent = colors.onPrimary,
+                            phase = 2,
+                            onClick = onPlayVsAi,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                        ModeTile(
+                            title = R.string.mode_vs_player,
+                            detail = R.string.mode_vs_player_detail,
+                            icon = R.drawable.ic_mode_vs_player_line,
+                            container = colors.secondaryContainer,
+                            content = colors.onSecondaryContainer,
+                            accent = colors.secondary,
+                            onAccent = colors.onSecondary,
+                            phase = 3,
+                            onClick = { onStartGame(GameSetup.TWO_PLAYER) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
+                    }
                 }
             }
         }
@@ -216,102 +235,87 @@ private fun HomeHeader() {
     }
 }
 
-/** A small caps heading over two mode tiles of equal height. */
+/** Two mode tiles side by side, of equal height. */
 @Composable
-private fun ModeSection(@StringRes title: Int, @DrawableRes icon: Int, tiles: @Composable RowScope.() -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(
-            modifier = Modifier.semantics(mergeDescendants = true) { heading() },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Icon(
-                painterResource(icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
-            )
-            Text(
-                stringResource(title).uppercase(),
-                style = MaterialTheme.typography.labelLarge,
-                letterSpacing = 1.2.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp), content = tiles)
-    }
+private fun ModeRow(tiles: @Composable RowScope.() -> Unit) {
+    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp), content = tiles)
 }
 
-@Composable
-private fun ModeTile(
-    @StringRes title: Int,
-    @StringRes detail: Int,
-    @DrawableRes icon: Int,
-    container: Color,
-    content: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = container, contentColor = content),
-        modifier = modifier,
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 18.dp, bottom = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Box(
-                Modifier
-                    .size(76.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(60.dp))
-            }
-            Text(
-                stringResource(title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-            Text(stringResource(detail), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
-        }
-    }
-}
-
+/** Compact "game in progress" row: a little board, what the game is, and Resume. */
 @Composable
 private fun ResumeCard(savedGame: SavedGame, onResume: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-        ),
+    val colors = MaterialTheme.colorScheme
+    val aiSide = savedGame.aiSide
+    val mode = if (aiSide == null) {
+        stringResource(R.string.home_two_player_short)
+    } else {
+        val side = stringResource(if (aiSide.opponent == Side.GOAT) R.string.side_goats else R.string.side_tigers)
+        stringResource(R.string.home_resume_vs_computer, side, stringResource(savedGame.difficulty.label))
+    }
+    val progress = stringResource(
+        R.string.home_resume_progress,
+        savedGame.game.goatsInHand,
+        savedGame.game.goatsCaptured,
+        GOATS_TO_WIN,
+    )
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = colors.surfaceContainer,
+        border = BorderStroke(1.dp, colors.outlineVariant),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.home_resume_title), style = MaterialTheme.typography.titleLarge)
-            val aiSide = savedGame.aiSide
-            val mode = if (aiSide == null) {
-                stringResource(R.string.home_two_player_short)
-            } else {
-                val side = stringResource(if (aiSide.opponent == Side.GOAT) R.string.side_goats else R.string.side_tigers)
-                stringResource(R.string.home_resume_vs_computer, side, stringResource(savedGame.difficulty.label))
+        Row(
+            Modifier.padding(start = 12.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            MiniBoard(Modifier.size(40.dp).clearAndSetSemantics {})
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    stringResource(R.string.home_resume_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    stringResource(R.string.home_resume_summary, mode, progress),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(mode, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                stringResource(
-                    R.string.home_resume_progress,
-                    savedGame.game.goatsInHand,
-                    savedGame.game.goatsCaptured,
-                    GOATS_TO_WIN,
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            PrimaryButton(stringResource(R.string.home_resume), onResume, Modifier.fillMaxWidth())
+            Button(
+                onClick = onResume,
+                modifier = Modifier.heightIn(min = 44.dp),
+                contentPadding = PaddingValues(horizontal = 18.dp),
+            ) {
+                Text(stringResource(R.string.home_resume), fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+/** A tiny board with two tigers and two goats, in the board-tinted colours. */
+@Composable
+private fun MiniBoard(modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    Canvas(modifier) {
+        val u = size.minDimension / 40f
+        drawRoundRect(colors.primaryContainer, cornerRadius = CornerRadius(8 * u))
+        val lines = colors.onPrimaryContainer.copy(alpha = 0.45f)
+        val stroke = 1.2f * u
+        for (k in 0..4) {
+            val a = (8 + 6 * k) * u
+            drawLine(lines, Offset(8 * u, a), Offset(32 * u, a), stroke)
+            drawLine(lines, Offset(a, 8 * u), Offset(a, 32 * u), stroke)
+        }
+        drawLine(lines, Offset(8 * u, 8 * u), Offset(32 * u, 32 * u), stroke)
+        drawLine(lines, Offset(32 * u, 8 * u), Offset(8 * u, 32 * u), stroke)
+        drawCircle(colors.primary, 3.6f * u, Offset(8 * u, 8 * u))
+        drawCircle(colors.primary, 3.6f * u, Offset(32 * u, 32 * u))
+        for (goat in listOf(Offset(20 * u, 20 * u), Offset(14 * u, 26 * u))) {
+            drawCircle(colors.secondaryContainer, 3.2f * u, goat)
+            drawCircle(colors.secondary, 3.2f * u, goat, style = Stroke(1.4f * u))
         }
     }
 }

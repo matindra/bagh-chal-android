@@ -356,7 +356,7 @@ class AppFlowTest {
 
         Espresso.pressBack()
         waitForText(R.string.home_resume)
-        text(R.string.home_resume_progress, 19, 0, 5).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.home_resume_progress, 19, 0, 5), substring = true).assertIsDisplayed()
 
         text(R.string.home_resume).performClick()
         waitForText(R.string.turn_tigers)

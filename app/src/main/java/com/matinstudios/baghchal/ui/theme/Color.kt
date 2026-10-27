@@ -61,3 +61,12 @@ val HintContainerLight = Color(0xFFFFE08A)
 val OnHintContainerLight = Color(0xFF3F2E00)
 val HintContainerDark = Color(0xFF5C4300)
 val OnHintContainerDark = Color(0xFFFFDF93)
+
+// Fourth mode-card colour (Play with a Friend): rhododendron pink, Nepal's national flower.
+val RhododendronLight = Color(0xFFA0405F)
+val RhododendronContainerLight = Color(0xFFFFD9E2)
+val OnRhododendronContainerLight = Color(0xFF3E0021)
+val RhododendronDark = Color(0xFFFFB1C5)
+val OnRhododendronDark = Color(0xFF5E1133)
+val RhododendronContainerDark = Color(0xFF7F2848)
+val OnRhododendronContainerDark = Color(0xFFFFD9E2)

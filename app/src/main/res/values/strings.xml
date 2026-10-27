@@ -32,11 +32,9 @@
     <string name="home_play_as">Play as</string>
     <string name="home_difficulty">Difficulty</string>
     <string name="mode_vs_ai">Play with AI</string>
-    <string name="mode_vs_ai_detail">Play against the computer</string>
+    <string name="mode_vs_ai_detail">Easy, Medium or Hard</string>
     <string name="mode_vs_player">Pass n Play</string>
-    <string name="mode_vs_player_detail">Take turns on one phone</string>
-    <string name="home_section_online">Play online</string>
-    <string name="home_section_device">Play offline</string>
+    <string name="mode_vs_player_detail">Share one phone</string>
     <string name="ai_setup_start">Start</string>
     <string name="side_goats_detail">Move first and trap the tigers</string>
     <string name="side_tigers_detail">Capture %1$d goats</string>
@@ -141,7 +139,8 @@
     <string name="home_resume">Resume</string>
     <string name="home_resume_vs_computer">You play %1$s · %2$s</string>
     <string name="home_two_player_short">2 players</string>
-    <string name="home_resume_progress">In hand: %1$d · Captured: %2$d/%3$d</string>
+    <string name="home_resume_progress">%1$d in hand · %2$d/%3$d captured</string>
+    <string name="home_resume_summary">%1$s · %2$s</string>
 
     <string name="stats_title">Stats</string>
     <string name="stats_subtitle">Games against the computer</string>
@@ -176,9 +175,9 @@
 
     <!-- Online play -->
     <string name="mode_online">Quick match</string>
-    <string name="mode_online_detail">With a random opponent</string>
+    <string name="mode_online_detail">Random opponent</string>
     <string name="mode_friend">Play with a Friend</string>
-    <string name="mode_friend_detail">With your friend</string>
+    <string name="mode_friend_detail">Share a 4-digit code</string>
     <string name="online_quick_title">Quick match</string>
     <string name="online_quick_detail">Play someone online. Sides are picked at random.</string>
     <string name="online_find">Find opponent</string>

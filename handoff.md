@@ -7,6 +7,20 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-27 (38) — Home redesign
+- Design from the canvas https://claude.ai/artifact/7TSrXt9yqa8iJUCZFEK9Er.
+- Home order is now header → chase animation (138 dp, was 150) → **compact "Game in progress" row** (mini board, one summary line, 44 dp Resume button) → online/offline tiles.
+- Mode tiles moved to `ui/screens/ModeTile.kt`: ~112 dp (was ~170), raised look (darker 5 dp lip, coloured shadow, face sinks into the lip when pressed), white icon disc that bobs with a shrinking ground shadow, a sheen that sweeps across every ~5.5 s, faint corner art per tile (`TileArt`: spinning globe, code digits, chip, swap arrows). `phase` keeps tiles out of step.
+- Looping motion stops when system animations are off: new shared `ui/board/Motion.kt` `rememberAnimationsOn()` (ChaseBanner uses it too).
+- Strings: `mode_online_detail` "Random opponent", `mode_friend_detail` "Share a 4-digit code", `mode_vs_ai_detail` "Easy, Medium or Hard", `home_resume_progress` "%1$d in hand · %2$d/%3$d captured", new `home_resume_summary`. `AppFlowTest` resume check now matches the progress text as a substring.
+- Tiles shrunk again to ~88 dp (min face 84 dp + 5 dp lip): 40 dp icon disc / 32 dp icon, 14 sp title, corner art scaled 0.8.
+- Icon style **F (line glyph)** picked from the canvas board "Card icon styles": each tile shows a single-colour icon on a 36 dp solid chip (tertiary/primary/secondary with its on-colour, darker lip) that bobs over a ground shadow. New sources `design/mode_{online,friend,vs_ai,vs_player}_line.svg` → `ic_mode_*_line` (mapped in `SvgConvert.java`). The colourful `ic_mode_*` drawables are now unused (kept; delete if not wanted).
+- Checked on the emulator in light and dark; unit tests + 19 `AppFlowTest` UI tests pass.
+- Then made compact (~56 dp): each tile is one row — 32 dp chip (20 dp icon) left, title + detail right (both one line, auto-shrinking: title 14→11 sp, detail 11→9 sp). Corner art (`TileArt`) removed — no room. `mode_vs_player_detail` → "Share one phone". Frees roughly 110 dp on Home for more elements. Unit tests + 19 `AppFlowTest` pass; checked on the emulator.
+- "Play online"/"Play offline" headings removed (strings `home_section_*` deleted; `ic_phone` now unused). Tiles are one 2×2 grid (`ModeRow`): Play with a Friend first, then Quick match, Play with AI, Pass n Play. Each its own colour: Friend uses a new rhododendron pink (`GameColors.friend*`, `Rhododendron*` in `Color.kt`), Quick match tertiary, AI primary, Pass n Play secondary. Checked light + dark; 19 `AppFlowTest` pass.
+- Corner art sits in the top-right of each tile (first try at bottom-right ran through the subtitles).
+- Unit tests and all 19 `AppFlowTest` UI tests pass. Checked Home on the emulator in light and dark, with and without a saved game. Other UI test classes not re-run.
+
 ## Session 2026-10-27 (37) — Shop
 - "Boards & Pieces" left the side menu. Home has a **Shop** button top-right, across from the menu button (tonal, bag icon `ic_shop` from `design/shop.svg`, string `home_shop`). The game screens no longer link to it; boards/pieces are picked from Home only.
 - New Shop screen (`ui/screens/ShopScreen.kt`, route `shop`): three cards, each showing what is in use — Boards ("x of 11 unlocked"), Pieces ("x of 5 unlocked"), App icons ("All free"). Each opens its own picker (`BoardsScreen(section: ShopSection)`, route `shop/{section}`); the pickers work as before (rewarded ad to unlock).
