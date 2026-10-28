@@ -15,6 +15,7 @@
 - New dashed "New to Bagh Chal?" card under the modes opens How to Play (strings `home_learn_title`, `home_learn_detail`). It always shows; could be hidden once the player has finished a game.
 - `AppFlowTest`: Stats/Settings now reached from the bar; new `bottomBarOpensStatsAndBackReturnsHome`, `learnCardOpensHowToPlay`; `menuOpensStatsAndBackClosesIt` → `menuOpensAndBackClosesIt`.
 - `./gradlew test assembleDebug` and androidTest compile pass. **UI tests not run** (no device connected); not checked on the emulator.
+- Text now matches the user's edited design D exactly: modes "Friend" / "Play with your friend online", "Quick Match" / "Play with random people online", "Play with AI" / "3 difficulties", "Pass n Play" / "One phone, two friends side by side"; learn card "Learn the rules in 2 minutes" with a chevron; first bar item "Play" (`home_play`, new `ic_play`). Tile details may wrap to 2 lines (`ModeTile`). New icons `design/play.svg` → `ic_play`, `design/chevron_right.svg` → `ic_chevron_right` (mapped in `SvgConvert.java`).
 
 ## Session 2026-10-27 (38) — Home redesign
 - Design from the canvas https://claude.ai/artifact/7TSrXt9yqa8iJUCZFEK9Er.

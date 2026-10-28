@@ -127,7 +127,7 @@ fun ModeTile(
                 BasicText(
                     stringResource(detail),
                     style = MaterialTheme.typography.bodySmall.copy(color = content.copy(alpha = 0.8f)),
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = 11.sp),
                 )

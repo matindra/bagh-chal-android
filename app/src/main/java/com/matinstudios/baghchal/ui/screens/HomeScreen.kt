@@ -97,11 +97,11 @@ fun HomeScreen(
     }
 }
 
-/** Bottom bar: Home (this screen) plus the places that used to sit in the side menu and top bar. */
+/** Bottom bar: Play (this screen) plus the places that used to sit in the side menu and top bar. */
 @Composable
 private fun HomeNavBar(onShop: () -> Unit, onStats: () -> Unit, onSettings: () -> Unit) {
     NavigationBar {
-        HomeNavItem(R.string.menu_home, R.drawable.ic_home, selected = true, onClick = {})
+        HomeNavItem(R.string.home_play, R.drawable.ic_play, selected = true, onClick = {})
         HomeNavItem(R.string.home_shop, R.drawable.ic_shop, selected = false, onClick = onShop)
         HomeNavItem(R.string.home_stats, R.drawable.ic_stats, selected = false, onClick = onStats)
         HomeNavItem(R.string.home_settings, R.drawable.ic_settings, selected = false, onClick = onSettings)
@@ -246,6 +246,7 @@ private fun LearnCard(onClick: () -> Unit) {
                     color = colors.onSurfaceVariant,
                 )
             }
+            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = colors.onSurfaceVariant)
         }
     }
 }

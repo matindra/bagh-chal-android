@@ -73,6 +73,8 @@ public class SvgConvert {
             Map.entry("shop.svg", "ic_shop"),
             Map.entry("settings.svg", "ic_settings"),
             Map.entry("home.svg", "ic_home"),
+            Map.entry("play.svg", "ic_play"),
+            Map.entry("chevron_right.svg", "ic_chevron_right"),
             Map.entry("mode_vs_ai.svg", "ic_mode_vs_ai"),
             Map.entry("mode_vs_player.svg", "ic_mode_vs_player"),
             Map.entry("mode_online.svg", "ic_mode_online"),
