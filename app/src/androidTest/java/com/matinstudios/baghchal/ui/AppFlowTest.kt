@@ -167,18 +167,26 @@ class AppFlowTest {
     }
 
     @Test
-    fun menuOpensStatsAndBackClosesIt() {
-        val menuStats = text(R.string.home_stats) // the closed drawer stays in the tree, off-screen
+    fun menuOpensAndBackClosesIt() {
+        val menuHowToPlay = text(R.string.home_how_to_play) // the closed drawer stays in the tree, off-screen
         compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
-        menuStats.assertIsDisplayed()
+        menuHowToPlay.assertIsDisplayed()
         Espresso.pressBack()
-        compose.waitUntil(5_000) { !menuStats.isDisplayed() }
+        compose.waitUntil(5_000) { !menuHowToPlay.isDisplayed() }
+    }
 
-        openMenuItem(R.string.home_stats)
+    @Test
+    fun bottomBarOpensStatsAndBackReturnsHome() {
+        text(R.string.home_stats).performClick()
         waitForText(R.string.stats_subtitle)
         Espresso.pressBack()
         waitForText(R.string.mode_vs_player)
-        menuStats.assertIsNotDisplayed()
+    }
+
+    @Test
+    fun learnCardOpensHowToPlay() {
+        text(R.string.home_learn_title).performScrollTo().performClick()
+        waitForText(R.string.rules_goal)
     }
 
     @Test
@@ -418,7 +426,7 @@ class AppFlowTest {
 
     @Test
     fun removeAdsSaysWhenGooglePlayIsUnavailable() {
-        openMenuItem(R.string.home_settings)
+        text(R.string.home_settings).performClick()
         waitForText(R.string.settings_title)
         // Tests run without Play Billing, so the purchase sheet can't open.
         compose.onNode(hasText(str(R.string.settings_remove_ads)) and hasClickAction()).performScrollTo().performClick()

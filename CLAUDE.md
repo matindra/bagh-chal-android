@@ -227,4 +227,4 @@ scripts/make-store-images.py # Play Store screenshots + feature graphic from sto
 - Boards: `board_wood`, `board_stone`, `board_cloth`, `board_night`, `board_thangka`, `board_jungle`, `board_mandala`, `board_dhaka`, `board_brass`, `board_ink`, `board_snow`, all 600×600 units with identical geometry. Keep ornaments off the 25 points (pieces sit there).
 - The 25 board points are at x/y = 75, 187.5, 300, 412.5, 525 (spacing 112.5). Scale these to the on-screen board size.
 - Pieces are drawn at ~90 units (80% of spacing), centered on points.
-- Board themes: Wood is free; every other board is unlockable (rewarded ad, or included with Remove Ads). Picked in the Shop (Shop button top-right on Home → Boards / Pieces / App icons); store the selected theme in DataStore.
+- Board themes: Wood is free; every other board is unlockable (rewarded ad, or included with Remove Ads). Picked in the Shop (Shop in Home's bottom bar → Boards / Pieces / App icons); store the selected theme in DataStore.

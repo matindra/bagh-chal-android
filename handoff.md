@@ -7,6 +7,15 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-28 (39) — Home bottom bar
+- Design D from the canvas https://claude.ai/artifact/7N8znt6qqEUE9o9cZcMCLY (with A's "Game in progress" card, which is the existing `ResumeCard`).
+- Home has a Material 3 `NavigationBar` at the bottom: Home (selected) / Shop / Stats / Settings. The items open the existing screens (which still use `BackTopBar`); the bar shows on Home only, so these are not real tabs.
+- Top-right Shop button removed. The menu button stays: the side menu still holds How to play, website, privacy policy, theme and version; Stats/Settings left it on Home (the game-screen menu is unchanged).
+- Banner sits above the bar with an 8 dp gap on both sides.
+- New dashed "New to Bagh Chal?" card under the modes opens How to Play (strings `home_learn_title`, `home_learn_detail`). It always shows; could be hidden once the player has finished a game.
+- `AppFlowTest`: Stats/Settings now reached from the bar; new `bottomBarOpensStatsAndBackReturnsHome`, `learnCardOpensHowToPlay`; `menuOpensStatsAndBackClosesIt` → `menuOpensAndBackClosesIt`.
+- `./gradlew test assembleDebug` and androidTest compile pass. **UI tests not run** (no device connected); not checked on the emulator.
+
 ## Session 2026-10-27 (38) — Home redesign
 - Design from the canvas https://claude.ai/artifact/7TSrXt9yqa8iJUCZFEK9Er.
 - Home order is now header → chase animation (138 dp, was 150) → **compact "Game in progress" row** (mini board, one summary line, 44 dp Resume button) → online/offline tiles.

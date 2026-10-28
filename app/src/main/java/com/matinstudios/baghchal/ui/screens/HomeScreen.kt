@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,8 +19,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -79,20 +85,40 @@ fun HomeScreen(
 ) {
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
-    val menuItems = listOf(
-        AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
-        AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
-        AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
-    )
+    // Shop, Stats and Settings live in the bottom bar; the side menu keeps the rest.
+    val menuItems = listOf(AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay))
     Column(modifier.fillMaxSize()) {
         AppMenuDrawer(menuItems, Modifier.weight(1f)) { openMenu ->
-            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onPlayWithFriend, onStartGame, onResume, onShop, openMenu)
+            HomeContent(savedGame, onPlayVsAi, onPlayOnline, onPlayWithFriend, onStartGame, onResume, onHowToPlay, openMenu)
         }
-        if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp))
+        // A gap keeps the banner from touching the bar's buttons.
+        if (showBanner) BannerAd(BannerPlacement.HOME, Modifier.padding(top = 8.dp, bottom = 8.dp))
+        HomeNavBar(onShop = onShop, onStats = onStats, onSettings = onSettings)
     }
 }
 
-/** Home: resume a saved game, or pick a mode, grouped into online and on-this-phone. */
+/** Bottom bar: Home (this screen) plus the places that used to sit in the side menu and top bar. */
+@Composable
+private fun HomeNavBar(onShop: () -> Unit, onStats: () -> Unit, onSettings: () -> Unit) {
+    NavigationBar {
+        HomeNavItem(R.string.menu_home, R.drawable.ic_home, selected = true, onClick = {})
+        HomeNavItem(R.string.home_shop, R.drawable.ic_shop, selected = false, onClick = onShop)
+        HomeNavItem(R.string.home_stats, R.drawable.ic_stats, selected = false, onClick = onStats)
+        HomeNavItem(R.string.home_settings, R.drawable.ic_settings, selected = false, onClick = onSettings)
+    }
+}
+
+@Composable
+private fun RowScope.HomeNavItem(@StringRes label: Int, @DrawableRes icon: Int, selected: Boolean, onClick: () -> Unit) {
+    NavigationBarItem(
+        selected = selected,
+        onClick = onClick,
+        icon = { Icon(painterResource(icon), contentDescription = null) },
+        label = { Text(stringResource(label), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+    )
+}
+
+/** Home: resume a saved game, pick a mode, or learn the rules. */
 @Composable
 fun HomeContent(
     savedGame: SavedGame?,
@@ -101,7 +127,7 @@ fun HomeContent(
     onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
-    onShop: () -> Unit,
+    onHowToPlay: () -> Unit,
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -185,24 +211,55 @@ fun HomeContent(
                         )
                     }
                 }
+                LearnCard(onHowToPlay)
             }
         }
         // Drawn after the content so it sits on top of the scrolling column.
-        MenuTopBar(onOpenMenu, Modifier.align(Alignment.TopStart)) {
-            Spacer(Modifier.weight(1f))
-            ShopButton(onShop, Modifier.padding(end = 12.dp))
+        MenuTopBar(onOpenMenu, Modifier.align(Alignment.TopStart))
+    }
+}
+
+/** A dashed "new here?" row under the modes that opens How to Play. */
+@Composable
+private fun LearnCard(onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Transparent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .dashedBorder(colors.outline, 16.dp),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(painterResource(R.drawable.ic_help), contentDescription = null, tint = colors.primary)
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.home_learn_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.home_learn_detail),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                )
+            }
         }
     }
 }
 
-/** Opens the Shop: top right, across from the menu button. */
-@Composable
-private fun ShopButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    FilledTonalButton(onClick = onClick, modifier = modifier, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) {
-        Icon(painterResource(R.drawable.ic_shop), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(stringResource(R.string.home_shop))
-    }
+private fun Modifier.dashedBorder(color: Color, radius: Dp): Modifier = drawBehind {
+    val stroke = 1.dp.toPx()
+    val inset = stroke / 2
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(inset, inset),
+        size = Size(size.width - stroke, size.height - stroke),
+        cornerRadius = CornerRadius(radius.toPx() - inset),
+        style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
+    )
 }
 
 /** Tiger, name, goat on one line, the tagline below. */
@@ -330,5 +387,5 @@ internal val Difficulty.label: Int
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onPlayWithFriend = {}, onStartGame = {}, onResume = {}, onShop = {}, onOpenMenu = {}) }
+    BaghchalTheme { HomeContent(savedGame = null, onPlayVsAi = {}, onPlayOnline = {}, onPlayWithFriend = {}, onStartGame = {}, onResume = {}, onHowToPlay = {}, onOpenMenu = {}) }
 }
