@@ -7,6 +7,11 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (42) — Fix: every goat animating on placement
+- Bug: placing a goat made every goat on the board pop in (same for all tigers during a capture jump, and while dragging). Cause: all pieces shared one `VectorPainter`, which caches a single bitmap at the last size drawn; the moving piece redrew it at its animated size, and every earlier draw of that bitmap in the frame showed the final image.
+- Fix in `BoardCanvas`: the moving piece and the carried piece use their own painters (`moving*Painter`, `carried*Painter`).
+- `./gradlew assembleDebug test` pass. Not checked on the emulator.
+
 ## Session 2026-10-29 (41) — Tiger badge app icon, Line Art pieces
 - Logo from the Home mockup canvas https://claude.ai/artifact/1iGHf4Hbd7rHnouXMZ7XVJ (not built in the app yet): cream board lines on tiger orange `#9C4A00`, stones on the 4 corners, tiger-head line art in a cream disc in the centre.
 - New app icon `AppIcon.BADGE` ("Tiger badge"): `design/launcher_badge_{background,foreground}.svg` → `ic_launcher_badge_*`, alias `.LauncherBadge` (disabled by default), mipmap-anydpi-v26 XML + legacy WebPs. Board kept inside the 66 dp safe circle.

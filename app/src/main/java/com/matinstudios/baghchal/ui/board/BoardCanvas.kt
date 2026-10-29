@@ -80,6 +80,12 @@ fun BoardCanvas(
     val boardPainter = painterResource(theme.drawable)
     val tigerPainter = painterResource(LocalPieceArt.current.tiger)
     val goatPainter = painterResource(LocalPieceArt.current.goat)
+    // A vector painter caches one bitmap at the last size it drew. The moving and carried pieces
+    // change size, so they get their own painters; sharing one would resize every piece on the board.
+    val movingTigerPainter = painterResource(LocalPieceArt.current.tiger)
+    val movingGoatPainter = painterResource(LocalPieceArt.current.goat)
+    val carriedTigerPainter = painterResource(LocalPieceArt.current.tiger)
+    val carriedGoatPainter = painterResource(LocalPieceArt.current.goat)
     val lockPainter = painterResource(R.drawable.lock_badge)
     val currentOnPointTapped by rememberUpdatedState(onPointTapped)
     val description = stringResource(R.string.cd_board)
@@ -185,7 +191,7 @@ fun BoardCanvas(
             val movingSide = moving?.let { board[it.to] }
             if (moving != null && movingSide != null) {
                 drawPiece(
-                    painter = if (movingSide == Side.TIGER) tigerPainter else goatPainter,
+                    painter = if (movingSide == Side.TIGER) movingTigerPainter else movingGoatPainter,
                     center = if (landedByDrag) BoardGeometry.pointCenter(moving.to, boardSize) else PieceMotion.center(moving, p, boardSize),
                     size = pieceSize * if (landedByDrag) 1f else PieceMotion.scale(moving, p),
                     alpha = PieceMotion.alpha(moving, p),
@@ -201,7 +207,7 @@ fun BoardCanvas(
                     center = shadowCenter,
                 )
                 drawPiece(
-                    painter = if (carriedSide == Side.TIGER) tigerPainter else goatPainter,
+                    painter = if (carriedSide == Side.TIGER) carriedTigerPainter else carriedGoatPainter,
                     center = carried.position,
                     size = pieceSize * CARRY_SCALE,
                 )

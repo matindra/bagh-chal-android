@@ -67,7 +67,7 @@ class OnlineScreensTest {
     @Test
     fun randomLobbyOffersOnlyQuickMatch() {
         showLobby(OnlineLobbyMode.RANDOM)
-        text(R.string.mode_online).assertIsDisplayed()
+        text(R.string.online_quick_detail).assertIsDisplayed()
         text(R.string.online_create_button).assertDoesNotExist()
         text(R.string.online_join).assertDoesNotExist()
         text(R.string.online_find).performScrollTo().performClick()
