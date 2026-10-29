@@ -15,7 +15,7 @@ import java.io.IOException
 enum class BoardTheme { WOOD, STONE, CLOTH, NIGHT, THANGKA, JUNGLE, MANDALA, DHAKA, BRASS, INK, SNOW }
 
 /** Tiger and goat artwork, drawn everywhere a piece appears. Classic is free, the others are unlocked per [Entitlements]. */
-enum class PieceSet { CLASSIC, TOKEN, GLYPH, FESTIVAL, SNOW }
+enum class PieceSet { CLASSIC, TOKEN, GLYPH, FESTIVAL, SNOW, NIGHT_EYES }
 
 /** App colours: follow the phone's setting, or force light or dark. */
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

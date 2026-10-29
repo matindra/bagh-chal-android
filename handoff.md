@@ -7,6 +7,11 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (40) — Night Eyes piece set
+- New `PieceSet.NIGHT_EYES` ("Night Eyes"), unlocked like the other sets. Art matches the Night eyes app icon: dark `#121821` faces, amber slit-pupil eyes + orange rim for the tiger, pale-green bar-pupil eyes + green rim for the goat.
+- Sources `design/tiger_night_eyes.svg`, `design/goat_night_eyes.svg` → `ic_tiger_night_eyes`, `ic_goat_night_eyes` (mapped in `SvgConvert.java`). Checked on Wood and Night boards (headless Chrome render).
+- `./gradlew test assembleDebug` pass. Not checked on the emulator.
+
 ## Session 2026-10-28 (39) — Home bottom bar
 - Design D from the canvas https://claude.ai/artifact/7N8znt6qqEUE9o9cZcMCLY (with A's "Game in progress" card, which is the existing `ResumeCard`).
 - Home has a Material 3 `NavigationBar` at the bottom: Home (selected) / Shop / Stats / Settings. The items open the existing screens (which still use `BackTopBar`); the bar shows on Home only, so these are not real tabs.

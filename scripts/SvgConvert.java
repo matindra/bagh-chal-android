@@ -47,6 +47,8 @@ public class SvgConvert {
             Map.entry("goat_chyangra.svg", "ic_goat_chyangra"),
             Map.entry("tiger_snow.svg", "ic_tiger_snow"),
             Map.entry("goat_black.svg", "ic_goat_black"),
+            Map.entry("tiger_night_eyes.svg", "ic_tiger_night_eyes"),
+            Map.entry("goat_night_eyes.svg", "ic_goat_night_eyes"),
             Map.entry("ic_launcher_background.svg", "ic_launcher_background"),
             Map.entry("ic_launcher_foreground.svg", "ic_launcher_foreground"),
             Map.entry("launcher_faceoff_background.svg", "ic_launcher_faceoff_background"),

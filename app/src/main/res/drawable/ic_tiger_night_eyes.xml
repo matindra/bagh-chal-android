@@ -1,0 +1,61 @@
+<!-- Generated from design/tiger_night_eyes.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:pathData="M26.6,26.6m-11.7,0a11.7,11.7 0,1 1,23.4 0a11.7,11.7 0,1 1,-23.4 0"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M26.6,26.6m-7.2,0a7.2,7.2 0,1 1,14.4 0a7.2,7.2 0,1 1,-14.4 0"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M73.4,26.6m-11.7,0a11.7,11.7 0,1 1,23.4 0a11.7,11.7 0,1 1,-23.4 0"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M73.4,26.6m-7.2,0a7.2,7.2 0,1 1,14.4 0a7.2,7.2 0,1 1,-14.4 0"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M50,53.6m-37.8,0a37.8,37.8 0,1 1,75.6 0a37.8,37.8 0,1 1,-75.6 0"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M50,53.6m-33.3,0a33.3,33.3 0,1 1,66.6 0a33.3,33.3 0,1 1,-66.6 0"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M37.4,27.5Q50,38.3 62.6,27.5M43.7,30.2L50,39.2L56.3,30.2M20.3,57.2Q28.4,55.4 34.7,60.8M22.1,67.1Q28.4,65.3 33.8,69.8M79.7,57.2Q71.6,55.4 65.3,60.8M77.9,67.1Q71.6,65.3 66.2,69.8"
+      android:strokeLineJoin="round"
+      android:strokeWidth="4.05"
+      android:fillColor="#00000000"
+      android:strokeColor="#2A3548"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M38.3,50m-11.7,0a11.7,11.7 0,1 1,23.4 0a11.7,11.7 0,1 1,-23.4 0"
+      android:fillColor="#F7A53A"
+      android:fillAlpha="0.14"/>
+  <path
+      android:pathData="M61.7,50m-11.7,0a11.7,11.7 0,1 1,23.4 0a11.7,11.7 0,1 1,-23.4 0"
+      android:fillColor="#F7A53A"
+      android:fillAlpha="0.14"/>
+  <path
+      android:pathData="M29.3,50.9Q37.4,41 46.4,50Q38.3,56.3 29.3,50.9Z"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M70.7,50.9Q62.6,41 53.6,50Q61.7,56.3 70.7,50.9Z"
+      android:fillColor="#F7A53A"/>
+  <path
+      android:pathData="M38.3,44.15Q40.37,49.1 38.3,54.05Q36.23,49.1 38.3,44.15Z"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M61.7,44.15Q63.77,49.1 61.7,54.05Q59.63,49.1 61.7,44.15Z"
+      android:fillColor="#121821"/>
+  <path
+      android:pathData="M45.05,62.6L54.95,62.6L50,68Z"
+      android:fillColor="#2A3548"/>
+  <path
+      android:pathData="M50,68L50,70.7M50,70.7Q46.4,74.3 42.8,71.6M50,70.7Q53.6,74.3 57.2,71.6"
+      android:strokeWidth="2.34"
+      android:fillColor="#00000000"
+      android:strokeColor="#2A3548"
+      android:strokeLineCap="round"/>
+</vector>

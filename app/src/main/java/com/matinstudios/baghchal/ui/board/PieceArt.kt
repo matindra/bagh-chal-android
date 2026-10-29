@@ -15,6 +15,7 @@ val PieceSet.art: PieceArt
         PieceSet.GLYPH -> PieceArt(R.drawable.ic_tiger_glyph, R.drawable.ic_goat_glyph)
         PieceSet.FESTIVAL -> PieceArt(R.drawable.ic_tiger_mask, R.drawable.ic_goat_chyangra)
         PieceSet.SNOW -> PieceArt(R.drawable.ic_tiger_snow, R.drawable.ic_goat_black)
+        PieceSet.NIGHT_EYES -> PieceArt(R.drawable.ic_tiger_night_eyes, R.drawable.ic_goat_night_eyes)
     }
 
 /** The player's piece set, provided once at the app root; previews and tests get the classic pieces. */

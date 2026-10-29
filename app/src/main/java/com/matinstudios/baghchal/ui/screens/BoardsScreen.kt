@@ -274,6 +274,7 @@ val PieceSet.label: Int
         PieceSet.GLYPH -> R.string.piece_set_glyph
         PieceSet.FESTIVAL -> R.string.piece_set_festival
         PieceSet.SNOW -> R.string.piece_set_snow
+        PieceSet.NIGHT_EYES -> R.string.piece_set_night_eyes
     }
 
 @get:StringRes
