@@ -15,5 +15,3 @@
 local.properties
 /dist
 
-# Music sources are large; kept locally only (the converted res/raw/music_*.ogg are committed).
-design/sounds/Bagh Chal - *.mp3
