@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -85,11 +84,12 @@ fun WelcomeContent(boardTheme: BoardTheme, onFinished: () -> Unit, modifier: Mod
         ) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                 // Hidden (but still taking space) on the last page, where the main button already starts the game.
-                TextButton(
+                QuietButton(
+                    stringResource(R.string.welcome_skip),
                     onClick = onFinished,
                     enabled = !isLastPage,
                     modifier = Modifier.alpha(if (isLastPage) 0f else 1f),
-                ) { Text(stringResource(R.string.welcome_skip)) }
+                )
             }
 
             HorizontalPager(pagerState, Modifier.weight(1f).fillMaxWidth()) { page ->

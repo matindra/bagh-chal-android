@@ -1,5 +1,6 @@
 package com.matinstudios.baghchal.ui.screens
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -83,6 +86,12 @@ fun HomeScreen(
     WhiteSystemBarIcons(enabled = drawerState.targetValue == DrawerValue.Closed)
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
+    val showRemoveAds by viewModel.showRemoveAds.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val unavailableText = stringResource(R.string.message_purchase_unavailable)
+    LaunchedEffect(viewModel) {
+        viewModel.purchaseUnavailable.collect { Toast.makeText(context, unavailableText, Toast.LENGTH_LONG).show() }
+    }
     // Shop, Stats and Settings sit in the top-right corner; the side menu keeps the rest.
     val menuItems = listOf(
         AppMenuItem(R.string.home_learn_title, R.drawable.ic_help, detail = R.string.home_learn_detail, onClick = onHowToPlay),
@@ -103,6 +112,7 @@ fun HomeScreen(
                 onPlayWithFriend = onPlayWithFriend,
                 onStartGame = onStartGame,
                 onResume = onResume,
+                onRemoveAds = viewModel::onRemoveAds.takeIf { showRemoveAds },
                 onShop = onShop,
                 onStats = onStats,
                 onSettings = onSettings,
@@ -127,6 +137,7 @@ fun HomeContent(
     onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
+    onRemoveAds: (() -> Unit)?,
     onShop: () -> Unit,
     onStats: () -> Unit,
     onSettings: () -> Unit,
@@ -148,7 +159,7 @@ fun HomeContent(
                 // The sign hangs from the top edge; the corner buttons sit over its chains.
                 Box(Modifier.fillMaxWidth()) {
                     IceSign(clock, Modifier.align(Alignment.TopCenter))
-                    HomeTopBar(onOpenMenu, onShop, onStats, onSettings)
+                    HomeTopBar(onOpenMenu, onRemoveAds, onShop, onStats, onSettings)
                 }
                 Spacer(Modifier.height(14.dp))
                 FrostFrame(Modifier.fillMaxWidth()) {
@@ -222,15 +233,27 @@ private fun WhiteSystemBarIcons(enabled: Boolean) {
     }
 }
 
-/** Menu button (frosted) top-left; Shop (gold), Stats (cyan) and Settings (violet) top-right. */
+/**
+ * Menu button (frosted) top-left; Remove Ads (coral, until bought), Shop (gold), Stats (cyan) and
+ * Settings (violet) top-right.
+ */
 @Composable
-private fun HomeTopBar(onOpenMenu: () -> Unit, onShop: () -> Unit, onStats: () -> Unit, onSettings: () -> Unit) {
+private fun HomeTopBar(
+    onOpenMenu: () -> Unit,
+    onRemoveAds: (() -> Unit)?,
+    onShop: () -> Unit,
+    onStats: () -> Unit,
+    onSettings: () -> Unit,
+) {
     Row(
         Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         HomeIconButton(R.drawable.ic_menu, R.string.home_menu, onOpenMenu)
         Spacer(Modifier.weight(1f))
+        if (onRemoveAds != null) {
+            HomeIconButton(R.drawable.ic_remove_ads, R.string.home_remove_ads, onRemoveAds, HomeIconColors.Coral)
+        }
         HomeIconButton(R.drawable.ic_shop, R.string.home_shop, onShop, HomeIconColors.Gold)
         HomeIconButton(R.drawable.ic_stats, R.string.home_stats, onStats, HomeIconColors.Cyan)
         HomeIconButton(R.drawable.ic_settings, R.string.home_settings, onSettings, HomeIconColors.Violet)
@@ -329,6 +352,7 @@ private fun HomeScreenPreview() {
             onPlayWithFriend = {},
             onStartGame = {},
             onResume = {},
+            onRemoveAds = {},
             onShop = {},
             onStats = {},
             onSettings = {},

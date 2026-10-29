@@ -13,9 +13,9 @@ import com.matinstudios.baghchal.ads.RewardedPlacement
 import com.matinstudios.baghchal.ads.grantsAssist
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.data.SavedGameRepository
+import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.data.SettingsRepository
-import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.StatsRepository
 import com.matinstudios.baghchal.engine.ai.AiPlayer
 import com.matinstudios.baghchal.engine.ai.Difficulty
@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -39,14 +40,23 @@ class GameViewModel(
     private val savedGames: SavedGameRepository,
     private val stats: StatsRepository,
     private val writer: SerialWriter,
-    settingsRepository: SettingsRepository,
+    private val settingsRepo: SettingsRepository,
     boardTheme: Flow<BoardTheme>,
     private val sounds: SoundPlayer,
     private val ads: Ads,
 ) : ViewModel() {
 
-    private val settings = settingsRepository.settings
+    private val settings = settingsRepo.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, Settings())
+
+    /** The mute button: no music or sound effects during games. */
+    val muted: StateFlow<Boolean> = settingsRepo.settings.map { it.gameMuted }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun onToggleMute() {
+        val mute = !muted.value
+        writer.submit { settingsRepo.setGameMuted(mute) }
+    }
 
     /** Null until settings are loaded, so the board never flashes the default theme. */
     val boardTheme: StateFlow<BoardTheme?> = boardTheme

@@ -2,7 +2,6 @@ package com.matinstudios.baghchal.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.style.TextAlign
 import com.matinstudios.baghchal.data.Entitlements
 import androidx.compose.foundation.layout.Column
@@ -101,7 +100,7 @@ fun SettingsContent(
                 Text(stringResource(it.text), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
             }
             if (uiState.privacyOptionsRequired) {
-                TextButton(onClick = onPrivacyOptions) { Text(stringResource(R.string.settings_privacy_options)) }
+                QuietButton(stringResource(R.string.settings_privacy_options), onClick = onPrivacyOptions)
             }
         }
     }
@@ -130,9 +129,11 @@ private fun RemoveAdsCard(uiState: SettingsUiState, onRemoveAds: () -> Unit, onR
                 }
             }
             if (!uiState.entitlements.removeAds) {
-                TextButton(onClick = onRestorePurchase, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text(stringResource(R.string.settings_restore_purchase))
-                }
+                QuietButton(
+                    stringResource(R.string.settings_restore_purchase),
+                    onClick = onRestorePurchase,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
             }
         }
     }

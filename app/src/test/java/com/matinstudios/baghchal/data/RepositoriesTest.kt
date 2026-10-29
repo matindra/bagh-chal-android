@@ -130,6 +130,17 @@ class RepositoriesTest {
     }
 
     @Test
+    fun `game mute defaults to off and persists without touching the other switches`() = runBlocking {
+        val store = dataStore()
+        assertEquals(false, SettingsRepository(store).settings.first().gameMuted)
+        SettingsRepository(store).setGameMuted(true)
+        val settings = SettingsRepository(store).settings.first()
+        assertEquals(true, settings.gameMuted)
+        assertEquals(true, settings.musicEnabled)
+        assertEquals(true, settings.soundEnabled)
+    }
+
+    @Test
     fun `music defaults to on and persists`() = runBlocking {
         val store = dataStore()
         assertEquals(true, SettingsRepository(store).settings.first().musicEnabled)

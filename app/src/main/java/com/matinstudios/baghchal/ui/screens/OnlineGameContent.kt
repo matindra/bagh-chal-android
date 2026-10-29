@@ -62,10 +62,12 @@ fun OnlineGameContent(
     onPointTapped: (Int) -> Unit,
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    muted: Boolean = false,
+    onToggleMute: () -> Unit = {},
 ) {
     val game = session.ui.game
     Column(modifier.fillMaxSize()) {
-        MenuTopBar(onOpenMenu) {
+        MenuTopBar(onOpenMenu, trailing = { MuteButton(muted, onToggleMute) }) {
             Column(Modifier.padding(start = 4.dp)) {
                 Text(
                     stringResource(R.string.online_game_title),

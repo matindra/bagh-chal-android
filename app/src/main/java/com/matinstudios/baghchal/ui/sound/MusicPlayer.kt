@@ -9,22 +9,35 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.RawRes
 import com.matinstudios.baghchal.R
 
 /** Background music in `res/raw` (generated from design/sounds by scripts/convert-sounds.sh). */
-enum class MusicTrack(@get:RawRes val resource: Int) {
+enum class MusicTrack(
+    @get:RawRes val resource: Int,
+    /** Silence before the track starts, so the screen settles first. */
+    val startDelayMs: Long,
+    /** How long the track takes to rise from silence to [volume]. */
+    val fadeInMs: Long,
+    /** Loudest it plays, 0..1. */
+    val volume: Float,
+) {
     /** Every screen except a game in progress. */
-    HOME(R.raw.music_home),
+    HOME(R.raw.music_home, startDelayMs = 0, fadeInMs = 1_200, volume = 1f),
 
-    /** While a game is in progress, including screens opened from it (Settings, How to Play, Stats). */
-    GAME(R.raw.music_game),
+    /**
+     * While a game is in progress, including screens opened from it (Settings, How to Play, Stats).
+     * Starts after 5 s, rises slowly and stays low so it never gets in the way of thinking.
+     */
+    GAME(R.raw.music_game, startDelayMs = 5_000, fadeInMs = 8_000, volume = 0.4f),
 }
 
-/** What should be playing: nothing when music is off. */
-fun musicFor(musicEnabled: Boolean, inGame: Boolean): MusicTrack? = when {
+/** What should be playing: nothing when music is off, or during a game muted with its mute button. */
+fun musicFor(musicEnabled: Boolean, inGame: Boolean, gameMuted: Boolean = false): MusicTrack? = when {
     !musicEnabled -> null
-    inGame -> MusicTrack.GAME
+    inGame -> if (gameMuted) null else MusicTrack.GAME
     else -> MusicTrack.HOME
 }
 
@@ -90,6 +103,8 @@ class MediaMusicPlayer(context: Context) : MusicPlayer {
     private var player: MediaPlayer? = null
     private var volume = 0f
     private var fade: ValueAnimator? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private var pendingStart: Runnable? = null // waiting out the current track's start delay
 
     override fun play(track: MusicTrack?) {
         wanted = track
@@ -112,6 +127,7 @@ class MediaMusicPlayer(context: Context) : MusicPlayer {
                 abandonFocus()
             }
             !inForeground || stoppedForFocus || pausedForFocus -> {
+                cancelPendingStart()
                 fade?.cancel()
                 player?.pause()
                 if (!inForeground) abandonFocus()
@@ -125,31 +141,51 @@ class MediaMusicPlayer(context: Context) : MusicPlayer {
                 release()
                 start(track)
             }
-            player?.isPlaying != true -> resume()
+            // Still waiting out the start delay, or the wait was interrupted: (re)start it.
+            player == null -> start(track)
+            player.isPlaying != true -> resume()
             // Wanted again while fading out (or still fading in): fade back up from where it is.
-            volume < 1f -> fadeTo(1f, FADE_IN_MS)
+            volume < track.volume -> fadeTo(track.volume, track.fadeInMs)
         }
     }
 
+    /** Starts [track] after its start delay (unless something else is wanted by then). */
     private fun start(track: MusicTrack) {
-        if (!takeFocus()) return
+        current = track
+        if (pendingStart != null) return
+        val begin = Runnable {
+            pendingStart = null
+            if (wanted == track && current == track && player == null) create(track)
+        }
+        pendingStart = begin
+        handler.postDelayed(begin, track.startDelayMs)
+    }
+
+    private fun create(track: MusicTrack) {
+        if (!inForeground || stoppedForFocus || pausedForFocus || !takeFocus()) return
         val created = MediaPlayer.create(context, track.resource, attributes, audioManager.generateAudioSessionId())
             ?: return
         created.isLooping = true
         player = created
-        current = track
         resume()
     }
 
     private fun resume() {
         val player = player ?: return
+        val track = current ?: return
         if (!takeFocus()) return
         setVolume(0f)
         player.start()
-        fadeTo(1f, FADE_IN_MS)
+        fadeTo(track.volume, track.fadeInMs)
+    }
+
+    private fun cancelPendingStart() {
+        pendingStart?.let(handler::removeCallbacks)
+        pendingStart = null
     }
 
     private fun release() {
+        cancelPendingStart()
         fade?.cancel()
         player?.release()
         player = null
@@ -213,7 +249,6 @@ class MediaMusicPlayer(context: Context) : MusicPlayer {
     }
 
     private companion object {
-        const val FADE_IN_MS = 1_200L
         const val FADE_OUT_MS = 500L
     }
 }

@@ -38,7 +38,6 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -469,9 +468,7 @@ private fun WaitingForFriend(code: String, side: Side, onShareCode: (String) -> 
             )
         }
     }
-    TextButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.online_cancel_game))
-    }
+    QuietButton(stringResource(R.string.online_cancel_game), onClick = onCancel, modifier = Modifier.fillMaxWidth())
 }
 
 /** Searching, creating or joining: the hero card with a spinner in place of the button. */

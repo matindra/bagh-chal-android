@@ -77,6 +77,7 @@ public class SvgConvert {
             Map.entry("stats.svg", "ic_stats"),
             Map.entry("boards.svg", "ic_boards"),
             Map.entry("shop.svg", "ic_shop"),
+            Map.entry("remove_ads.svg", "ic_remove_ads"),
             Map.entry("settings.svg", "ic_settings"),
             Map.entry("home.svg", "ic_home"),
             Map.entry("play.svg", "ic_play"),
@@ -92,7 +93,9 @@ public class SvgConvert {
             Map.entry("join.svg", "ic_join"),
             Map.entry("search.svg", "ic_search"),
             Map.entry("person.svg", "ic_person"),
-            Map.entry("privacy.svg", "ic_privacy")
+            Map.entry("privacy.svg", "ic_privacy"),
+            Map.entry("sound_on.svg", "ic_sound_on"),
+            Map.entry("sound_off.svg", "ic_sound_off")
     ));
 
     /** Launcher icons (one per choice in the app); each has drawable/<name>_background and _foreground. */

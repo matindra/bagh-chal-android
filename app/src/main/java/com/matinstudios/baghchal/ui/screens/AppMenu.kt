@@ -132,19 +132,41 @@ fun AppMenuDrawer(
 
 /**
  * The top strip of every screen with the side menu: the menu button always sits in the same
- * top-left spot, with [content] (title, status) beside it.
+ * top-left spot, with [content] (title, status) beside it and an optional [trailing] button
+ * mirrored in the top-right corner.
  */
 @Composable
-fun MenuTopBar(onOpenMenu: () -> Unit, modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit = {}) {
-    // The bar grows for tall content, but the button stays pinned to the top-left corner.
+fun MenuTopBar(
+    onOpenMenu: () -> Unit,
+    modifier: Modifier = Modifier,
+    trailing: (@Composable () -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit = {},
+) {
+    // The bar grows for tall content, but the buttons stay pinned to the top corners.
     Box(modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth().heightIn(min = MenuTopBarHeight).padding(start = MenuButtonSpace),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = MenuTopBarHeight)
+                .padding(start = MenuButtonSpace, end = if (trailing != null) MenuButtonSpace else 0.dp),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
         )
         AppMenuButton(onOpenMenu, Modifier.padding(start = TopBarButtonStart, top = 2.dp))
+        if (trailing != null) {
+            Box(Modifier.align(Alignment.TopEnd).padding(end = TopBarButtonStart, top = 2.dp)) { trailing() }
+        }
     }
+}
+
+/** The game screens' top-right button: silences music and sound effects during games. */
+@Composable
+fun MuteButton(muted: Boolean, onToggle: () -> Unit) {
+    HomeIconButton(
+        icon = if (muted) R.drawable.ic_sound_off else R.drawable.ic_sound_on,
+        label = if (muted) R.string.game_unmute else R.string.game_mute,
+        onClick = onToggle,
+    )
 }
 
 /** Space before the frosted menu / back button, from the screen's left edge. */

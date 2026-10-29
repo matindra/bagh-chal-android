@@ -18,7 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -77,7 +76,7 @@ fun StatsContent(stats: Stats, onBack: () -> Unit, onReset: () -> Unit, modifier
                 SideCard(stats, Side.GOAT, LocalPieceArt.current.goat, R.string.stats_as_goats)
                 SideCard(stats, Side.TIGER, LocalPieceArt.current.tiger, R.string.stats_as_tigers)
             }
-            TextButton(onClick = { confirmReset = true }) { Text(stringResource(R.string.stats_reset)) }
+            QuietButton(stringResource(R.string.stats_reset), onClick = { confirmReset = true }, danger = true)
         }
     }
 
@@ -87,13 +86,17 @@ fun StatsContent(stats: Stats, onBack: () -> Unit, onReset: () -> Unit, modifier
             title = { Text(stringResource(R.string.stats_reset_title)) },
             text = { Text(stringResource(R.string.stats_reset_message)) },
             confirmButton = {
-                TextButton(onClick = {
-                    confirmReset = false
-                    onReset()
-                }) { Text(stringResource(R.string.stats_reset)) }
+                PrimaryButton(
+                    stringResource(R.string.stats_reset),
+                    onClick = {
+                        confirmReset = false
+                        onReset()
+                    },
+                    size = ButtonSize.Small,
+                )
             },
             dismissButton = {
-                TextButton(onClick = { confirmReset = false }) { Text(stringResource(R.string.cancel)) }
+                QuietButton(stringResource(R.string.cancel), onClick = { confirmReset = false })
             },
         )
     }

@@ -145,6 +145,7 @@ internal data class HomeIconColors(val face: Color, val lip: Color, val icon: Co
         val Gold = HomeIconColors(HomeNight.Gold, HomeNight.GoldLip, HomeNight.OnGold)
         val Cyan = HomeIconColors(HomeNight.Cyan, HomeNight.CyanLip, HomeNight.OnCyan)
         val Violet = HomeIconColors(HomeNight.Violet, HomeNight.VioletLip, HomeNight.OnViolet)
+        val Coral = HomeIconColors(HomeNight.Coral, HomeNight.CoralLip, Color.White)
     }
 }
 

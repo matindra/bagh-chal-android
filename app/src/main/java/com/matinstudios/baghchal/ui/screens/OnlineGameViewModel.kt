@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.matinstudios.baghchal.BaghchalApplication
 import com.matinstudios.baghchal.ads.Ads
 import com.matinstudios.baghchal.data.BoardTheme
+import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.data.SettingsRepository
 import com.matinstudios.baghchal.engine.Side
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,16 +52,26 @@ data class OnlineGameUi(
 class OnlineGameViewModel(
     savedStateHandle: SavedStateHandle,
     private val online: OnlineService,
-    settingsRepository: SettingsRepository,
+    private val settingsRepo: SettingsRepository,
     boardTheme: Flow<BoardTheme>,
     private val sounds: SoundPlayer,
     private val ads: Ads,
+    private val writer: SerialWriter,
 ) : ViewModel() {
 
     private val roomId: String = checkNotNull(savedStateHandle[ARG_ROOM])
 
-    private val settings = settingsRepository.settings
+    private val settings = settingsRepo.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, Settings())
+
+    /** The mute button: no music or sound effects during games. */
+    val muted: StateFlow<Boolean> = settingsRepo.settings.map { it.gameMuted }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun onToggleMute() {
+        val mute = !muted.value
+        writer.submit { settingsRepo.setGameMuted(mute) }
+    }
 
     val boardTheme: StateFlow<BoardTheme?> = boardTheme.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val showBanner: StateFlow<Boolean> = ads.bannersEnabled
@@ -217,6 +229,7 @@ class OnlineGameViewModel(
                     container.boardTheme,
                     container.sounds,
                     container.ads,
+                    container.writer,
                 )
             }
         }

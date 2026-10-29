@@ -23,6 +23,8 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 data class Settings(
     val soundEnabled: Boolean = true,
     val musicEnabled: Boolean = true,
+    /** The game screens' mute button: silences music and sound effects during games only. */
+    val gameMuted: Boolean = false,
     val hapticsEnabled: Boolean = true,
     val boardTheme: BoardTheme = BoardTheme.WOOD,
     val pieceSet: PieceSet = PieceSet.CLASSIC,
@@ -37,6 +39,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             Settings(
                 soundEnabled = prefs[SOUND] ?: true,
                 musicEnabled = prefs[MUSIC] ?: true,
+                gameMuted = prefs[GAME_MUTED] ?: false,
                 hapticsEnabled = prefs[HAPTICS] ?: true,
                 boardTheme = BoardTheme.entries.firstOrNull { it.name == prefs[BOARD_THEME] } ?: BoardTheme.WOOD,
                 pieceSet = PieceSet.entries.firstOrNull { it.name == prefs[PIECE_SET] } ?: PieceSet.CLASSIC,
@@ -61,6 +64,10 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[MUSIC] = enabled }
     }
 
+    suspend fun setGameMuted(muted: Boolean) {
+        dataStore.edit { it[GAME_MUTED] = muted }
+    }
+
     suspend fun setHapticsEnabled(enabled: Boolean) {
         dataStore.edit { it[HAPTICS] = enabled }
     }
@@ -81,6 +88,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val SOUND = booleanPreferencesKey("settings_sound")
         val MUSIC = booleanPreferencesKey("settings_music")
         val HAPTICS = booleanPreferencesKey("settings_haptics")
+        val GAME_MUTED = booleanPreferencesKey("settings_game_muted")
         val BOARD_THEME = stringPreferencesKey("settings_board_theme")
         val PIECE_SET = stringPreferencesKey("settings_piece_set")
         val THEME_MODE = stringPreferencesKey("settings_theme_mode")

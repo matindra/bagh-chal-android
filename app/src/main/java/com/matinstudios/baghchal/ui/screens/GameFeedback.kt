@@ -23,7 +23,7 @@ fun feedbackFor(previous: GameUiState?, current: GameUiState, settings: Settings
     if (previous == null || current.moveNumber == previous.moveNumber) return null
     val move = current.lastMove ?: return null
     val haptic = hapticFor(previous, current, move).takeIf { settings.hapticsEnabled }
-    val sound = soundFor(previous, current, move).takeIf { settings.soundEnabled }
+    val sound = soundFor(previous, current, move).takeIf { settings.soundEnabled && !settings.gameMuted }
     return if (haptic == null && sound == null) null else Feedback(haptic, sound)
 }
 

@@ -7,6 +7,29 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (53) — Ask before leaving a game
+- Local games: menu Home and system Back now show "Leave the game?" (No / Yes) while the game is in progress; text says the game is saved for later. Finished/drawn games leave directly.
+- Online leave prompt now uses the same Yes / No buttons (removed the `online_leave` / `online_stay` strings).
+
+## Session 2026-10-29 (52) — Remove Ads button on Home
+- Coral `HomeIconButton` just before Shop in Home's top-right row (`ic_remove_ads` from `design/remove_ads.svg`: an "AD" badge with a "no" sign on its corner; a clip path cuts a gap in the badge around the sign. A slash through the letters was unreadable at 24 dp). Tapping opens Play's purchase sheet (`HomeViewModel.onRemoveAds` → `BillingManager.launchPurchase`); if that can't open, a toast shows `message_purchase_unavailable`. Hidden once Remove Ads is owned (and while entitlements load).
+- Restore Purchase stays in Settings only.
+
+## Session 2026-10-29 (51) — Gentler game music and a mute button
+- Game music: `MusicTrack` now has `startDelayMs`, `fadeInMs`, `volume`. GAME waits 5 s after the game opens, fades in over 8 s, and plays at 40%; HOME is unchanged (no delay, 1.2 s fade, full volume). `MediaMusicPlayer` keeps a pending start on the main `Handler`, cancelled when the app goes to the background, the track changes or music stops.
+- Mute button top right on the local and online game screens (`MuteButton`, frosted like the menu button; icons `ic_sound_on`/`ic_sound_off` from `design/sound_*.svg`). `MenuTopBar` gained a `trailing` slot and pads its content on both sides when one is present.
+- New setting `Settings.gameMuted` (DataStore `settings_game_muted`): silences game music (`musicFor(..., gameMuted)`) and move sounds (`feedbackFor`) during games only. Haptics, Home music and the Settings switches are unaffected. `OnlineGameViewModel` now takes `container.writer`.
+- New strings: `game_mute`, `game_unmute`. Tests: MusicTrackTest, RepositoriesTest, GameFeedbackTest, GameContentTest (mute button).
+- `./gradlew test` and all UI tests pass. On the emulator: no game music for ~5 s, then it starts; the mute button stops it and swaps its icon. Volume and fade can't be measured there: listen on a phone.
+
+## Session 2026-10-29 (50) — One button family on every screen
+- Design picked from a canvas (https://claude.ai/artifact/UzNkLVeh5jkJtXMSuYqpES): every button is a raised face on a lip.
+- `AppButtons.kt`: `ButtonSize` (Large 56 dp / Small 40 dp) on `PrimaryButton`/`SecondaryButton`; new `ToolButton` (frosted, coloured icon chip, "▶ AD" badge, `ToolColor.Cyan/Gold`) and `QuietButton` (no face, gold text, `danger` soft red, optional trailing icon).
+- Game: Undo/Hint are `ToolButton`s (replace the Material tonal `AssistButton`). When an ad plays, the badge shows on screen and screen readers/tests hear "Undo (ad)" (`with_ad`). New string `ad_badge` = "AD".
+- Every Material `TextButton` replaced: Welcome Skip, Settings Restore purchase / Privacy options, Stats Reset (danger), Lobby Cancel, and all dialogs (quiet dismiss + small coral confirm: Reset stats, Leave online game, online game-over Play again / Home).
+- Now unused (ask before deleting): `hintContainer`/`onHintContainer` in `BaghchalThemeExtras` and the `HintContainer*` colours.
+- `./gradlew test` passes; all UI tests pass on the emulator (one activity-launch flake, passed on rerun); checked Welcome, Home, AI setup and the game screen on the emulator.
+
 ## Session 2026-10-29 (49) — Home buttons float and shine
 - Picked by the user from a live preview (https://claude.ai/artifact/9yngU1GzHeViRcR1F8VGyd, options D + B).
 - Float: Play with AI and the three mode rows bob 3 dp every 3.4 s, a quarter cycle apart (`iceFloat` in `HomeButtons.kt`, a `graphicsLayer` translation, so no recomposition).

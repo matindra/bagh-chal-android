@@ -25,8 +25,13 @@
     <string name="hint_loading">Finding a hint…</string>
     <string name="undo">Undo</string>
     <string name="hint">Hint</string>
+    <!-- Game screen top-right button: silences music and sound effects during games. -->
+    <string name="game_mute">Mute sound</string>
+    <string name="game_unmute">Turn sound on</string>
     <!-- A button that first plays a rewarded video ad, e.g. "Undo (ad)". -->
     <string name="with_ad">%1$s (ad)</string>
+    <!-- Badge on Undo/Hint when they play a rewarded video ad first. Keep it very short. -->
+    <string name="ad_badge">AD</string>
     <string name="result_you_win">You win!</string>
     <string name="result_you_lose">You lose</string>
     <string name="home_play_as">Play as</string>
@@ -91,6 +96,7 @@
     <string name="settings_music_detail">Background music on the menus and during games</string>
     <string name="settings_haptics">Haptics</string>
     <string name="settings_haptics_detail">Vibrate when a goat is placed or captured, or a piece is trapped</string>
+    <string name="home_remove_ads">Remove Ads</string>
     <string name="home_shop">Shop</string>
     <string name="shop_title">Shop</string>
     <string name="shop_boards">Boards</string>
@@ -207,10 +213,12 @@
     <string name="online_your_turn">Your turn</string>
     <string name="online_their_turn">Opponent\'s turn</string>
     <string name="online_opponent_away">Opponent disconnected, waiting…</string>
+    <string name="leave_game_title">Leave the game?</string>
+    <string name="leave_game_text">Your game is saved. You can continue it from Home.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="online_leave_title">Leave the game?</string>
     <string name="online_leave_text">Leaving counts as a loss.</string>
-    <string name="online_leave">Leave</string>
-    <string name="online_stay">Stay</string>
     <string name="online_won">You won!</string>
     <string name="online_lost">You lost</string>
     <string name="online_drawn">It\'s a draw</string>

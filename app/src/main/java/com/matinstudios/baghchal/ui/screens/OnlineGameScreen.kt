@@ -11,7 +11,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,6 +66,7 @@ fun OnlineGameScreen(
     val ui by viewModel.ui.collectAsStateWithLifecycle()
     val boardTheme by viewModel.boardTheme.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
+    val muted by viewModel.muted.collectAsStateWithLifecycle()
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
 
     val end = ui.end
@@ -100,6 +100,8 @@ fun OnlineGameScreen(
                     boardTheme = theme,
                     onPointTapped = viewModel::onPointTapped,
                     onOpenMenu = openMenu,
+                    muted = muted,
+                    onToggleMute = viewModel::onToggleMute,
                 )
             }
         }
@@ -113,13 +115,17 @@ fun OnlineGameScreen(
             title = { Text(stringResource(R.string.online_leave_title)) },
             text = { Text(stringResource(R.string.online_leave_text)) },
             confirmButton = {
-                TextButton(onClick = {
-                    confirmLeave = false
-                    viewModel.onResign()
-                    onHome()
-                }) { Text(stringResource(R.string.online_leave)) }
+                PrimaryButton(
+                    stringResource(R.string.yes),
+                    onClick = {
+                        confirmLeave = false
+                        viewModel.onResign()
+                        onHome()
+                    },
+                    size = ButtonSize.Small,
+                )
             },
-            dismissButton = { TextButton(onClick = { confirmLeave = false }) { Text(stringResource(R.string.online_stay)) } },
+            dismissButton = { QuietButton(stringResource(R.string.no), onClick = { confirmLeave = false }) },
         )
     }
 
@@ -190,10 +196,10 @@ private fun EndDialog(end: OnlineEnd, rematch: RematchUi?, onPlayAgain: () -> Un
         },
         confirmButton = {
             if (rematch == null || rematch.canPlayAgain) {
-                TextButton(onClick = onPlayAgain) { Text(stringResource(R.string.online_play_again)) }
+                PrimaryButton(stringResource(R.string.online_play_again), onClick = onPlayAgain, size = ButtonSize.Small)
             }
         },
-        dismissButton = { TextButton(onClick = onHome) { Text(stringResource(R.string.menu_home)) } },
+        dismissButton = { QuietButton(stringResource(R.string.menu_home), onClick = onHome) },
     )
 }
 

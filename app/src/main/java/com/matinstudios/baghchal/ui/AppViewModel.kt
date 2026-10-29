@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.matinstudios.baghchal.BaghchalApplication
+import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.ui.sound.MusicPlayer
 import com.matinstudios.baghchal.ui.sound.musicFor
 import kotlinx.coroutines.flow.Flow
@@ -16,14 +17,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** App-wide state for the navigation graph: the start screen and the background music. */
 class AppViewModel(
     tutorialSeen: Flow<Boolean>,
-    musicEnabled: Flow<Boolean>,
+    settings: Flow<Settings>,
     private val music: MusicPlayer,
 ) : ViewModel() {
 
@@ -31,7 +31,9 @@ class AppViewModel(
 
     init {
         viewModelScope.launch {
-            combine(musicEnabled.distinctUntilChanged(), inGame, ::musicFor).distinctUntilChanged().collect(music::play)
+            combine(settings, inGame) { s, inGame -> musicFor(s.musicEnabled, inGame, s.gameMuted) }
+                .distinctUntilChanged()
+                .collect(music::play)
         }
     }
 
@@ -57,7 +59,7 @@ class AppViewModel(
                 val container = (this[APPLICATION_KEY] as BaghchalApplication).container
                 AppViewModel(
                     tutorialSeen = container.settings.tutorialSeen,
-                    musicEnabled = container.settings.settings.map { it.musicEnabled },
+                    settings = container.settings.settings,
                     music = container.music,
                 )
             }

@@ -1,12 +1,7 @@
 package com.matinstudios.baghchal.ui.screens
 
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.graphics.Color
 import com.matinstudios.baghchal.ui.board.LocalPieceArt
-import com.matinstudios.baghchal.ui.theme.BaghchalThemeExtras
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
@@ -19,20 +14,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -85,8 +82,14 @@ fun GameScreen(
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     val undoNeedsAd by viewModel.undoNeedsAd.collectAsStateWithLifecycle()
     val hintNeedsAd by viewModel.hintNeedsAd.collectAsStateWithLifecycle()
+    val muted by viewModel.muted.collectAsStateWithLifecycle()
+    // Leaving a game in progress asks first; a finished game leaves straight away.
+    var confirmLeave by rememberSaveable { mutableStateOf(false) }
+    val inProgress = uiState.status == GameStatus.InProgress
+    val leave = { if (inProgress) confirmLeave = true else onMenu() }
+    BackHandler(onBack = leave)
     val menuItems = listOf(
-        AppMenuItem(R.string.menu_home, R.drawable.ic_home, onMenu),
+        AppMenuItem(R.string.menu_home, R.drawable.ic_home, leave),
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
@@ -104,10 +107,31 @@ fun GameScreen(
                 onNewGame = viewModel::onNewGame,
                 onMenu = onMenu,
                 onOpenMenu = openMenu,
+                muted = muted,
+                onToggleMute = viewModel::onToggleMute,
             )
         }
         // Outside the drawer so the menu never covers the ad; kept well away from the board and buttons.
         if (showBanner) BannerAd(BannerPlacement.GAME, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
+    }
+
+    if (confirmLeave && inProgress) {
+        AlertDialog(
+            onDismissRequest = { confirmLeave = false },
+            title = { Text(stringResource(R.string.leave_game_title)) },
+            text = { Text(stringResource(R.string.leave_game_text)) },
+            confirmButton = {
+                PrimaryButton(
+                    stringResource(R.string.yes),
+                    onClick = {
+                        confirmLeave = false
+                        onMenu()
+                    },
+                    size = ButtonSize.Small,
+                )
+            },
+            dismissButton = { QuietButton(stringResource(R.string.no), onClick = { confirmLeave = false }) },
+        )
     }
 }
 
@@ -127,12 +151,14 @@ fun GameContent(
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenMenu: () -> Unit = {},
+    muted: Boolean = false,
+    onToggleMute: () -> Unit = {},
 ) {
     val game = uiState.game
     Column(modifier.fillMaxSize()) {
-        MenuTopBar(onOpenMenu) {
-            // End padding matches the menu button, so the status is centred on the screen.
-            Box(Modifier.weight(1f).padding(end = MenuButtonSpace), contentAlignment = Alignment.Center) {
+        // The mute button mirrors the menu button, so the status is centred on the screen.
+        MenuTopBar(onOpenMenu, trailing = { MuteButton(muted, onToggleMute) }) {
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 StatusLine(uiState)
             }
         }
@@ -194,54 +220,31 @@ private fun ColumnScope.GameBody(
             )
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                AssistButton(
+                ToolButton(
+                    text = stringResource(R.string.undo),
+                    icon = R.drawable.ic_undo,
+                    color = ToolColor.Cyan,
                     onClick = onUndo,
                     enabled = uiState.canUndo,
-                    icon = R.drawable.ic_undo,
-                    text = assistLabel(R.string.undo, undoNeedsAd),
-                    container = MaterialTheme.colorScheme.tertiaryContainer,
-                    content = MaterialTheme.colorScheme.onTertiaryContainer,
+                    adLabel = adLabel(R.string.undo, undoNeedsAd),
                 )
-                AssistButton(
+                ToolButton(
+                    text = stringResource(R.string.hint),
+                    icon = R.drawable.ic_hint,
+                    color = ToolColor.Gold,
                     onClick = onHint,
                     enabled = uiState.canHint,
-                    icon = R.drawable.ic_hint,
-                    text = assistLabel(R.string.hint, hintNeedsAd),
-                    container = BaghchalThemeExtras.colors.hintContainer,
-                    content = BaghchalThemeExtras.colors.onHintContainer,
+                    adLabel = adLabel(R.string.hint, hintNeedsAd),
                 )
             }
         }
     }
 }
 
-/** Undo / Hint: a tinted button with a leading icon. */
+/** Spoken label of a button that plays a rewarded ad first, or null when it does not. */
 @Composable
-private fun AssistButton(
-    onClick: () -> Unit,
-    enabled: Boolean,
-    @DrawableRes icon: Int,
-    text: String,
-    container: Color,
-    content: Color,
-) {
-    FilledTonalButton(
-        onClick = onClick,
-        modifier = Modifier.heightIn(min = 48.dp),
-        enabled = enabled,
-        colors = ButtonDefaults.filledTonalButtonColors(containerColor = container, contentColor = content),
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-    ) {
-        Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-        Text(text)
-    }
-}
-
-/** Says up front when a button plays a rewarded ad, as AdMob requires. */
-@Composable
-private fun assistLabel(@StringRes label: Int, needsAd: Boolean): String =
-    if (needsAd) stringResource(R.string.with_ad, stringResource(label)) else stringResource(label)
+private fun adLabel(@StringRes label: Int, needsAd: Boolean): String? =
+    if (needsAd) stringResource(R.string.with_ad, stringResource(label)) else null
 
 @Composable
 private fun StatusLine(uiState: GameUiState, modifier: Modifier = Modifier) {

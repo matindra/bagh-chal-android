@@ -53,6 +53,13 @@ class GameFeedbackTest {
     }
 
     @Test
+    fun `muting the game silences sounds but keeps haptics`() {
+        val before = GameInteraction.newGame()
+        val muted = all.copy(gameMuted = true)
+        assertEquals(Feedback(HapticCue.GOAT_PLACED, sound = null), feedbackFor(before, before.tap(12), muted))
+    }
+
+    @Test
     fun `any step plays move, with no haptic`() {
         val placed = GameInteraction.newGame().tap(12)
         assertEquals(Feedback(haptic = null, sound = SoundEffect.MOVE), feedbackFor(placed, placed.play(Move.Step(0, 5)), all))

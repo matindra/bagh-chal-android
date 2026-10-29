@@ -55,8 +55,9 @@ class GameContentTest {
     private var menuClicks = 0
     private var undoClicks = 0
     private var hintClicks = 0
+    private var muteClicks = 0
 
-    private fun show(ui: GameUiState, undoNeedsAd: Boolean = false, hintNeedsAd: Boolean = false) {
+    private fun show(ui: GameUiState, undoNeedsAd: Boolean = false, hintNeedsAd: Boolean = false, muted: Boolean = false) {
         compose.setContent {
             BaghchalTheme {
                 GameContent(
@@ -69,6 +70,8 @@ class GameContentTest {
                     onHint = { hintClicks++ },
                     onNewGame = { newGameClicks++ },
                     onMenu = { menuClicks++ },
+                    muted = muted,
+                    onToggleMute = { muteClicks++ },
                 )
             }
         }
@@ -244,6 +247,19 @@ class GameContentTest {
         compose.onNodeWithText(str(R.string.hint)).performClick()
         assertEquals(1, undoClicks)
         assertEquals(1, hintClicks)
+    }
+
+    @Test
+    fun muteButtonSaysWhatItWillDoAndReportsTaps() {
+        show(GameInteraction.newGame())
+        compose.onNodeWithContentDescription(str(R.string.game_mute)).performClick()
+        assertEquals(1, muteClicks)
+    }
+
+    @Test
+    fun mutedGameOffersToTurnSoundBackOn() {
+        show(GameInteraction.newGame(), muted = true)
+        compose.onNodeWithContentDescription(str(R.string.game_unmute)).assertIsDisplayed()
     }
 
     @Test
