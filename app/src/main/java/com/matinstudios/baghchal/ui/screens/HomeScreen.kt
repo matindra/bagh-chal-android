@@ -54,10 +54,10 @@ import com.matinstudios.baghchal.engine.ai.Difficulty
 import com.matinstudios.baghchal.ui.board.ChaseBanner
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
-/** Mode chip colours (each with its darker lip). */
-private val FriendChip = Color(0xFFFF5C8A) to Color(0xFFB02A55)
-private val OnlineChip = Color(0xFF38BDF8) to Color(0xFF0E7AB0)
-private val PassChip = Color(0xFF34D399) to Color(0xFF0F8A5F)
+/** Each mode row's colour: Friend sky blue, Quick Match pink, Pass n Play green. */
+private val FriendColors = ModeColors(Color(0xFF38BDF8), Color(0xFF0E7AB0), Color(0xFFCDEFFF))
+private val OnlineColors = ModeColors(Color(0xFFFF5C8A), Color(0xFFB02A55), Color(0xFFFFD3E0))
+private val PassColors = ModeColors(Color(0xFF34D399), Color(0xFF0F8A5F), Color(0xFFC9F5E4))
 
 @Composable
 fun HomeScreen(
@@ -155,24 +155,21 @@ fun HomeContent(
                         title = R.string.mode_friend,
                         detail = R.string.mode_friend_detail,
                         icon = R.drawable.ic_mode_friend_line,
-                        chip = FriendChip.first,
-                        chipLip = FriendChip.second,
+                        colors = FriendColors,
                         onClick = onPlayWithFriend,
                     )
                     FrostModeButton(
                         title = R.string.mode_online,
                         detail = R.string.mode_online_detail,
                         icon = R.drawable.ic_mode_online_line,
-                        chip = OnlineChip.first,
-                        chipLip = OnlineChip.second,
+                        colors = OnlineColors,
                         onClick = onPlayOnline,
                     )
                     FrostModeButton(
                         title = R.string.mode_vs_player,
                         detail = R.string.mode_vs_player_detail,
                         icon = R.drawable.ic_mode_vs_player_line,
-                        chip = PassChip.first,
-                        chipLip = PassChip.second,
+                        colors = PassColors,
                         onClick = { onStartGame(GameSetup.TWO_PLAYER) },
                     )
                 }

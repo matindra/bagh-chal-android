@@ -38,8 +38,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -121,19 +124,19 @@ private const val SHINE_MILLIS = 2800
 /** Part of the cycle the shine spends crossing; the rest it waits off the button. */
 private const val SHINE_ACTIVE = 0.55f
 
-/** The main action: big cyan "Play with AI" with a shine sweeping across now and then. */
+/** The main action: big coral "Play with AI" with a shine sweeping across now and then. */
 @Composable
 internal fun PlayAiButton(clock: State<Long>, onClick: () -> Unit, modifier: Modifier = Modifier) {
     RaisedButton(
         onClick = onClick,
-        face = HomeNight.Cyan,
-        lip = HomeNight.CyanLip,
+        face = HomeNight.Coral,
+        lip = HomeNight.CoralLip,
         shape = RoundedCornerShape(26.dp),
         lipHeight = 7.dp,
         modifier = modifier,
         faceModifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
         decoration = {
-            drawRect(Color.White.copy(alpha = 0.4f), size = Size(size.width, 5.dp.toPx()))
+            drawRect(Color.White.copy(alpha = 0.3f), size = Size(size.width, 5.dp.toPx()))
             drawShine((clock.value % SHINE_MILLIS).toFloat() / SHINE_MILLIS)
         },
     ) {
@@ -145,24 +148,32 @@ internal fun PlayAiButton(clock: State<Long>, onClick: () -> Unit, modifier: Mod
             Box(
                 Modifier
                     .size(50.dp)
-                    .drawBehind { drawCircle(HomeNight.CyanLip, center = center + Offset(0f, 4.dp.toPx())) }
+                    .drawBehind { drawCircle(HomeNight.CoralLip, center = center + Offset(0f, 4.dp.toPx())) }
                     .background(Color.White, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(painterResource(R.drawable.ic_play), contentDescription = null, tint = HomeNight.CyanLip, modifier = Modifier.size(26.dp))
+                Icon(painterResource(R.drawable.ic_play), contentDescription = null, tint = HomeNight.Coral, modifier = Modifier.size(26.dp))
             }
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 BasicText(
                     stringResource(R.string.mode_vs_ai),
-                    style = TextStyle(color = HomeNight.OnCyan, fontWeight = FontWeight.Black),
+                    style = TextStyle(
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        shadow = Shadow(HomeNight.CoralLip, with(LocalDensity.current) { Offset(0f, 2.dp.toPx()) }, 0f),
+                    ),
                     maxLines = 1,
                     autoSize = TextAutoSize.StepBased(minFontSize = 18.sp, maxFontSize = 27.sp),
                 )
+                // Small text sits on a white pill: white on coral is only readable when large.
                 BasicText(
                     stringResource(R.string.mode_vs_ai_detail),
-                    style = TextStyle(color = HomeNight.OnCyanSoft, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp),
+                    style = TextStyle(color = HomeNight.CoralInk, fontWeight = FontWeight.Black, fontSize = 12.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .background(Color.White, CircleShape)
+                        .padding(horizontal = 9.dp, vertical = 1.dp),
                 )
             }
         }
@@ -186,26 +197,34 @@ private fun DrawScope.drawShine(t: Float) {
     drawPath(path, Color.White.copy(alpha = 0.45f))
 }
 
-/** A frosted-glass mode row: coloured icon chip, title and detail, chevron. */
+/** A mode's colours: the icon chip, its darker lip, and the light text tint on its glass row. */
+internal class ModeColors(val chip: Color, val chipLip: Color, val ink: Color)
+
+/**
+ * A tinted-glass mode row: the mode's colour, see-through over the night sky, with its icon chip,
+ * title and detail, and a chevron.
+ */
 @Composable
 internal fun FrostModeButton(
     @StringRes title: Int,
     @StringRes detail: Int,
     @DrawableRes icon: Int,
-    chip: Color,
-    chipLip: Color,
+    colors: ModeColors,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val chip = colors.chip
+    val chipLip = colors.chipLip
     RaisedButton(
         onClick = onClick,
-        face = HomeNight.Frost,
+        // Opaque (the lip runs underneath): the chip colour at glass strength over the mountains behind.
+        face = chip.copy(alpha = 0.16f).compositeOver(HomeNight.Mountain),
         lip = HomeNight.FrostLip,
         shape = RoundedCornerShape(18.dp),
         lipHeight = 5.dp,
         modifier = modifier,
         faceModifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-        border = HomeNight.FrostBorder,
+        border = chip.copy(alpha = 0.5f),
     ) {
         Row(
             Modifier.fillMaxWidth().padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
@@ -233,7 +252,7 @@ internal fun FrostModeButton(
                 )
                 BasicText(
                     stringResource(detail),
-                    style = TextStyle(color = HomeNight.OnFrostSoft, fontWeight = FontWeight.ExtraBold),
+                    style = TextStyle(color = colors.ink, fontWeight = FontWeight.ExtraBold),
                     maxLines = 1,
                     autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 12.sp),
                 )

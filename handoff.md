@@ -18,6 +18,7 @@
 - `./gradlew assembleDebug test` pass; all 21 `AppFlowTest` UI tests pass on the emulator; checked Home on the emulator (light theme, with a saved game).
 - Known: the status bar and gesture bar strips use the theme's surface colour (the activity's Scaffold pads content), so in light theme there is a cream strip above the navy. Font is the system font (Black weight); the mockup used Lilita One (would need a bundled font file).
 - Leftovers deleted: `ModeTile.kt`, string `home_play`, drawables `ic_mode_vs_ai_line`, `ic_mode_{friend,online,vs_ai,vs_player}` (old colourful set), `ic_phone`, with their `design/` SVGs and `SvgConvert.java` mappings. Build + unit tests pass.
+- Colours updated from the canvas: Play with AI is coral (`HomeNight.Coral`, C4) with white text and "3 difficulties" on a white pill, shine kept. Mode rows are tinted glass in their own colour (`ModeColors`; face = chip colour at 16% over the mountains, border at 50%): Friend sky blue, Quick Match pink, Pass n Play green. Build + unit tests pass; checked on the emulator.
 
 ## Session 2026-10-29 (42) — Fix: every goat animating on placement
 - Bug: placing a goat made every goat on the board pop in (same for all tigers during a capture jump, and while dragging). Cause: all pieces shared one `VectorPainter`, which caches a single bitmap at the last size drawn; the moving piece redrew it at its animated size, and every earlier draw of that bitmap in the frame showed the final image.

@@ -78,10 +78,9 @@ internal object HomeNight {
     val GoldLip = Color(0xFFB38B12)
     val OnGold = Color(0xFF3A2600)
 
-    val Cyan = Color(0xFF22D3EE)
-    val CyanLip = Color(0xFF0E8FA8)
-    val OnCyan = Color(0xFF053B47)
-    val OnCyanSoft = Color(0xFF064E5E)
+    val Coral = Color(0xFFF0552F)
+    val CoralLip = Color(0xFFA8341A)
+    val CoralInk = Color(0xFF9A2E14)
 
     val IceTop = Color(0xFFF4FBFF)
     val IceBottom = Color(0xFFD7ECFF)
