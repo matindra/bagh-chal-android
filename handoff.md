@@ -11,6 +11,7 @@
 - New `PieceSet.NIGHT_EYES` ("Night Eyes"), unlocked like the other sets. Art matches the Night eyes app icon: dark `#121821` faces, amber slit-pupil eyes + orange rim for the tiger, pale-green bar-pupil eyes + green rim for the goat.
 - Sources `design/tiger_night_eyes.svg`, `design/goat_night_eyes.svg` → `ic_tiger_night_eyes`, `ic_goat_night_eyes` (mapped in `SvgConvert.java`). Checked on Wood and Night boards (headless Chrome render).
 - `./gradlew test assembleDebug` pass. Not checked on the emulator.
+- Goats of Bold, Glyph, Snow Tiger and Night Eyes reshaped from a round disc to a goat head (wide brow, narrow muzzle, like Classic), keeping each set's rim and colours.
 
 ## Session 2026-10-28 (39) — Home bottom bar
 - Design D from the canvas https://claude.ai/artifact/7N8znt6qqEUE9o9cZcMCLY (with A's "Game in progress" card, which is the existing `ResumeCard`).
