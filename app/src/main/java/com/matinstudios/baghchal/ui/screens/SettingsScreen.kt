@@ -19,6 +19,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -151,7 +152,18 @@ private fun ToggleRow(@StringRes title: Int, @StringRes detail: Int, checked: Bo
         headlineContent = { Text(stringResource(title)) },
         supportingContent = { Text(stringResource(detail)) },
         // The whole row toggles; the switch itself is just the indicator.
-        trailingContent = { Switch(checked = checked, onCheckedChange = null) },
+        trailingContent = {
+            // White knob on a coral track, like Home's main button.
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = HomeNight.Coral,
+                    checkedBorderColor = HomeNight.Coral,
+                ),
+            )
+        },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = Modifier.toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
     )

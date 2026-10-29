@@ -45,7 +45,6 @@ import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.data.BoardTheme
 import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
-import com.matinstudios.baghchal.ui.theme.MountainBackdrop
 import com.matinstudios.baghchal.ui.theme.PrayerFlags
 import kotlinx.coroutines.launch
 
@@ -76,7 +75,8 @@ fun WelcomeContent(boardTheme: BoardTheme, onFinished: () -> Unit, modifier: Mod
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == WELCOME_PAGE_COUNT - 1
 
-    MountainBackdrop(modifier.fillMaxSize()) {
+    // The night sky behind it comes from the navigation graph, like every other screen.
+    Box(modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -70,3 +70,17 @@ val RhododendronDark = Color(0xFFFFB1C5)
 val OnRhododendronDark = Color(0xFF5E1133)
 val RhododendronContainerDark = Color(0xFF7F2848)
 val OnRhododendronContainerDark = Color(0xFFFFD9E2)
+
+// Night: the whole app's look ("Himalaya snow night", first drawn for Home). Navy sky, frosted-glass
+// surfaces, coral main action; tigers stay warm orange-coral and goats green.
+val NightSkyTop = Color(0xFF0A1636)
+val NightSkyMiddle = Color(0xFF172A5E)
+val NightSkyBottom = Color(0xFF263C7A)
+val NightMountain = Color(0xFF1F3470)
+val NightSnowCap = Color(0xFFE6EEFF)
+val NightAuroraGreen = Color(0xFF3FE0A8)
+val NightAuroraViolet = Color(0xFF9B7BFF)
+val NightFrost = Color(0xFF3A4D84)
+val NightOnFrostSoft = Color(0xFFC9D6FF)
+val NightCoral = Color(0xFFF0552F)
+val NightCoralLip = Color(0xFFA8341A)

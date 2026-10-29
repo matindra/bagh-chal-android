@@ -32,7 +32,7 @@
     <string name="home_play_as">Play as</string>
     <string name="home_difficulty">Difficulty</string>
     <string name="mode_vs_ai">Play with AI</string>
-    <string name="mode_vs_ai_detail">3 difficulties</string>
+    <string name="mode_vs_ai_detail">Can you beat it?</string>
     <string name="mode_vs_player">Pass n Play</string>
     <string name="mode_vs_player_detail">One phone, two friends side by side</string>
     <string name="ai_setup_start">Start</string>
@@ -60,13 +60,9 @@
     <string name="home_learn_detail">Learn the rules in 2 minutes</string>
     <string name="home_menu">Menu</string>
     <string name="menu_home">Home</string>
-    <string name="menu_theme">Theme</string>
     <string name="menu_version">Version %1$s (%2$d)</string>
     <string name="menu_website">Website</string>
     <string name="menu_privacy_policy">Privacy Policy</string>
-    <string name="theme_system">System</string>
-    <string name="theme_light">Light</string>
-    <string name="theme_dark">Dark</string>
 
     <string name="rules_title">How to play</string>
     <string name="rules_goal">Tigers try to capture 5 goats. Goats try to trap all four tigers so none can move. Goats move first.</string>

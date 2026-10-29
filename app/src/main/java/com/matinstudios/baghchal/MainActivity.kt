@@ -1,26 +1,18 @@
 package com.matinstudios.baghchal
 
-import android.app.UiModeManager
 import android.content.pm.ActivityInfo
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.matinstudios.baghchal.data.ThemeMode
 import com.matinstudios.baghchal.ui.BaghchalApp
 import com.matinstudios.baghchal.ui.ThemeViewModel
 import com.matinstudios.baghchal.ui.board.LocalPieceArt
@@ -31,23 +23,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lockPhonesToPortrait()
-        enableEdgeToEdge()
+        // Every screen is a night scene, so the status and navigation bar icons are always light.
+        val bars = SystemBarStyle.dark(Color.TRANSPARENT)
+        enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
         val container = (application as BaghchalApplication).container
         // Once per launch (not on rotation): no ad is requested until consent allows it.
         if (savedInstanceState == null && container.servicesEnabled) container.consent.gather(this)
         setContent {
             val themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModel.Factory)
-            // Blank (window background) for the moment it takes to read the saved theme.
-            val darkTheme = isDarkTheme(themeViewModel) ?: return@setContent
+            // Blank (window background) for the moment it takes to read the saved pieces.
             val pieceSet = themeViewModel.pieceSet.collectAsStateWithLifecycle().value ?: return@setContent
-            val boardTheme = themeViewModel.boardTheme.collectAsStateWithLifecycle().value ?: return@setContent
-            // Status and navigation bar icons follow the app's theme, not the phone's.
-            DisposableEffect(darkTheme) {
-                val style = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { darkTheme }
-                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
-                onDispose {}
-            }
-            BaghchalTheme(darkTheme = darkTheme, boardTheme = boardTheme) {
+            BaghchalTheme {
                 CompositionLocalProvider(LocalPieceArt provides pieceSet.art) {
                     // Each screen applies the bar padding itself, so Home can draw behind the bars.
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -56,35 +42,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    /** Null until the saved theme is read. */
-    @Composable
-    private fun isDarkTheme(themeViewModel: ThemeViewModel): Boolean? {
-        val mode by themeViewModel.themeMode.collectAsStateWithLifecycle()
-        val systemDark = isSystemInDarkTheme()
-        val current = mode ?: return null
-        LaunchedEffect(current) { applyToLaunchWindow(current) }
-        return when (current) {
-            ThemeMode.LIGHT -> false
-            ThemeMode.DARK -> true
-            ThemeMode.SYSTEM -> systemDark
-        }
-    }
-
-    /**
-     * Tells the system the app's night mode (Android 12+), so the launch window is drawn in the
-     * chosen theme instead of flashing the phone's. The system remembers it across launches.
-     * Older versions can't change the launch window without a library, so they keep the phone's.
-     */
-    private fun applyToLaunchWindow(mode: ThemeMode) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-        val nightMode = when (mode) {
-            ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
-            ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
-            ThemeMode.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO // follow the phone
-        }
-        getSystemService(UiModeManager::class.java).setApplicationNightMode(nightMode)
     }
 
     override fun onStart() {

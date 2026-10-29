@@ -49,6 +49,18 @@ import androidx.compose.runtime.withFrameMillis
 import com.matinstudios.baghchal.R
 import com.matinstudios.baghchal.ui.board.ChaseSceneryColors
 import com.matinstudios.baghchal.ui.board.rememberAnimationsOn
+import com.matinstudios.baghchal.ui.theme.NightAuroraGreen
+import com.matinstudios.baghchal.ui.theme.NightAuroraViolet
+import com.matinstudios.baghchal.ui.theme.NightCoral
+import com.matinstudios.baghchal.ui.theme.NightCoralLip
+import com.matinstudios.baghchal.ui.theme.NightFrost
+import com.matinstudios.baghchal.ui.theme.NightMountain
+import com.matinstudios.baghchal.ui.theme.NightOnFrostSoft
+import com.matinstudios.baghchal.ui.theme.NightSkyBottom
+import com.matinstudios.baghchal.ui.theme.NightSkyMiddle
+import com.matinstudios.baghchal.ui.theme.NightSkyTop
+import com.matinstudios.baghchal.ui.theme.NightSnowCap
+import com.matinstudios.baghchal.ui.theme.drawNightMountains
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -58,20 +70,20 @@ import kotlin.math.sin
  * theme or board, so text colours here are chosen against these backgrounds.
  */
 internal object HomeNight {
-    val SkyTop = Color(0xFF0A1636)
-    val SkyMiddle = Color(0xFF172A5E)
-    val SkyBottom = Color(0xFF263C7A)
-    val Aurora1 = Color(0xFF3FE0A8)
-    val Aurora2 = Color(0xFF9B7BFF)
-    val Mountain = Color(0xFF1F3470)
-    val SnowCap = Color(0xFFE6EEFF)
+    val SkyTop = NightSkyTop
+    val SkyMiddle = NightSkyMiddle
+    val SkyBottom = NightSkyBottom
+    val Aurora1 = NightAuroraGreen
+    val Aurora2 = NightAuroraViolet
+    val Mountain = NightMountain
+    val SnowCap = NightSnowCap
 
     /** Opaque "frosted glass" face: white at ~12% over the sky. */
-    val Frost = Color(0xFF3A4D84)
+    val Frost = NightFrost
     val FrostBorder = Color.White.copy(alpha = 0.28f)
     val FrostLip = Color.Black.copy(alpha = 0.35f)
     val OnFrost = Color.White
-    val OnFrostSoft = Color(0xFFC9D6FF)
+    val OnFrostSoft = NightOnFrostSoft
     val Link = Color(0xFFFFE08A)
 
     val Gold = Color(0xFFFFC93C)
@@ -86,8 +98,8 @@ internal object HomeNight {
     val VioletLip = Color(0xFF5E43C2)
     val OnViolet = Color.White
 
-    val Coral = Color(0xFFF0552F)
-    val CoralLip = Color(0xFFA8341A)
+    val Coral = NightCoral
+    val CoralLip = NightCoralLip
     val CoralInk = Color(0xFF9A2E14)
 
     val IceTop = Color(0xFFF4FBFF)
@@ -150,7 +162,7 @@ internal fun NightSkyBackdrop(clock: State<Long>, modifier: Modifier = Modifier)
         drawRect(Brush.verticalGradient(0f to HomeNight.SkyTop, 0.5f to HomeNight.SkyMiddle, 1f to HomeNight.SkyBottom))
         drawAurora(Offset(110 * unit, 85.dp.toPx()), 150 * unit, 45.dp.toPx(), HomeNight.Aurora1, t, 0f)
         drawAurora(Offset(300 * unit, 140.dp.toPx()), 150 * unit, 40.dp.toPx(), HomeNight.Aurora2, t, 0.5f)
-        drawMountains(top = 300.dp.toPx(), unit = unit)
+        drawNightMountains(top = 300.dp.toPx(), unit = unit)
         for (flake in Flakes) drawFlake(flake, t, unit)
     }
 }
@@ -164,26 +176,6 @@ private fun DrawScope.drawAurora(center: Offset, rx: Float, ry: Float, color: Co
     withTransform({ scale(1f, ry * (1f + 0.25f * swell) / rx, pivot = at) }) {
         drawCircle(Brush.radialGradient(listOf(color.copy(alpha = alpha), Color.Transparent), at, rx), rx, at)
     }
-}
-
-private fun DrawScope.drawMountains(top: Float, unit: Float) {
-    val v = 1.dp.toPx()
-    fun pt(x: Float, y: Float) = Offset(x * unit, top + y * v)
-    fun poly(color: Color, vararg points: Pair<Float, Float>) {
-        val path = Path()
-        points.forEachIndexed { i, (x, y) -> pt(x, y).let { if (i == 0) path.moveTo(it.x, it.y) else path.lineTo(it.x, it.y) } }
-        path.close()
-        drawPath(path, color)
-    }
-    val bottom = (size.height - top) / v
-    poly(
-        HomeNight.Mountain,
-        0f to 90f, 50f to 40f, 95f to 80f, 160f to 10f, 225f to 85f, 290f to 25f, 350f to 75f, 390f to 50f,
-        390f to bottom, 0f to bottom,
-    )
-    poly(HomeNight.SnowCap, 160f to 10f, 146f to 26f, 156f to 24f, 163f to 30f, 170f to 23f, 178f to 27f)
-    poly(HomeNight.SnowCap, 290f to 25f, 278f to 39f, 286f to 37f, 292f to 43f, 298f to 36f, 304f to 39f)
-    poly(HomeNight.SnowCap, 50f to 40f, 40f to 50f, 47f to 49f, 52f to 53f, 58f to 48f)
 }
 
 private fun DrawScope.drawFlake(flake: Flake, t: Long, unit: Float) {

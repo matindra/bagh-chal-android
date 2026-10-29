@@ -18,19 +18,14 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,12 +34,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.BuildConfig
 import com.matinstudios.baghchal.R
-import com.matinstudios.baghchal.data.ThemeMode
-import com.matinstudios.baghchal.ui.ThemeViewModel
 import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import kotlinx.coroutines.launch
 
@@ -68,7 +59,6 @@ fun AppMenuDrawer(
     items: List<AppMenuItem>,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    themeViewModel: ThemeViewModel = viewModel(factory = ThemeViewModel.Factory),
     content: @Composable (openMenu: () -> Unit) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -78,7 +68,6 @@ fun AppMenuDrawer(
         AppMenuItem(R.string.menu_website, R.drawable.ic_globe, { runCatching { uriHandler.openUri(WEBSITE_URL) } }),
         AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy, { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } }),
     )
-    val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -128,11 +117,6 @@ fun AppMenuDrawer(
                 }
                 Spacer(Modifier.weight(1f))
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                ThemePicker(
-                    selected = themeMode ?: ThemeMode.SYSTEM,
-                    onSelect = themeViewModel::onThemeModeChanged,
-                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp),
-                )
                 Text(
                     stringResource(R.string.menu_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
                     style = MaterialTheme.typography.bodySmall,
@@ -143,34 +127,6 @@ fun AppMenuDrawer(
         },
     ) {
         content { scope.launch { drawerState.open() } }
-    }
-}
-
-/** System / Light / Dark choice at the bottom of the side menu. */
-@Composable
-private fun ThemePicker(selected: ThemeMode, onSelect: (ThemeMode) -> Unit, modifier: Modifier = Modifier) {
-    val options = listOf(
-        ThemeMode.SYSTEM to R.string.theme_system,
-        ThemeMode.LIGHT to R.string.theme_light,
-        ThemeMode.DARK to R.string.theme_dark,
-    )
-    Column(modifier) {
-        Text(
-            stringResource(R.string.menu_theme),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            options.forEachIndexed { index, (mode, label) ->
-                SegmentedButton(
-                    selected = mode == selected,
-                    onClick = { onSelect(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                    label = { Text(stringResource(label), maxLines = 1) },
-                )
-            }
-        }
     }
 }
 
@@ -187,18 +143,20 @@ fun MenuTopBar(onOpenMenu: () -> Unit, modifier: Modifier = Modifier, content: @
             verticalAlignment = Alignment.CenterVertically,
             content = content,
         )
-        AppMenuButton(onOpenMenu, Modifier.padding(4.dp))
+        AppMenuButton(onOpenMenu, Modifier.padding(start = TopBarButtonStart, top = 2.dp))
     }
 }
 
-/** Width the menu button takes from the left edge (button plus its margin). */
-val MenuButtonSpace = 52.dp
+/** Space before the frosted menu / back button, from the screen's left edge. */
+val TopBarButtonStart = 16.dp
+
+/** Width the menu button takes from the left edge (margin, 48 dp button, gap). */
+val MenuButtonSpace = 76.dp
 
 val MenuTopBarHeight = 56.dp
 
+/** Frosted menu button, the same as Home's. */
 @Composable
 fun AppMenuButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClick, modifier = modifier) {
-        Icon(painterResource(R.drawable.ic_menu), contentDescription = stringResource(R.string.home_menu))
-    }
+    Box(modifier) { HomeIconButton(R.drawable.ic_menu, R.string.home_menu, onClick) }
 }

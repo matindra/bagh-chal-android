@@ -1,75 +1,50 @@
 package com.matinstudios.baghchal.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import com.matinstudios.baghchal.data.BoardTheme
 
-private val LightColorScheme = lightColorScheme(
-    primary = TigerOrange40,
-    onPrimary = Color.White,
-    primaryContainer = TigerOrange90,
-    onPrimaryContainer = TigerOrange10,
-    secondary = Meadow40,
-    onSecondary = Color.White,
-    secondaryContainer = Meadow90,
-    onSecondaryContainer = Meadow10,
-    tertiary = Sky40,
-    onTertiary = Color.White,
-    tertiaryContainer = Sky90,
-    onTertiaryContainer = Sky10,
-    background = Parchment,
-    onBackground = Ink,
-    surface = Parchment,
-    onSurface = Ink,
-    surfaceVariant = ParchmentVariant,
-    onSurfaceVariant = InkVariant,
-    outline = OutlineLight,
-    outlineVariant = OutlineVariantLight,
-    surfaceBright = Parchment,
-    surfaceDim = SurfaceDimLight,
-    surfaceContainerLowest = ContainerLowestLight,
-    surfaceContainerLow = ContainerLowLight,
-    surfaceContainer = ContainerLight,
-    surfaceContainerHigh = ContainerHighLight,
-    surfaceContainerHighest = ContainerHighestLight,
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = TigerOrange80,
-    onPrimary = TigerOrange20,
-    primaryContainer = TigerOrange30,
-    onPrimaryContainer = TigerOrange90,
-    secondary = Meadow80,
-    onSecondary = Meadow20,
-    secondaryContainer = Meadow30,
-    onSecondaryContainer = Meadow90,
-    tertiary = Sky80,
-    onTertiary = Sky20,
-    tertiaryContainer = Sky30,
-    onTertiaryContainer = Sky90,
-    background = NightSoil,
-    onBackground = Moonlight,
-    surface = NightSoil,
-    onSurface = Moonlight,
-    surfaceVariant = InkVariant,
-    onSurfaceVariant = OutlineVariantLight,
-    outline = OutlineDark,
-    outlineVariant = InkVariant,
-    surfaceBright = SurfaceBrightDark,
-    surfaceDim = NightSoil,
-    surfaceContainerLowest = ContainerLowestDark,
-    surfaceContainerLow = ContainerLowDark,
-    surfaceContainer = ContainerDark,
-    surfaceContainerHigh = ContainerHighDark,
-    surfaceContainerHighest = ContainerHighestDark,
+/**
+ * The night palette: navy sky behind everything, frosted-glass containers (white text), and
+ * glass tints of coral (tigers), green (goats) and cyan for the containers.
+ */
+private val NightColorScheme = darkColorScheme(
+    primary = Color(0xFFFF9A6B),
+    onPrimary = Color(0xFF4A1400),
+    primaryContainer = Color(0xFF6C4059), // coral glass over the mountains
+    onPrimaryContainer = Color(0xFFFFDBCF),
+    secondary = Color(0xFF7FE3A8),
+    onSecondary = Color(0xFF003920),
+    secondaryContainer = Color(0xFF26646A), // green glass
+    onSecondaryContainer = Color(0xFFC8F5D6),
+    tertiary = Color(0xFF7FDDF7),
+    onTertiary = Color(0xFF00344A),
+    tertiaryContainer = Color(0xFF306B9F), // cyan glass
+    onTertiaryContainer = Color(0xFFD2F1FF),
+    background = NightSkyMiddle,
+    onBackground = Color.White,
+    surface = NightSkyMiddle,
+    onSurface = Color.White,
+    surfaceVariant = NightFrost,
+    onSurfaceVariant = NightOnFrostSoft,
+    surfaceTint = Color.Transparent,
+    inverseSurface = NightSnowCap,
+    inverseOnSurface = NightSkyMiddle,
+    inversePrimary = NightCoralLip,
+    outline = Color(0xFF8E9CCB),
+    outlineVariant = Color(0xFF4A5D96),
+    surfaceBright = Color(0xFF4A5E9A),
+    surfaceDim = Color(0xFF0F1E48),
+    surfaceContainerLowest = Color(0xFF13234F),
+    surfaceContainerLow = Color(0xFF22366E),
+    surfaceContainer = Color(0xFF2C4079),
+    surfaceContainerHigh = Color(0xFF34488A),
+    surfaceContainerHighest = NightFrost,
 )
 
 /** Game colours outside Material's roles. */
@@ -88,17 +63,7 @@ data class GameColors(
     val flagsAlpha: Float,
 )
 
-private val LightGameColors = GameColors(
-    EasyLight, MediumLight, HardLight,
-    hintContainer = HintContainerLight,
-    onHintContainer = OnHintContainerLight,
-    friend = RhododendronLight,
-    onFriend = Color.White,
-    friendContainer = RhododendronContainerLight,
-    onFriendContainer = OnRhododendronContainerLight,
-    mountainsAlpha = 0.6f, flagsAlpha = 1f,
-)
-private val DarkGameColors = GameColors(
+private val NightGameColors = GameColors(
     EasyDark, MediumDark, HardDark,
     hintContainer = HintContainerDark,
     onHintContainer = OnHintContainerDark,
@@ -106,10 +71,10 @@ private val DarkGameColors = GameColors(
     onFriend = OnRhododendronDark,
     friendContainer = RhododendronContainerDark,
     onFriendContainer = OnRhododendronContainerDark,
-    mountainsAlpha = 0.15f, flagsAlpha = 0.75f,
+    mountainsAlpha = 1f, flagsAlpha = 0.9f,
 )
 
-private val LocalGameColors = staticCompositionLocalOf { LightGameColors }
+private val LocalGameColors = staticCompositionLocalOf { NightGameColors }
 
 object BaghchalThemeExtras {
     val colors: GameColors
@@ -117,20 +82,14 @@ object BaghchalThemeExtras {
 }
 
 /**
- * The app's own palette in light and dark. Dynamic (wallpaper) colour is deliberately off:
- * it washed the warm artwork out to greys. The neutral colours follow the chosen [boardTheme].
+ * The app's one look: the night palette on every screen, like Home, whatever the phone's light/dark
+ * setting or the chosen board. Dynamic (wallpaper) colour is deliberately off.
  */
 @Composable
-fun BaghchalTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    boardTheme: BoardTheme = BoardTheme.WOOD,
-    content: @Composable () -> Unit,
-) {
-    val base = if (darkTheme) DarkColorScheme else LightColorScheme
-    val colorScheme = boardTheme.tint?.let { base.tinted(it, darkTheme) } ?: base
-    CompositionLocalProvider(LocalGameColors provides if (darkTheme) DarkGameColors else LightGameColors) {
+fun BaghchalTheme(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalGameColors provides NightGameColors) {
         MaterialTheme(
-            colorScheme = colorScheme,
+            colorScheme = NightColorScheme,
             typography = Typography,
             content = content,
         )

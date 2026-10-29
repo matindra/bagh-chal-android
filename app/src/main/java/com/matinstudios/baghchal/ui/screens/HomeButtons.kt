@@ -40,8 +40,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,10 +55,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.matinstudios.baghchal.R
+import kotlin.math.PI
+import kotlin.math.cos
 
 /**
  * A chunky game button: a [face] sitting on a darker [lip]. Pressing sinks the face into the lip.
- * The face must be opaque (the lip runs underneath it). [faceModifier] sizes the face.
+ * The lip is drawn only where the face doesn't cover it, so the face may be see-through.
+ * [faceModifier] sizes the face.
  */
 @Composable
 internal fun RaisedButton(
@@ -68,17 +73,20 @@ internal fun RaisedButton(
     modifier: Modifier = Modifier,
     faceModifier: Modifier = Modifier,
     border: Color? = null,
+    enabled: Boolean = true,
     decoration: (DrawScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val sink by animateDpAsState(if (pressed) lipHeight - 1.dp else 0.dp, label = "raisedSink")
+    // Min constraints pass through, so a width given to [modifier] (fillMaxWidth, weight) reaches the face.
     Box(
         modifier
-            .background(lip, shape)
-            .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
+            .drawBehind { drawLip(shape, lip, sink.toPx(), (lipHeight - sink).toPx()) }
+            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(top = sink, bottom = lipHeight - sink),
+        propagateMinConstraints = true,
     ) {
         Box(
             faceModifier
@@ -91,6 +99,17 @@ internal fun RaisedButton(
             content = content,
         )
     }
+}
+
+/** The [shape] filled with [color] over the whole button, minus the face inset by [top] and [bottom]. */
+private fun DrawScope.drawLip(shape: Shape, color: Color, top: Float, bottom: Float) {
+    val lip = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawLip)) }
+    val faceSize = Size(size.width, (size.height - top - bottom).coerceAtLeast(0f))
+    val face = Path().apply {
+        addOutline(shape.createOutline(faceSize, layoutDirection, this@drawLip))
+        translate(Offset(0f, top))
+    }
+    drawPath(Path().apply { op(lip, face, PathOperation.Difference) }, color)
 }
 
 /** Square icon button for Home's top corners: gold for the Shop, frosted for the rest. */
@@ -129,31 +148,50 @@ internal data class HomeIconColors(val face: Color, val lip: Color, val icon: Co
     }
 }
 
-private const val SHINE_MILLIS = 2800
+/** One shine wave runs down Home's mode buttons every [SHINE_MILLIS], each [SHINE_STAGGER] after the one above. */
+private const val SHINE_MILLIS = 4200
+private const val SHINE_STAGGER = 220
 
 /** How much coral shows in the Play with AI glass. */
 private const val PLAY_AI_GLASS = 0.5f
 
 /** Part of the cycle the shine spends crossing; the rest it waits off the button. */
-private const val SHINE_ACTIVE = 0.55f
+private const val SHINE_ACTIVE = 0.38f
 
-/** The main action: big semi-transparent coral "Play with AI" with a shine sweeping across now and then. */
+/** The buttons bob [FLOAT_DP] up and back every [FLOAT_MILLIS], each a quarter cycle apart. */
+private const val FLOAT_MILLIS = 3400
+private const val FLOAT_DP = 3f
+
+/** Gentle up-and-down bob for the Home button at [index] (0 = top). Still when animations are off. */
+private fun Modifier.iceFloat(clock: State<Long>, index: Int): Modifier = graphicsLayer {
+    val phase = clock.value.toDouble() / FLOAT_MILLIS + index * 0.25
+    translationY = -FLOAT_DP.dp.toPx() * ((1 - cos(2 * PI * phase)) / 2).toFloat()
+}
+
+/** Shine for the Home button at [index]: the wave's progress through its cycle, or no shine yet. */
+private fun DrawScope.drawShineWave(clock: State<Long>, index: Int) {
+    val t = clock.value - index * SHINE_STAGGER
+    if (t < 0) return
+    drawShine((t % SHINE_MILLIS).toFloat() / SHINE_MILLIS)
+}
+
+/** The main action: big semi-transparent coral "Play with AI", floating, with the shine wave starting here. */
 @Composable
 internal fun PlayAiButton(clock: State<Long>, onClick: () -> Unit, modifier: Modifier = Modifier) {
     RaisedButton(
         onClick = onClick,
-        // Semi-transparent coral glass, made opaque over the mountains (the lip runs underneath),
-        // stronger than the mode rows so it stays the main action.
-        face = HomeNight.Coral.copy(alpha = PLAY_AI_GLASS).compositeOver(HomeNight.Mountain),
-        lip = HomeNight.CoralLip.copy(alpha = PLAY_AI_GLASS).compositeOver(HomeNight.Mountain),
+        // Semi-transparent coral glass (the snow shows through), stronger than the mode rows
+        // so it stays the main action.
+        face = HomeNight.Coral.copy(alpha = PLAY_AI_GLASS),
+        lip = HomeNight.CoralLip.copy(alpha = PLAY_AI_GLASS),
         shape = RoundedCornerShape(26.dp),
         border = HomeNight.Coral.copy(alpha = 0.8f),
         lipHeight = 7.dp,
-        modifier = modifier,
+        modifier = modifier.iceFloat(clock, 0),
         faceModifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
         decoration = {
             drawRect(Color.White.copy(alpha = 0.3f), size = Size(size.width, 5.dp.toPx()))
-            drawShine((clock.value % SHINE_MILLIS).toFloat() / SHINE_MILLIS)
+            drawShineWave(clock, 0)
         },
     ) {
         Row(
@@ -218,7 +256,7 @@ internal class ModeColors(val chip: Color, val chipLip: Color, val ink: Color)
 
 /**
  * A tinted-glass mode row: the mode's colour, see-through over the night sky, with its icon chip,
- * title and detail, and a chevron.
+ * title and detail, and a chevron. [index] places it in the float and shine wave (Play with AI is 0).
  */
 @Composable
 internal fun FrostModeButton(
@@ -226,6 +264,8 @@ internal fun FrostModeButton(
     @StringRes detail: Int,
     @DrawableRes icon: Int,
     colors: ModeColors,
+    clock: State<Long>,
+    index: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -233,14 +273,15 @@ internal fun FrostModeButton(
     val chipLip = colors.chipLip
     RaisedButton(
         onClick = onClick,
-        // Opaque (the lip runs underneath): the chip colour at glass strength over the mountains behind.
-        face = chip.copy(alpha = 0.16f).compositeOver(HomeNight.Mountain),
+        // The chip colour at glass strength: the sky and snow show through.
+        face = chip.copy(alpha = 0.16f),
         lip = HomeNight.FrostLip,
         shape = RoundedCornerShape(18.dp),
         lipHeight = 5.dp,
-        modifier = modifier,
+        modifier = modifier.iceFloat(clock, index),
         faceModifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
         border = chip.copy(alpha = 0.5f),
+        decoration = { drawShineWave(clock, index) },
     ) {
         Row(
             Modifier.fillMaxWidth().padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),

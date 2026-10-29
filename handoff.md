@@ -7,9 +7,35 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (49) — Home buttons float and shine
+- Picked by the user from a live preview (https://claude.ai/artifact/9yngU1GzHeViRcR1F8VGyd, options D + B).
+- Float: Play with AI and the three mode rows bob 3 dp every 3.4 s, a quarter cycle apart (`iceFloat` in `HomeButtons.kt`, a `graphicsLayer` translation, so no recomposition).
+- Shine wave: one shine runs down Play with AI → Friend → Quick Match → Pass n Play every 4.2 s, 220 ms apart (`drawShineWave`; replaces Play with AI's own 2.8 s shine). `FrostModeButton` takes `clock` + `index` (Play with AI is 0).
+- Both stay still when system animations are off (the scene clock stops). The emulator has `animator_duration_scale` 0 for UI tests: set it to 1 to see the motion, then back to 0.
+- `./gradlew test` passes; checked frames on the emulator.
+
+## Session 2026-10-29 (48) — Fix: no vibration on captures
+- Cause (from `dumpsys vibrator_manager`): captures used `EFFECT_HEAVY_CLICK`, which most phones don't support; Android swapped in a ~30 ms default pulse that is too faint to feel. Trapped-tiger `EFFECT_CLICK` had the same risk.
+- `CueVibrator` now uses a built-in effect only when `areAllEffectsSupported` says YES; captures are a double `PRIMITIVE_CLICK` (or a 50/70/50 ms full-strength waveform), trapped is CLICK or a 45 ms pulse.
+- To check: test on a real phone (emulator vibration can't be felt; the vibrator log shows what was played).
+
+## Session 2026-10-29 (47) — See-through Home buttons
+- `RaisedButton` now draws its lip only where the face doesn't cover it (`drawLip`: lip shape minus face shape), so faces can be translucent. Play with AI and the three mode rows dropped their `compositeOver(Mountain)`: the falling snow and sky now show through them. Other raised buttons still pass opaque faces and look the same.
+- `./gradlew test` passes; checked Home on the emulator.
+
+## Session 2026-10-29 (46) — Night look on every screen
+- Every screen now matches Home: `BaghchalTheme` always uses `NightColorScheme` (navy sky, frosted-glass containers, white text, coral/green/cyan glass containers for tigers/goats/accents). Palette in `theme/Color.kt` (`Night*`); `HomeNight` points at the same values.
+- `NightBackdrop` (`theme/Scenery.kt`): night gradient, two aurora glows, snowy peaks (`drawNightMountains`, shared with Home's animated sky). Drawn behind every screen by `insetScreen` in `BaghchalApp` (behind the status bar too); the local and online game screens get it without mountains. Welcome no longer draws its own backdrop.
+- Buttons: `PrimaryButton` = raised coral, `SecondaryButton` = raised frosted glass (both via Home's `RaisedButton`, which gained `enabled` and passes min width through). Back and menu buttons are Home's frosted square (`HomeIconButton`); `MenuButtonSpace` 52 → 76 dp. Settings switches: white knob on coral.
+- Status/navigation bar icons always light (`SystemBarStyle.dark`); launch window navy (`window_background` #0A1636).
+- Removed: light/dark theme picker in the side menu (strings `menu_theme`, `theme_*`), `ThemeViewModel.themeMode/boardTheme`, MainActivity's night-mode handling, the light/dark colour schemes.
+- Left in place, now unused (ask before deleting): `BoardTint.kt` (+ its test), `res/drawable/deco_mountains.xml` (+ `design/` source), `ThemeMode`/`setThemeMode` in `SettingsRepository`, `values-night/colors.xml` (same colour as values/).
+- `./gradlew test lintDebug` pass; all 57 UI tests pass on the emulator; checked every screen on the emulator.
+
 ## Session 2026-10-29 (45) — Home: rules link in the menu, coloured corner buttons, glass Play with AI
 - "New to Bagh Chal? / Learn the rules in 2 minutes" moved from under the mode rows into Home's side menu, replacing its "How to play" entry (`AppMenuItem` gained an optional `detail` second line). `LearnLink` and string `home_learn_link` removed. Game screens' menus still say "How to play".
 - Corner buttons: Shop gold, Stats cyan, Settings violet, menu frosted (`HomeIconColors`, colours in `HomeNight`).
+- Play with AI pill text: "3 difficulties" → "Can you beat it?" (`mode_vs_ai_detail`). Brighter-button options A/B/C mocked up; user parked it for now.
 - Play with AI is semi-transparent coral glass (`PLAY_AI_GLASS` = 0.5 over the mountain blue, coral border), like the mode rows but stronger.
 - `AppFlowTest`: menu tests use `home_learn_title`; `learnLinkOpensHowToPlay` removed (covered by `homeToHowToPlayAndBack`). All 20 pass on the emulator. Music confirmed playing on the emulator (stereo MediaPlayer, USAGE_GAME).
 

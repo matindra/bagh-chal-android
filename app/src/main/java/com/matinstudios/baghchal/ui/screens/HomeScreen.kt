@@ -173,6 +173,8 @@ fun HomeContent(
                         detail = R.string.mode_friend_detail,
                         icon = R.drawable.ic_mode_friend_line,
                         colors = FriendColors,
+                        clock = clock,
+                        index = 1,
                         onClick = onPlayWithFriend,
                     )
                     FrostModeButton(
@@ -180,6 +182,8 @@ fun HomeContent(
                         detail = R.string.mode_online_detail,
                         icon = R.drawable.ic_mode_online_line,
                         colors = OnlineColors,
+                        clock = clock,
+                        index = 2,
                         onClick = onPlayOnline,
                     )
                     FrostModeButton(
@@ -187,6 +191,8 @@ fun HomeContent(
                         detail = R.string.mode_vs_player_detail,
                         icon = R.drawable.ic_mode_vs_player_line,
                         colors = PassColors,
+                        clock = clock,
+                        index = 3,
                         onClick = { onStartGame(GameSetup.TWO_PLAYER) },
                     )
                 }

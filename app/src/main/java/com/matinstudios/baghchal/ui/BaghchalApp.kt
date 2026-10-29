@@ -36,6 +36,7 @@ import com.matinstudios.baghchal.ui.screens.ShopScreen
 import com.matinstudios.baghchal.ui.screens.ShopSection
 import com.matinstudios.baghchal.ui.screens.StatsScreen
 import com.matinstudios.baghchal.ui.screens.WelcomeScreen
+import com.matinstudios.baghchal.ui.theme.NightBackdrop
 
 private const val HOME_ROUTE = "home"
 private const val STATS_ROUTE = "stats"
@@ -60,17 +61,22 @@ private fun NavController.isInGame(): Boolean =
     GAME_ROUTES.any { route -> runCatching { getBackStackEntry(route) }.isSuccess }
 
 /**
- * A screen kept inside the system bars by [barPadding]. Home is the only one that is not: it draws its
- * night sky behind the status bar and keeps its own content clear of the bars.
+ * A screen on the night sky, which runs behind the system bars, with its content kept inside them by
+ * [barPadding]. The game screens ([mountains] false) keep the board area free of decoration.
+ * Home draws its own animated sky.
  */
 private fun NavGraphBuilder.insetScreen(
     route: String,
     barPadding: PaddingValues,
     arguments: List<NamedNavArgument> = emptyList(),
+    mountains: Boolean = true,
     content: @Composable (NavBackStackEntry) -> Unit,
 ) {
     composable(route, arguments) { entry ->
-        Box(Modifier.fillMaxSize().padding(barPadding)) { content(entry) }
+        Box(Modifier.fillMaxSize()) {
+            NightBackdrop(Modifier.matchParentSize(), mountains = mountains)
+            Box(Modifier.fillMaxSize().padding(barPadding)) { content(entry) }
+        }
     }
 }
 
@@ -115,6 +121,7 @@ fun BaghchalApp(
         insetScreen(
             GameSetup.ROUTE_PATTERN,
             barPadding,
+            mountains = false,
             arguments = listOf(
                 navArgument(GameSetup.ARG_AI) {
                     type = NavType.StringType
@@ -199,6 +206,7 @@ fun BaghchalApp(
         insetScreen(
             OnlineGameViewModel.ROUTE_PATTERN,
             barPadding,
+            mountains = false,
             arguments = listOf(navArgument(OnlineGameViewModel.ARG_ROOM) { type = NavType.StringType }),
         ) {
             OnlineGameScreen(
