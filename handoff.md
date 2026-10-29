@@ -7,6 +7,18 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (43) — Home: "Himalaya Snow Night" (design C5)
+- Design C5 from the canvas https://claude.ai/artifact/KRBx24sZHHbzo44Xud7Qx4 (with C3's cyan Play button).
+- Home is always a night scene, whatever the app theme or board (fixed colours in `HomeNight`, `ui/screens/HomeScenery.kt`): navy gradient, two drifting aurora glows, snowy peaks, falling snow (all in `NightSkyBackdrop`, drawn above the banner only). Name on an ice plaque hanging from chains (`IceSign`, swings ±2°, twinkles). The existing chase scene sits in a frosty frame at 350:200; `ChaseBanner` gained an optional `scenery: ChaseSceneryColors` (snowy sky/hills here; other callers keep the theme colours).
+- Buttons in `ui/screens/HomeButtons.kt`: `RaisedButton` (face on a darker lip, sinks when pressed), `PlayAiButton` (cyan, sweeping shine), `FrostModeButton` (Friend, Quick Match, Pass n Play), `HomeIconButton`, `GoldPillButton` (Resume).
+- Bottom `NavigationBar` removed: menu button top-left; Shop (gold), Stats, Settings icon-only top-right (content descriptions = their labels). Dashed learn card replaced by one underlined link (`home_learn_link` = "%1$s %2$s").
+- "Game in progress" card kept (frosted, gold Resume) between the scene and Play with AI.
+- All looping motion runs off one frame clock (`rememberSceneClock`), read only in draw/layer blocks; it stays still when system animations are off.
+- `AppFlowTest`: corner buttons found by content description; `bottomBarOpensStats…` → `cornerButtonOpensStatsAndBackReturnsHome`, `learnCardOpensHowToPlay` → `learnLinkOpensHowToPlay`.
+- `./gradlew assembleDebug test` pass; all 21 `AppFlowTest` UI tests pass on the emulator; checked Home on the emulator (light theme, with a saved game).
+- Known: the status bar and gesture bar strips use the theme's surface colour (the activity's Scaffold pads content), so in light theme there is a cream strip above the navy. Font is the system font (Black weight); the mockup used Lilita One (would need a bundled font file).
+- Now unused: `ModeTile.kt`, string `home_play`, drawable `ic_mode_vs_ai_line`. Delete them if not wanted.
+
 ## Session 2026-10-29 (42) — Fix: every goat animating on placement
 - Bug: placing a goat made every goat on the board pop in (same for all tigers during a capture jump, and while dragging). Cause: all pieces shared one `VectorPainter`, which caches a single bitmap at the last size drawn; the moving piece redrew it at its animated size, and every earlier draw of that bitmap in the frame showed the final image.
 - Fix in `BoardCanvas`: the moving piece and the carried piece use their own painters (`moving*Painter`, `carried*Painter`).

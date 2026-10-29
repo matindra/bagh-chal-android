@@ -38,13 +38,16 @@ private val TrapColor = Color(0xFFFFD54F)
 private const val SPARKS = 10
 private const val TRAP_PULSE_MILLIS = 900f
 
+/** Sky and hill colours behind the chase scene; hills are drawn a little see-through. */
+class ChaseSceneryColors(val skyTop: Color, val skyBottom: Color, val farHill: Color, val nearHill: Color)
+
 /**
  * Decorative looping scene for the home screen: tiger and goats acting out the game on a
  * stretch of board line. Not interactive; hidden from accessibility. With system animations
- * off it shows one still moment.
+ * off it shows one still moment. [scenery] defaults to the board-tinted theme colours.
  */
 @Composable
-fun ChaseBanner(modifier: Modifier = Modifier) {
+fun ChaseBanner(modifier: Modifier = Modifier, scenery: ChaseSceneryColors? = null) {
     val animationsOn = rememberAnimationsOn()
     val clock by rememberInfiniteTransition(label = "chase").animateFloat(
         initialValue = 0f,
@@ -56,9 +59,10 @@ fun ChaseBanner(modifier: Modifier = Modifier) {
     val goat = painterResource(LocalPieceArt.current.goat)
     val lock = painterResource(R.drawable.lock_badge)
     val colors = MaterialTheme.colorScheme
-    val sky = listOf(colors.tertiaryContainer.copy(alpha = 0.75f), colors.surfaceContainerLow)
-    val nearHill = colors.secondaryContainer
-    val farHill = colors.tertiaryContainer
+    val sky = scenery?.let { listOf(it.skyTop, it.skyBottom) }
+        ?: listOf(colors.tertiaryContainer.copy(alpha = 0.75f), colors.surfaceContainerLow)
+    val nearHill = scenery?.nearHill ?: colors.secondaryContainer
+    val farHill = scenery?.farHill ?: colors.tertiaryContainer
 
     Canvas(modifier) {
         val frame = if (animationsOn) ChaseScene.frameAt(clock) else ChaseScene.STILL_FRAME

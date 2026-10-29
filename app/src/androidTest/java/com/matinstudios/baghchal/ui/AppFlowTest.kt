@@ -74,6 +74,10 @@ class AppFlowTest {
     private fun text(@StringRes id: Int, vararg args: Any): SemanticsNodeInteraction =
         compose.onNodeWithText(str(id, *args))
 
+    /** Home's icon-only corner buttons (Shop, Stats, Settings) are found by their label. */
+    private fun cornerButton(@StringRes id: Int): SemanticsNodeInteraction =
+        compose.onNodeWithContentDescription(str(id))
+
     /** Opens the Home side menu and picks [item]. */
     private fun openMenuItem(@StringRes item: Int) {
         compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
@@ -176,16 +180,16 @@ class AppFlowTest {
     }
 
     @Test
-    fun bottomBarOpensStatsAndBackReturnsHome() {
-        text(R.string.home_stats).performClick()
+    fun cornerButtonOpensStatsAndBackReturnsHome() {
+        cornerButton(R.string.home_stats).performClick()
         waitForText(R.string.stats_subtitle)
         Espresso.pressBack()
         waitForText(R.string.mode_vs_player)
     }
 
     @Test
-    fun learnCardOpensHowToPlay() {
-        text(R.string.home_learn_title).performScrollTo().performClick()
+    fun learnLinkOpensHowToPlay() {
+        compose.onNodeWithText(str(R.string.home_learn_title), substring = true).performScrollTo().performClick()
         waitForText(R.string.rules_goal)
     }
 
@@ -396,7 +400,7 @@ class AppFlowTest {
 
     @Test
     fun lockedBoardsNeedAnAdAndSayWhenNoneIsAvailable() {
-        text(R.string.home_shop).performClick()
+        cornerButton(R.string.home_shop).performClick()
         // The Shop counts what is unlocked: only Wood and Classic to start with.
         waitForText(R.string.shop_unlocked, 1, BoardTheme.entries.size)
         text(R.string.shop_unlocked, 1, PieceSet.entries.size).assertIsDisplayed()
@@ -426,7 +430,7 @@ class AppFlowTest {
 
     @Test
     fun removeAdsSaysWhenGooglePlayIsUnavailable() {
-        text(R.string.home_settings).performClick()
+        cornerButton(R.string.home_settings).performClick()
         waitForText(R.string.settings_title)
         // Tests run without Play Billing, so the purchase sheet can't open.
         compose.onNode(hasText(str(R.string.settings_remove_ads)) and hasClickAction()).performScrollTo().performClick()

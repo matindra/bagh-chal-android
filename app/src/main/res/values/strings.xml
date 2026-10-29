@@ -58,6 +58,8 @@
     <string name="home_how_to_play">How to play</string>
     <string name="home_learn_title">New to Bagh Chal?</string>
     <string name="home_learn_detail">Learn the rules in 2 minutes</string>
+    <!-- "New to Bagh Chal?" + "Learn the rules in 2 minutes" as one link. -->
+    <string name="home_learn_link">%1$s %2$s</string>
     <string name="home_menu">Menu</string>
     <string name="menu_home">Home</string>
     <string name="menu_theme">Theme</string>
