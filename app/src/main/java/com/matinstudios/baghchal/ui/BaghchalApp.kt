@@ -1,7 +1,14 @@
 package com.matinstudios.baghchal.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -44,13 +51,33 @@ private fun onlineRoute(mode: OnlineLobbyMode) = "online/${mode.name}"
 
 private fun shopSectionRoute(section: ShopSection) = "shop/${section.name}"
 
+/**
+ * A screen kept inside the system bars by [barPadding]. Home is the only one that is not: it draws its
+ * night sky behind the status bar and keeps its own content clear of the bars.
+ */
+private fun NavGraphBuilder.insetScreen(
+    route: String,
+    barPadding: PaddingValues,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit,
+) {
+    composable(route, arguments) { entry ->
+        Box(Modifier.fillMaxSize().padding(barPadding)) { content(entry) }
+    }
+}
+
+/** [barPadding]: the space the status and navigation bars take (from the activity's Scaffold). */
 @Composable
-fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)) {
+fun BaghchalApp(
+    barPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory),
+) {
     // Blank for the moment it takes to read whether the tutorial was seen.
     val showWelcome = appViewModel.showWelcome.collectAsStateWithLifecycle().value ?: return
     val navController = rememberNavController()
     NavHost(navController, startDestination = if (showWelcome) WELCOME_ROUTE else HOME_ROUTE, modifier = modifier) {
-        composable(WELCOME_ROUTE) {
+        insetScreen(WELCOME_ROUTE, barPadding) {
             WelcomeScreen(
                 onFinished = {
                     navController.navigate(HOME_ROUTE) {
@@ -62,6 +89,7 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
         }
         composable(HOME_ROUTE) {
             HomeScreen(
+                barPadding = barPadding,
                 onPlayVsAi = { navController.navigate(AI_SETUP_ROUTE) },
                 onPlayOnline = { navController.navigate(onlineRoute(OnlineLobbyMode.RANDOM)) },
                 onPlayWithFriend = { navController.navigate(onlineRoute(OnlineLobbyMode.FRIEND)) },
@@ -73,8 +101,9 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
             )
         }
-        composable(
+        insetScreen(
             GameSetup.ROUTE_PATTERN,
+            barPadding,
             arguments = listOf(
                 navArgument(GameSetup.ARG_AI) {
                     type = NavType.StringType
@@ -99,8 +128,9 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
-        composable(
+        insetScreen(
             GameResult.ROUTE_PATTERN,
+            barPadding,
             arguments = listOf(
                 navArgument(GameResult.ARG_WINNER) { type = NavType.StringType },
                 navArgument(GameResult.ARG_MOVES) { type = NavType.IntType },
@@ -134,15 +164,16 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 },
             )
         }
-        composable(AI_SETUP_ROUTE) {
+        insetScreen(AI_SETUP_ROUTE, barPadding) {
             AiSetupScreen(
                 // Back from the game goes Home, where the game can be resumed.
                 onStart = { setup -> navController.navigate(setup.route) { popUpTo(HOME_ROUTE) } },
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(
+        insetScreen(
             ONLINE_ROUTE,
+            barPadding,
             arguments = listOf(navArgument(ARG_ONLINE_MODE) { type = NavType.StringType }),
         ) { entry ->
             val mode = entry.arguments?.getString(ARG_ONLINE_MODE)
@@ -154,8 +185,9 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(
+        insetScreen(
             OnlineGameViewModel.ROUTE_PATTERN,
+            barPadding,
             arguments = listOf(navArgument(OnlineGameViewModel.ARG_ROOM) { type = NavType.StringType }),
         ) {
             OnlineGameScreen(
@@ -172,17 +204,18 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
-        composable(STATS_ROUTE) {
+        insetScreen(STATS_ROUTE, barPadding) {
             StatsScreen(onBack = { navController.popBackStack() })
         }
-        composable(SHOP_ROUTE) {
+        insetScreen(SHOP_ROUTE, barPadding) {
             ShopScreen(
                 onOpenSection = { section -> navController.navigate(shopSectionRoute(section)) },
                 onBack = { navController.popBackStack() },
             )
         }
-        composable(
+        insetScreen(
             SHOP_SECTION_ROUTE,
+            barPadding,
             arguments = listOf(navArgument(ARG_SHOP_SECTION) { type = NavType.StringType }),
         ) { entry ->
             val section = entry.arguments?.getString(ARG_SHOP_SECTION)
@@ -190,10 +223,10 @@ fun BaghchalApp(modifier: Modifier = Modifier, appViewModel: AppViewModel = view
                 ?: ShopSection.BOARDS
             BoardsScreen(section = section, onBack = { navController.popBackStack() })
         }
-        composable(SETTINGS_ROUTE) {
+        insetScreen(SETTINGS_ROUTE, barPadding) {
             SettingsScreen(onBack = { navController.popBackStack() })
         }
-        composable(HOW_TO_PLAY_ROUTE) {
+        insetScreen(HOW_TO_PLAY_ROUTE, barPadding) {
             HowToPlayScreen(onBack = { navController.popBackStack() })
         }
     }

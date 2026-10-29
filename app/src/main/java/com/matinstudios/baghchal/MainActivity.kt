@@ -11,7 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -50,8 +49,9 @@ class MainActivity : ComponentActivity() {
             }
             BaghchalTheme(darkTheme = darkTheme, boardTheme = boardTheme) {
                 CompositionLocalProvider(LocalPieceArt provides pieceSet.art) {
+                    // Each screen applies the bar padding itself, so Home can draw behind the bars.
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        BaghchalApp(modifier = Modifier.padding(innerPadding))
+                        BaghchalApp(barPadding = innerPadding)
                     }
                 }
             }

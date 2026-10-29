@@ -1,5 +1,6 @@
 package com.matinstudios.baghchal.ui.screens
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -8,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,9 +23,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +36,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -40,7 +47,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,14 +80,25 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onHowToPlay: () -> Unit,
     modifier: Modifier = Modifier,
+    barPadding: PaddingValues = PaddingValues(),
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    // The side menu is a light sheet in the light theme: the bar icons follow the theme while it is open.
+    WhiteSystemBarIcons(enabled = drawerState.targetValue == DrawerValue.Closed)
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     // Shop, Stats and Settings sit in the top-right corner; the side menu keeps the rest.
     val menuItems = listOf(AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay))
-    Column(modifier.fillMaxSize().background(HomeNight.Mountain)) {
-        AppMenuDrawer(menuItems, Modifier.weight(1f)) { openMenu ->
+    // The sky runs up behind the status bar and the mountain blue down behind the navigation bar;
+    // the content and the banner stay clear of both.
+    Column(
+        modifier
+            .fillMaxSize()
+            .background(HomeNight.Mountain)
+            .padding(bottom = barPadding.calculateBottomPadding()),
+    ) {
+        AppMenuDrawer(menuItems, Modifier.weight(1f), drawerState = drawerState) { openMenu ->
             HomeContent(
                 savedGame = savedGame,
                 onPlayVsAi = onPlayVsAi,
@@ -91,6 +111,7 @@ fun HomeScreen(
                 onStats = onStats,
                 onSettings = onSettings,
                 onOpenMenu = openMenu,
+                topInset = barPadding.calculateTopPadding(),
             )
         }
         // A gap keeps the banner clear of the buttons and the falling snow.
@@ -116,6 +137,7 @@ fun HomeContent(
     onSettings: () -> Unit,
     onOpenMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    topInset: Dp = 0.dp,
 ) {
     val clock = rememberSceneClock()
     Box(modifier.fillMaxSize()) {
@@ -124,7 +146,7 @@ fun HomeContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
+                .padding(start = 20.dp, end = 20.dp, top = topInset, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(Modifier.widthIn(max = 420.dp).fillMaxWidth()) {
@@ -176,6 +198,27 @@ fun HomeContent(
                 Spacer(Modifier.height(10.dp))
                 LearnLink(onHowToPlay, Modifier.align(Alignment.CenterHorizontally))
             }
+        }
+    }
+}
+
+/**
+ * White status and navigation bar icons while Home (always a night scene) shows and [enabled];
+ * otherwise, and once Home leaves, the theme's own icons.
+ */
+@Composable
+private fun WhiteSystemBarIcons(enabled: Boolean) {
+    val activity = LocalActivity.current ?: return
+    val view = LocalView.current
+    val themeIconsDark = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    DisposableEffect(activity, themeIconsDark, enabled) {
+        val controller = WindowCompat.getInsetsController(activity.window, view)
+        val darkIcons = !enabled && themeIconsDark
+        controller.isAppearanceLightStatusBars = darkIcons
+        controller.isAppearanceLightNavigationBars = darkIcons
+        onDispose {
+            controller.isAppearanceLightStatusBars = themeIconsDark
+            controller.isAppearanceLightNavigationBars = themeIconsDark
         }
     }
 }
