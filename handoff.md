@@ -7,6 +7,19 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (45) — Home: rules link in the menu, coloured corner buttons, glass Play with AI
+- "New to Bagh Chal? / Learn the rules in 2 minutes" moved from under the mode rows into Home's side menu, replacing its "How to play" entry (`AppMenuItem` gained an optional `detail` second line). `LearnLink` and string `home_learn_link` removed. Game screens' menus still say "How to play".
+- Corner buttons: Shop gold, Stats cyan, Settings violet, menu frosted (`HomeIconColors`, colours in `HomeNight`).
+- Play with AI is semi-transparent coral glass (`PLAY_AI_GLASS` = 0.5 over the mountain blue, coral border), like the mode rows but stronger.
+- `AppFlowTest`: menu tests use `home_learn_title`; `learnLinkOpensHowToPlay` removed (covered by `homeToHowToPlayAndBack`). All 20 pass on the emulator. Music confirmed playing on the emulator (stereo MediaPlayer, USAGE_GAME).
+
+## Session 2026-10-29 (44) — Background music
+- Sources `design/sounds/Bagh Chal - Roll the Dice.mp3` (menus) and `Bagh Chal - Tavern Tables.mp3` (games) → `res/raw/music_home.ogg` (2.3 MB) and `music_game.ogg` (2.4 MB) via `scripts/convert-sounds.sh`. The script now takes channels, loudness and quality per file: music is stereo, -23 LUFS (under the -18 LUFS effects), Vorbis q3, cover art dropped, no fades so the loops are seamless. Effects regenerate byte-identical.
+- `ui/sound/MusicPlayer.kt`: `MusicTrack` (HOME, GAME), `musicFor(enabled, inGame)`, `MediaMusicPlayer` (looping `MediaPlayer`, 0.5 s fade out / 1.2 s fade in between tracks, pauses in the background via `MainActivity.onStart/onStop`). Audio focus: stays quiet if another app is already playing music, pauses for calls/notifications, stops when another app takes over until the app comes back. `NoMusic` in instrumented tests.
+- Track choice in `AppViewModel` (combines the setting with `onScreenChanged`); `BaghchalApp` reports whether a game route (local or online) is on the back stack, so Settings/Stats/How to Play opened from a game keep the game music. The local result screen is not a game screen (home music).
+- New Settings toggle "Music" (`Settings.musicEnabled`, key `settings_music`, default on), separate from Sound.
+- Tests: `MusicTrackTest`, `RepositoriesTest.music defaults to on and persists`. `./gradlew assembleDebug test lintDebug` pass. Not checked on a device (none connected).
+
 ## Session 2026-10-29 (43) — Home: "Himalaya Snow Night" (design C5)
 - Design C5 from the canvas https://claude.ai/artifact/KRBx24sZHHbzo44Xud7Qx4 (with C3's cyan Play button).
 - Home is always a night scene, whatever the app theme or board (fixed colours in `HomeNight`, `ui/screens/HomeScenery.kt`): navy gradient, two drifting aurora glows, snowy peaks, falling snow (all in `NightSkyBackdrop`, drawn above the banner only). Name on an ice plaque hanging from chains (`IceSign`, swings ±2°, twinkles). The existing chase scene sits in a frosty frame at 350:200; `ChaseBanner` gained an optional `scenery: ChaseSceneryColors` (snowy sky/hills here; other callers keep the theme colours).

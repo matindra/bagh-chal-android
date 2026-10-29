@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -40,11 +38,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -89,7 +84,9 @@ fun HomeScreen(
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     // Shop, Stats and Settings sit in the top-right corner; the side menu keeps the rest.
-    val menuItems = listOf(AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay))
+    val menuItems = listOf(
+        AppMenuItem(R.string.home_learn_title, R.drawable.ic_help, detail = R.string.home_learn_detail, onClick = onHowToPlay),
+    )
     // The sky runs up behind the status bar and the mountain blue down behind the navigation bar;
     // the content and the banner stay clear of both.
     Column(
@@ -106,7 +103,6 @@ fun HomeScreen(
                 onPlayWithFriend = onPlayWithFriend,
                 onStartGame = onStartGame,
                 onResume = onResume,
-                onHowToPlay = onHowToPlay,
                 onShop = onShop,
                 onStats = onStats,
                 onSettings = onSettings,
@@ -121,7 +117,7 @@ fun HomeScreen(
 
 /**
  * Home, "Himalaya snow night": the name on a swinging ice sign, the chase scene in a frosty frame,
- * then Play with AI, the other modes and a link to the rules, over a snowy night sky.
+ * then Play with AI and the other modes, over a snowy night sky. The rules are in the side menu.
  */
 @Composable
 fun HomeContent(
@@ -131,7 +127,6 @@ fun HomeContent(
     onPlayWithFriend: () -> Unit,
     onStartGame: (GameSetup) -> Unit,
     onResume: () -> Unit,
-    onHowToPlay: () -> Unit,
     onShop: () -> Unit,
     onStats: () -> Unit,
     onSettings: () -> Unit,
@@ -195,8 +190,6 @@ fun HomeContent(
                         onClick = { onStartGame(GameSetup.TWO_PLAYER) },
                     )
                 }
-                Spacer(Modifier.height(10.dp))
-                LearnLink(onHowToPlay, Modifier.align(Alignment.CenterHorizontally))
             }
         }
     }
@@ -223,7 +216,7 @@ private fun WhiteSystemBarIcons(enabled: Boolean) {
     }
 }
 
-/** Menu button top-left; Shop (gold), Stats and Settings top-right. */
+/** Menu button (frosted) top-left; Shop (gold), Stats (cyan) and Settings (violet) top-right. */
 @Composable
 private fun HomeTopBar(onOpenMenu: () -> Unit, onShop: () -> Unit, onStats: () -> Unit, onSettings: () -> Unit) {
     Row(
@@ -232,30 +225,9 @@ private fun HomeTopBar(onOpenMenu: () -> Unit, onShop: () -> Unit, onStats: () -
     ) {
         HomeIconButton(R.drawable.ic_menu, R.string.home_menu, onOpenMenu)
         Spacer(Modifier.weight(1f))
-        HomeIconButton(R.drawable.ic_shop, R.string.home_shop, onShop, gold = true)
-        HomeIconButton(R.drawable.ic_stats, R.string.home_stats, onStats)
-        HomeIconButton(R.drawable.ic_settings, R.string.home_settings, onSettings)
-    }
-}
-
-/** "New to Bagh Chal? Learn the rules in 2 minutes" as one underlined link to How to Play. */
-@Composable
-private fun LearnLink(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier
-            .heightIn(min = 48.dp)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            stringResource(R.string.home_learn_link, stringResource(R.string.home_learn_title), stringResource(R.string.home_learn_detail)),
-            color = HomeNight.Link,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.ExtraBold,
-            textDecoration = TextDecoration.Underline,
-            textAlign = TextAlign.Center,
-        )
+        HomeIconButton(R.drawable.ic_shop, R.string.home_shop, onShop, HomeIconColors.Gold)
+        HomeIconButton(R.drawable.ic_stats, R.string.home_stats, onStats, HomeIconColors.Cyan)
+        HomeIconButton(R.drawable.ic_settings, R.string.home_settings, onSettings, HomeIconColors.Violet)
     }
 }
 
@@ -351,7 +323,6 @@ private fun HomeScreenPreview() {
             onPlayWithFriend = {},
             onStartGame = {},
             onResume = {},
-            onHowToPlay = {},
             onShop = {},
             onStats = {},
             onSettings = {},

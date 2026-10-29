@@ -51,8 +51,13 @@ import kotlinx.coroutines.launch
 const val WEBSITE_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/"
 const val PRIVACY_POLICY_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/privacy-policy"
 
-/** one entry in the side menu. */
-data class AppMenuItem(@StringRes val label: Int, @DrawableRes val icon: Int, val onClick: () -> Unit)
+/** One entry in the side menu; [detail] is an optional smaller second line. */
+data class AppMenuItem(
+    @StringRes val label: Int,
+    @DrawableRes val icon: Int,
+    val onClick: () -> Unit,
+    @StringRes val detail: Int? = null,
+)
 
 /**
  * Side menu (Home and game screens), opened by [AppMenuButton]. It covers only [content]; screens
@@ -70,8 +75,8 @@ fun AppMenuDrawer(
     val uriHandler = LocalUriHandler.current
     // Every screen's menu ends with the game's web page and privacy policy (open in the browser).
     val allItems = items + listOf(
-        AppMenuItem(R.string.menu_website, R.drawable.ic_globe) { runCatching { uriHandler.openUri(WEBSITE_URL) } },
-        AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy) { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } },
+        AppMenuItem(R.string.menu_website, R.drawable.ic_globe, { runCatching { uriHandler.openUri(WEBSITE_URL) } }),
+        AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy, { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } }),
     )
     val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
     BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
@@ -97,7 +102,18 @@ fun AppMenuDrawer(
                 HorizontalDivider(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
                 allItems.forEach { item ->
                     NavigationDrawerItem(
-                        label = { Text(stringResource(item.label)) },
+                        label = {
+                            Column {
+                                Text(stringResource(item.label))
+                                item.detail?.let {
+                                    Text(
+                                        stringResource(it),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                        },
                         icon = { Icon(painterResource(item.icon), contentDescription = null) },
                         selected = false,
                         // Close first, so coming back to Home finds the menu shut.

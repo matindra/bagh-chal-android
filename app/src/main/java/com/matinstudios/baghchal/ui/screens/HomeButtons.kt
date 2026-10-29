@@ -99,39 +99,55 @@ internal fun HomeIconButton(
     @DrawableRes icon: Int,
     @StringRes label: Int,
     onClick: () -> Unit,
-    gold: Boolean = false,
+    colors: HomeIconColors = HomeIconColors.Frost,
 ) {
     RaisedButton(
         onClick = onClick,
-        face = if (gold) HomeNight.Gold else HomeNight.Frost,
-        lip = if (gold) HomeNight.GoldLip else HomeNight.FrostLip,
+        face = colors.face,
+        lip = colors.lip,
         shape = RoundedCornerShape(16.dp),
         lipHeight = 4.dp,
         faceModifier = Modifier.size(48.dp),
-        border = if (gold) null else HomeNight.FrostBorder,
+        border = colors.border,
     ) {
         Icon(
             painterResource(icon),
             contentDescription = stringResource(label),
-            tint = if (gold) HomeNight.OnGold else HomeNight.OnFrost,
+            tint = colors.icon,
             modifier = Modifier.size(24.dp),
         )
     }
 }
 
+/** Face, lip and icon colours of a [HomeIconButton]; only frosted glass has a border. */
+internal data class HomeIconColors(val face: Color, val lip: Color, val icon: Color, val border: Color? = null) {
+    companion object {
+        val Frost = HomeIconColors(HomeNight.Frost, HomeNight.FrostLip, HomeNight.OnFrost, HomeNight.FrostBorder)
+        val Gold = HomeIconColors(HomeNight.Gold, HomeNight.GoldLip, HomeNight.OnGold)
+        val Cyan = HomeIconColors(HomeNight.Cyan, HomeNight.CyanLip, HomeNight.OnCyan)
+        val Violet = HomeIconColors(HomeNight.Violet, HomeNight.VioletLip, HomeNight.OnViolet)
+    }
+}
+
 private const val SHINE_MILLIS = 2800
+
+/** How much coral shows in the Play with AI glass. */
+private const val PLAY_AI_GLASS = 0.5f
 
 /** Part of the cycle the shine spends crossing; the rest it waits off the button. */
 private const val SHINE_ACTIVE = 0.55f
 
-/** The main action: big coral "Play with AI" with a shine sweeping across now and then. */
+/** The main action: big semi-transparent coral "Play with AI" with a shine sweeping across now and then. */
 @Composable
 internal fun PlayAiButton(clock: State<Long>, onClick: () -> Unit, modifier: Modifier = Modifier) {
     RaisedButton(
         onClick = onClick,
-        face = HomeNight.Coral,
-        lip = HomeNight.CoralLip,
+        // Semi-transparent coral glass, made opaque over the mountains (the lip runs underneath),
+        // stronger than the mode rows so it stays the main action.
+        face = HomeNight.Coral.copy(alpha = PLAY_AI_GLASS).compositeOver(HomeNight.Mountain),
+        lip = HomeNight.CoralLip.copy(alpha = PLAY_AI_GLASS).compositeOver(HomeNight.Mountain),
         shape = RoundedCornerShape(26.dp),
+        border = HomeNight.Coral.copy(alpha = 0.8f),
         lipHeight = 7.dp,
         modifier = modifier,
         faceModifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),

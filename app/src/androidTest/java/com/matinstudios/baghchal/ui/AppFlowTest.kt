@@ -163,7 +163,7 @@ class AppFlowTest {
 
     @Test
     fun homeToHowToPlayAndBack() {
-        openMenuItem(R.string.home_how_to_play)
+        openMenuItem(R.string.home_learn_title)
         waitForText(R.string.rules_goal)
         text(R.string.rules_goal).assertIsDisplayed()
         Espresso.pressBack()
@@ -172,7 +172,7 @@ class AppFlowTest {
 
     @Test
     fun menuOpensAndBackClosesIt() {
-        val menuHowToPlay = text(R.string.home_how_to_play) // the closed drawer stays in the tree, off-screen
+        val menuHowToPlay = text(R.string.home_learn_title) // the closed drawer stays in the tree, off-screen
         compose.onNodeWithContentDescription(str(R.string.home_menu)).performClick()
         menuHowToPlay.assertIsDisplayed()
         Espresso.pressBack()
@@ -185,12 +185,6 @@ class AppFlowTest {
         waitForText(R.string.stats_subtitle)
         Espresso.pressBack()
         waitForText(R.string.mode_vs_player)
-    }
-
-    @Test
-    fun learnLinkOpensHowToPlay() {
-        compose.onNodeWithText(str(R.string.home_learn_title), substring = true).performScrollTo().performClick()
-        waitForText(R.string.rules_goal)
     }
 
     @Test

@@ -58,8 +58,6 @@
     <string name="home_how_to_play">How to play</string>
     <string name="home_learn_title">New to Bagh Chal?</string>
     <string name="home_learn_detail">Learn the rules in 2 minutes</string>
-    <!-- "New to Bagh Chal?" + "Learn the rules in 2 minutes" as one link. -->
-    <string name="home_learn_link">%1$s %2$s</string>
     <string name="home_menu">Menu</string>
     <string name="menu_home">Home</string>
     <string name="menu_theme">Theme</string>
@@ -93,6 +91,8 @@
     <string name="settings_title">Settings</string>
     <string name="settings_sound">Sound</string>
     <string name="settings_sound_detail">Sound effects for moves and captures</string>
+    <string name="settings_music">Music</string>
+    <string name="settings_music_detail">Background music on the menus and during games</string>
     <string name="settings_haptics">Haptics</string>
     <string name="settings_haptics_detail">Vibrate when a goat is placed or captured, or a piece is trapped</string>
     <string name="home_shop">Shop</string>
