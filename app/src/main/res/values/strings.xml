@@ -96,7 +96,6 @@
     <string name="settings_haptics">Haptics</string>
     <string name="settings_haptics_detail">Vibrate when a goat is placed or captured, or a piece is trapped</string>
     <string name="home_shop">Shop</string>
-    <string name="home_play">Play</string>
     <string name="shop_title">Shop</string>
     <string name="shop_boards">Boards</string>
     <string name="shop_pieces">Pieces</string>
