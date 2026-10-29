@@ -1,0 +1,16 @@
+<!-- Generated from design/tiger_line.svg by scripts/convert-svgs.sh. Do not edit by hand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <path
+      android:pathData="M50,50m-42.3,0a42.3,42.3 0,1 1,84.6 0a42.3,42.3 0,1 1,-84.6 0"
+      android:fillColor="#9C4A00"/>
+  <path
+      android:pathData="M27.59,35.06L42.53,42.53M25.16,54.95L42.53,54.95M27.59,72.41L42.53,64.94M72.41,35.06L57.47,42.53M74.84,54.95L57.47,54.95M72.41,72.41L57.47,64.94"
+      android:strokeWidth="4.95"
+      android:fillColor="#00000000"
+      android:strokeColor="#FFF8F3"
+      android:strokeLineCap="round"/>
+</vector>

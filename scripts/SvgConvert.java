@@ -49,6 +49,8 @@ public class SvgConvert {
             Map.entry("goat_black.svg", "ic_goat_black"),
             Map.entry("tiger_night_eyes.svg", "ic_tiger_night_eyes"),
             Map.entry("goat_night_eyes.svg", "ic_goat_night_eyes"),
+            Map.entry("tiger_line.svg", "ic_tiger_line"),
+            Map.entry("goat_line.svg", "ic_goat_line"),
             Map.entry("ic_launcher_background.svg", "ic_launcher_background"),
             Map.entry("ic_launcher_foreground.svg", "ic_launcher_foreground"),
             Map.entry("launcher_faceoff_background.svg", "ic_launcher_faceoff_background"),
@@ -59,6 +61,8 @@ public class SvgConvert {
             Map.entry("launcher_board_foreground.svg", "ic_launcher_board_foreground"),
             Map.entry("launcher_night_background.svg", "ic_launcher_night_background"),
             Map.entry("launcher_night_foreground.svg", "ic_launcher_night_foreground"),
+            Map.entry("launcher_badge_background.svg", "ic_launcher_badge_background"),
+            Map.entry("launcher_badge_foreground.svg", "ic_launcher_badge_foreground"),
             Map.entry("launcher_mask_background.svg", "ic_launcher_mask_background"),
             Map.entry("launcher_mask_foreground.svg", "ic_launcher_mask_foreground"),
             Map.entry("result_bg_tiger.svg", "result_bg_tiger"),
@@ -100,7 +104,7 @@ public class SvgConvert {
     /** Launcher icons (one per choice in the app); each has drawable/<name>_background and _foreground. */
     private static final String[] LAUNCHER_ICONS = {
             "ic_launcher", "ic_launcher_faceoff", "ic_launcher_glyph",
-            "ic_launcher_board", "ic_launcher_night", "ic_launcher_mask",
+            "ic_launcher_board", "ic_launcher_night", "ic_launcher_mask", "ic_launcher_badge",
     };
 
     /** mipmap density -> legacy launcher icon size in px (48dp). */

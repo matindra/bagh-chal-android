@@ -13,6 +13,7 @@ enum class AppIcon(val aliasSuffix: String) {
     BOARD("Board"),
     NIGHT("Night"),
     MASK("Mask"),
+    BADGE("Badge"),
 }
 
 /**

@@ -275,6 +275,7 @@ val PieceSet.label: Int
         PieceSet.FESTIVAL -> R.string.piece_set_festival
         PieceSet.SNOW -> R.string.piece_set_snow
         PieceSet.NIGHT_EYES -> R.string.piece_set_night_eyes
+        PieceSet.LINE_ART -> R.string.piece_set_line_art
     }
 
 @get:StringRes
@@ -286,6 +287,7 @@ private val AppIcon.label: Int
         AppIcon.BOARD -> R.string.app_icon_board
         AppIcon.NIGHT -> R.string.app_icon_night
         AppIcon.MASK -> R.string.app_icon_mask
+        AppIcon.BADGE -> R.string.app_icon_badge
     }
 
 @get:DrawableRes
@@ -297,6 +299,7 @@ private val AppIcon.background: Int
         AppIcon.BOARD -> R.drawable.ic_launcher_board_background
         AppIcon.NIGHT -> R.drawable.ic_launcher_night_background
         AppIcon.MASK -> R.drawable.ic_launcher_mask_background
+        AppIcon.BADGE -> R.drawable.ic_launcher_badge_background
     }
 
 @get:DrawableRes
@@ -308,6 +311,7 @@ private val AppIcon.foreground: Int
         AppIcon.BOARD -> R.drawable.ic_launcher_board_foreground
         AppIcon.NIGHT -> R.drawable.ic_launcher_night_foreground
         AppIcon.MASK -> R.drawable.ic_launcher_mask_foreground
+        AppIcon.BADGE -> R.drawable.ic_launcher_badge_foreground
     }
 
 private const val LOCKED_ALPHA = 0.6f

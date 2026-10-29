@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <path d="M34 34 H74 V74 H34 Z M54 34 V74 M34 54 H74 M34 34 L74 74 M74 34 L34 74" fill="none" stroke="#FFF8F3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="34" cy="34" r="3.4" fill="#FFF8F3"/><circle cx="74" cy="34" r="3.4" fill="#FFF8F3"/><circle cx="34" cy="74" r="3.4" fill="#FFF8F3"/><circle cx="74" cy="74" r="3.4" fill="#FFF8F3"/>
+  <circle cx="54" cy="54" r="15.5" fill="#FFF8F3"/>
+  <g transform="translate(41.75 41.1) scale(0.245)">
+    <path d="M17 34 A10 10 0 1 1 33 21 M83 34 A10 10 0 1 0 67 21" fill="none" stroke="#9C4A00" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="50" cy="56" r="33" fill="none" stroke="#9C4A00" stroke-width="7"/>
+    <path d="M43 25 L50 35 L57 25 M19 50 Q27 50 32 56 M21 64 Q28 63 32 68 M81 50 Q73 50 68 56 M79 64 Q72 63 68 68" fill="none" stroke="#9C4A00" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M32 50 Q38 43 45 50 Q38 55 32 50 Z M68 50 Q62 43 55 50 Q62 55 68 50 Z M44 62 L56 62 L50 69 Z" fill="#9C4A00"/>
+    <path d="M50 69 L50 72 M50 72 Q45 77 41 73 M50 72 Q55 77 59 73" fill="none" stroke="#9C4A00" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+</svg>

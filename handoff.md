@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-29 (41) — Tiger badge app icon, Line Art pieces
+- Logo from the Home mockup canvas https://claude.ai/artifact/1iGHf4Hbd7rHnouXMZ7XVJ (not built in the app yet): cream board lines on tiger orange `#9C4A00`, stones on the 4 corners, tiger-head line art in a cream disc in the centre.
+- New app icon `AppIcon.BADGE` ("Tiger badge"): `design/launcher_badge_{background,foreground}.svg` → `ic_launcher_badge_*`, alias `.LauncherBadge` (disabled by default), mipmap-anydpi-v26 XML + legacy WebPs. Board kept inside the 66 dp safe circle.
+- Store export: `store/icon-badge-512.png` (512×512, RGB). `scripts/make-store-images.py` gained `render_badge_icon()`. `store/icon-512.png` (Classic) is still the Play listing icon; swap in the badge file in Play Console if wanted.
+- New `PieceSet.LINE_ART` ("Line Art"), redrawn to the user's picture: plain tiger-orange `#9C4A00` disc with 3 cream whisker strokes per side; goat-green `#3B6934` disc with a cream smile curve and a dot below. No outline, no faces (the first face-drawing version was rejected and replaced). `design/tiger_line.svg`, `design/goat_line.svg` → `ic_tiger_line`, `ic_goat_line`. Unlocked like other sets.
+- `./gradlew test assembleDebug` pass. Not checked on the emulator.
+
 ## Session 2026-10-29 (40) — Night Eyes piece set
 - New `PieceSet.NIGHT_EYES` ("Night Eyes"), unlocked like the other sets. Art matches the Night eyes app icon: dark `#121821` faces, amber slit-pupil eyes + orange rim for the tiger, pale-green bar-pupil eyes + green rim for the goat.
 - Sources `design/tiger_night_eyes.svg`, `design/goat_night_eyes.svg` → `ic_tiger_night_eyes`, `ic_goat_night_eyes` (mapped in `SvgConvert.java`). Checked on Wood and Night boards (headless Chrome render).

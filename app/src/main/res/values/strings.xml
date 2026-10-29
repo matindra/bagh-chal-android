@@ -133,12 +133,14 @@
     <string name="piece_set_festival">Festival</string>
     <string name="piece_set_snow">Snow Tiger</string>
     <string name="piece_set_night_eyes">Night Eyes</string>
+    <string name="piece_set_line_art">Line Art</string>
     <string name="app_icon_classic">Classic</string>
     <string name="app_icon_face_off">Face-off</string>
     <string name="app_icon_glyph">Glyph</string>
     <string name="app_icon_board">On the board</string>
     <string name="app_icon_night">Night eyes</string>
     <string name="app_icon_mask">Festival mask</string>
+    <string name="app_icon_badge">Tiger badge</string>
     <string name="home_resume_title">Game in progress</string>
     <string name="home_resume">Resume</string>
     <string name="home_resume_vs_computer">You play %1$s · %2$s</string>

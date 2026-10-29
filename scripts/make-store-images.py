@@ -2,7 +2,8 @@
 """Builds the Play Store images from the raw emulator captures in store/raw/.
 
 Writes store/screenshots/01-…08-*.png (1080x1920), store/feature-graphic.png (1024x500) and
-store/icon-512.png (the launcher icon, full-bleed square; Play rounds the corners itself).
+store/icon-512.png (the launcher icon, full-bleed square; Play rounds the corners itself) and
+store/icon-badge-512.png (the Tiger badge icon).
 Each image is laid out as HTML and rendered with headless Chrome, then flattened to 24-bit PNG
 (Play rejects images with an alpha channel). Needs Google Chrome and ffmpeg.
 
@@ -103,13 +104,13 @@ h2{{margin:14px 0 0;font-size:42px;font-weight:700;color:#3B2A1E}}
 </body></html>"""
 
 
-def icon_html() -> str:
+def icon_html(background: str = "ic_launcher_background.svg", foreground: str = "ic_launcher_foreground.svg") -> str:
     # The launcher shows the middle 72 of the adaptive icon's 108 units; show the same part.
     full = 512 * 108 / 72
     offset = (full - 512) / 2
     layers = "".join(
         f'<img src="{(DESIGN / name).as_uri()}" style="position:absolute;left:-{offset}px;top:-{offset}px;width:{full}px">'
-        for name in ("ic_launcher_background.svg", "ic_launcher_foreground.svg")
+        for name in (background, foreground)
     )
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 html,body{{margin:0;width:512px;height:512px;overflow:hidden;position:relative}}</style></head><body>{layers}</body></html>"""
@@ -135,6 +136,12 @@ def main() -> None:
         render(screenshot_html(raw, colors, title, subtitle), 1080, 1920, OUT / "screenshots" / f"{name}.png")
     render(feature_html(), 1024, 500, OUT / "feature-graphic.png")
     render(icon_html(), 512, 512, OUT / "icon-512.png")
+    render_badge_icon()
+
+
+def render_badge_icon() -> None:
+    """The Tiger badge app icon, ready to swap in as the Play listing icon."""
+    render(icon_html("launcher_badge_background.svg", "launcher_badge_foreground.svg"), 512, 512, OUT / "icon-badge-512.png")
 
 
 if __name__ == "__main__":
