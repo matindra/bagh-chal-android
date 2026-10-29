@@ -130,6 +130,16 @@ class RepositoriesTest {
     }
 
     @Test
+    fun `music defaults to on and persists`() = runBlocking {
+        val store = dataStore()
+        assertEquals(true, SettingsRepository(store).settings.first().musicEnabled)
+        SettingsRepository(store).setMusicEnabled(false)
+        val settings = SettingsRepository(store).settings.first()
+        assertEquals(false, settings.musicEnabled)
+        assertEquals(true, settings.soundEnabled, "music and sound effects are separate switches")
+    }
+
+    @Test
     fun `theme mode defaults to system and persists`() = runBlocking {
         val store = dataStore()
         assertEquals(ThemeMode.SYSTEM, SettingsRepository(store).settings.first().themeMode)

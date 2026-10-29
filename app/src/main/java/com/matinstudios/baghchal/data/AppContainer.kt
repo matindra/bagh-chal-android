@@ -12,6 +12,9 @@ import com.matinstudios.baghchal.online.FirebaseOnlineService
 import com.matinstudios.baghchal.online.NoOnline
 import com.matinstudios.baghchal.online.OnlineService
 import com.google.firebase.FirebaseApp
+import com.matinstudios.baghchal.ui.sound.MediaMusicPlayer
+import com.matinstudios.baghchal.ui.sound.MusicPlayer
+import com.matinstudios.baghchal.ui.sound.NoMusic
 import com.matinstudios.baghchal.ui.sound.SoundPoolPlayer
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
@@ -24,7 +27,7 @@ import kotlinx.coroutines.flow.combine
 /**
  * App-wide singletons, created once in the Application.
  *
- * @param servicesEnabled false in instrumented tests: no consent form, ads, Play Billing or online play.
+ * @param servicesEnabled false in instrumented tests: no consent form, ads, Play Billing, online play or music.
  */
 class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -72,6 +75,9 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
 
     /** Created at app start so every sound is loaded before the first game. */
     val sounds = SoundPoolPlayer(context)
+
+    /** Background music; which track plays is decided by [com.matinstudios.baghchal.ui.AppViewModel]. */
+    val music: MusicPlayer = if (servicesEnabled) MediaMusicPlayer(context) else NoMusic
 }
 
 /** True when the build included a Firebase config, so the default Firebase app exists (or can be made). */

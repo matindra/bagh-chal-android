@@ -48,6 +48,7 @@ fun SettingsScreen(
         uiState = uiState,
         message = message,
         onSoundChanged = viewModel::onSoundChanged,
+        onMusicChanged = viewModel::onMusicChanged,
         onHapticsChanged = viewModel::onHapticsChanged,
         onRemoveAds = viewModel::onRemoveAds,
         onRestorePurchase = viewModel::onRestorePurchase,
@@ -62,6 +63,7 @@ fun SettingsContent(
     uiState: SettingsUiState,
     message: SettingsMessage?,
     onSoundChanged: (Boolean) -> Unit,
+    onMusicChanged: (Boolean) -> Unit,
     onHapticsChanged: (Boolean) -> Unit,
     onRemoveAds: () -> Unit,
     onRestorePurchase: () -> Unit,
@@ -88,6 +90,8 @@ fun SettingsContent(
             )
             Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
                 ToggleRow(R.string.settings_sound, R.string.settings_sound_detail, settings.soundEnabled, onSoundChanged)
+                HorizontalDivider()
+                ToggleRow(R.string.settings_music, R.string.settings_music_detail, settings.musicEnabled, onMusicChanged)
                 HorizontalDivider()
                 ToggleRow(R.string.settings_haptics, R.string.settings_haptics_detail, settings.hapticsEnabled, onHapticsChanged)
             }
@@ -161,6 +165,7 @@ private fun SettingsContentPreview() {
             SettingsUiState(Settings(), Entitlements(), "$1.99", purchasePending = false, privacyOptionsRequired = true),
             message = null,
             onSoundChanged = {},
+            onMusicChanged = {},
             onHapticsChanged = {},
             onRemoveAds = {},
             onRestorePurchase = {},

@@ -89,11 +89,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        (application as BaghchalApplication).container.sounds.setInForeground(true)
+        val container = (application as BaghchalApplication).container
+        container.sounds.setInForeground(true)
+        container.music.setInForeground(true)
     }
 
     override fun onStop() {
-        (application as BaghchalApplication).container.sounds.setInForeground(false)
+        val container = (application as BaghchalApplication).container
+        container.sounds.setInForeground(false)
+        container.music.setInForeground(false)
         super.onStop()
     }
 

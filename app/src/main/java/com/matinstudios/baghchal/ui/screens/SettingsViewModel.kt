@@ -69,6 +69,10 @@ class SettingsViewModel(
         writer.submit { repository.setSoundEnabled(enabled) }
     }
 
+    fun onMusicChanged(enabled: Boolean) {
+        writer.submit { repository.setMusicEnabled(enabled) }
+    }
+
     fun onHapticsChanged(enabled: Boolean) {
         writer.submit { repository.setHapticsEnabled(enabled) }
     }

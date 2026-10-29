@@ -6,14 +6,34 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.matinstudios.baghchal.BaghchalApplication
+import com.matinstudios.baghchal.ui.sound.MusicPlayer
+import com.matinstudios.baghchal.ui.sound.musicFor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class AppViewModel(tutorialSeen: Flow<Boolean>) : ViewModel() {
+/** App-wide state for the navigation graph: the start screen and the background music. */
+class AppViewModel(
+    tutorialSeen: Flow<Boolean>,
+    musicEnabled: Flow<Boolean>,
+    private val music: MusicPlayer,
+) : ViewModel() {
+
+    private val inGame = MutableStateFlow(false)
+
+    init {
+        viewModelScope.launch {
+            combine(musicEnabled.distinctUntilChanged(), inGame, ::musicFor).distinctUntilChanged().collect(music::play)
+        }
+    }
 
     /**
      * Whether the app opens on the welcome tutorial; null until storage is read. Read once per launch,
@@ -22,10 +42,24 @@ class AppViewModel(tutorialSeen: Flow<Boolean>) : ViewModel() {
     val showWelcome: StateFlow<Boolean?> = flow { emit(!tutorialSeen.first()) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
 
+    /** [inGame]: a game is open, possibly under a screen opened from it. */
+    fun onScreenChanged(inGame: Boolean) {
+        this.inGame.value = inGame
+    }
+
+    override fun onCleared() {
+        music.play(null)
+    }
+
     companion object {
         val Factory = viewModelFactory {
             initializer {
-                AppViewModel((this[APPLICATION_KEY] as BaghchalApplication).container.settings.tutorialSeen)
+                val container = (this[APPLICATION_KEY] as BaghchalApplication).container
+                AppViewModel(
+                    tutorialSeen = container.settings.tutorialSeen,
+                    musicEnabled = container.settings.settings.map { it.musicEnabled },
+                    music = container.music,
+                )
             }
         }
     }

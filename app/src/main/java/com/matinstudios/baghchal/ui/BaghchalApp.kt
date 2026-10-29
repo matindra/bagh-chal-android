@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavController
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +53,12 @@ private fun onlineRoute(mode: OnlineLobbyMode) = "online/${mode.name}"
 
 private fun shopSectionRoute(section: ShopSection) = "shop/${section.name}"
 
+private val GAME_ROUTES = listOf(GameSetup.ROUTE_PATTERN, OnlineGameViewModel.ROUTE_PATTERN)
+
+/** A game screen is open, either showing or under a screen opened from it (Settings, Stats, How to Play). */
+private fun NavController.isInGame(): Boolean =
+    GAME_ROUTES.any { route -> runCatching { getBackStackEntry(route) }.isSuccess }
+
 /**
  * A screen kept inside the system bars by [barPadding]. Home is the only one that is not: it draws its
  * night sky behind the status bar and keeps its own content clear of the bars.
@@ -76,6 +84,9 @@ fun BaghchalApp(
     // Blank for the moment it takes to read whether the tutorial was seen.
     val showWelcome = appViewModel.showWelcome.collectAsStateWithLifecycle().value ?: return
     val navController = rememberNavController()
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { appViewModel.onScreenChanged(navController.isInGame()) }
+    }
     NavHost(navController, startDestination = if (showWelcome) WELCOME_ROUTE else HOME_ROUTE, modifier = modifier) {
         insetScreen(WELCOME_ROUTE, barPadding) {
             WelcomeScreen(
