@@ -7,6 +7,40 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-30 (57) — Yes/No prompt in the night look
+- `YesNoPrompt` restyled to match Home/game: frosted-glass navy card with white rim and lip (no more violet/gold), frosted piece badge, rises in (fade + slide), floats 3 dp and shares Home's shine wave (card, then No button), soft snow drifting inside. Springy pop, badge bob, sparkles and No pulse removed. All still when system animations are off.
+- `iceFloat` / `drawShineWave` in `HomeButtons.kt` are now `internal` so the prompt reuses them.
+- `./gradlew assembleDebug test` green. Not yet checked on a device.
+
+## Session 2026-10-30 (59) — closed-testing build vc8
+- versionCode bumped to **8** (versionName 1.0) for testing the ad-free options. Play Console products created by the user: `remove_ads` ₹199, `ad_free_year` (base plan `yearly`) ₹49.
+- Unit tests, lint and an unsigned `bundleRelease -PtestAds=true` pass. Signed bundle: `scripts/build-release.sh --test-ads` (needs the keystore password, run by the user).
+
+## Session 2026-10-30 (58) — Yearly pass instead of monthly
+- Prices changed: Lifetime ₹199, **1 year** ₹49 (subscription `ad_free_year`, replaces the monthly `ad_free_month`), 24 h for a rewarded video ad. Renamed `MONTHLY`/`monthlyPass` → `YEARLY`/`yearlyPass` (DataStore key `entitlement_yearly_pass`; nothing had shipped).
+- **Play Console:** `remove_ads` at ₹199; subscription `ad_free_year` with a 1-year auto-renewing base plan at ₹49.
+
+## Session 2026-10-30 (57) — Three ways to go ad-free
+- New "Go ad-free" screen (`AdFreeScreen` / `AdFreeViewModel`, route `ad_free`): **24 hours free** for a fully watched rewarded ad, **1 month** subscription, **Lifetime** Remove Ads. Home's coral Remove Ads button and Settings' Remove Ads card now open it (Settings card shows the current status + Restore Purchase). Home's button stays until Lifetime is owned so passes can be upgraded.
+- `Entitlements` gained `monthlyPass` and `dayPassUntilMillis`; `adFree(now)` → `AdFree` (NONE / DAY_PASS / MONTHLY / LIFETIME). `Flow<Entitlements>.adFree()` (`data/AdFreeStatus.kt`) re-emits when a day pass expires; `AppContainer.adFree` feeds `MobileAdsManager`, Home and Settings.
+- Ads: any ad-free kind hides banners/interstitials and makes Undo/Hint free (`RewardedPlacement.offeredWhen`). Board/piece unlock ads still work on a day/month pass. New placement `AD_FREE_DAY`, ad unit key `ADMOB_REWARDED_ADFREE_ID` (test ID until set in local.properties).
+- Billing: `AdFreeProduct` (LIFETIME `remove_ads` INAPP, MONTHLY `ad_free_month` SUBS); `BillingManager.launchPurchase(product)`, `prices`, `pending`. Restore queries INAPP and SUBS; prepaid plans enabled.
+- **To do in Play Console:** set `remove_ads` to ₹149; create subscription `ad_free_month` with a 1-month base plan at ₹15 (auto-renewing matches the screen text). **AdMob:** create a rewarded unit for the day pass and add `ADMOB_REWARDED_ADFREE_ID` to local.properties. Check Play's minimum subscription price for India.
+- Unit tests + lint pass; UI test updated (not run, no device). Not checked on a device; real purchases need a closed-testing build with licence testers.
+
+## Session 2026-10-30 (56) — Shop in the side menus
+- Shop entry (`ic_shop`, `home_shop`) added to the side menu on Home (after How to Play), the local game screen and the online game screen (after Stats). `GameScreen` / `OnlineGameScreen` take a new `onShop`; leaving a game for the Shop keeps it on the back stack, as Stats/Settings do.
+- Not yet checked on a device.
+
+## Session 2026-10-29 (55) — closed-testing build vc7
+- versionCode bumped to **7** (versionName 1.0). Unit tests, lint (0 errors) and an unsigned `bundleRelease -PtestAds=true` (R8) pass. Includes the uncommitted Yes/No prompt work from session 54.
+- Signed bundle: `scripts/build-release.sh --test-ads` → `dist/baghchal-1.0-vc7-testads.aab` (needs the keystore password, run by the user).
+
+## Session 2026-10-29 (54) — Playful Yes/No prompt; Back on Home asks
+- New `YesNoPrompt`: animated, colourful card (pop-in, bobbing piece badge, sparkles). No is highlighted and pulses; Yes is frosted.
+- Used for leaving a local game, leaving an online game and Back on Home (new "Leaving so soon?" prompt, Yes closes the app; an open side menu still just closes).
+- Not yet checked on a device.
+
 ## Session 2026-10-29 (53) — Ask before leaving a game
 - Local games: menu Home and system Back now show "Leave the game?" (No / Yes) while the game is in progress; text says the game is saved for later. Finished/drawn games leave directly.
 - Online leave prompt now uses the same Yes / No buttons (removed the `online_leave` / `online_stay` strings).

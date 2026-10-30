@@ -164,13 +164,13 @@ private const val FLOAT_MILLIS = 3400
 private const val FLOAT_DP = 3f
 
 /** Gentle up-and-down bob for the Home button at [index] (0 = top). Still when animations are off. */
-private fun Modifier.iceFloat(clock: State<Long>, index: Int): Modifier = graphicsLayer {
+internal fun Modifier.iceFloat(clock: State<Long>, index: Int): Modifier = graphicsLayer {
     val phase = clock.value.toDouble() / FLOAT_MILLIS + index * 0.25
     translationY = -FLOAT_DP.dp.toPx() * ((1 - cos(2 * PI * phase)) / 2).toFloat()
 }
 
 /** Shine for the Home button at [index]: the wave's progress through its cycle, or no shine yet. */
-private fun DrawScope.drawShineWave(clock: State<Long>, index: Int) {
+internal fun DrawScope.drawShineWave(clock: State<Long>, index: Int) {
     val t = clock.value - index * SHINE_STAGGER
     if (t < 0) return
     drawShine((t % SHINE_MILLIS).toFloat() / SHINE_MILLIS)

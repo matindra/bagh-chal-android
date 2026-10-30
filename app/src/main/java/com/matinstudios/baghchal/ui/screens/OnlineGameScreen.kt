@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.engine.Side
 import com.matinstudios.baghchal.ui.haptics.CueVibrator
 import com.matinstudios.baghchal.ads.BannerAd
@@ -50,6 +51,7 @@ fun OnlineGameScreen(
     onNextGame: (roomId: String) -> Unit,
     onHowToPlay: () -> Unit,
     onStats: () -> Unit,
+    onShop: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OnlineGameViewModel = viewModel(factory = OnlineGameViewModel.Factory),
@@ -84,6 +86,7 @@ fun OnlineGameScreen(
         AppMenuItem(R.string.menu_home, R.drawable.ic_home, leave),
         AppMenuItem(R.string.home_how_to_play, R.drawable.ic_help, onHowToPlay),
         AppMenuItem(R.string.home_stats, R.drawable.ic_stats, onStats),
+        AppMenuItem(R.string.home_shop, R.drawable.ic_shop, onShop),
         AppMenuItem(R.string.home_settings, R.drawable.ic_settings, onSettings),
     )
     Column(modifier.fillMaxSize()) {
@@ -110,22 +113,18 @@ fun OnlineGameScreen(
     }
 
     if (confirmLeave && end == null) {
-        AlertDialog(
-            onDismissRequest = { confirmLeave = false },
-            title = { Text(stringResource(R.string.online_leave_title)) },
-            text = { Text(stringResource(R.string.online_leave_text)) },
-            confirmButton = {
-                PrimaryButton(
-                    stringResource(R.string.yes),
-                    onClick = {
-                        confirmLeave = false
-                        viewModel.onResign()
-                        onHome()
-                    },
-                    size = ButtonSize.Small,
-                )
+        YesNoPrompt(
+            title = stringResource(R.string.online_leave_title),
+            message = stringResource(R.string.online_leave_text),
+            yes = stringResource(R.string.yes),
+            no = stringResource(R.string.no),
+            icon = LocalPieceArt.current.tiger,
+            onYes = {
+                confirmLeave = false
+                viewModel.onResign()
+                onHome()
             },
-            dismissButton = { QuietButton(stringResource(R.string.no), onClick = { confirmLeave = false }) },
+            onNo = { confirmLeave = false },
         )
     }
 

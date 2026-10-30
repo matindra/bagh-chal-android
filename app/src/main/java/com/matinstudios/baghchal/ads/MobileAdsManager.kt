@@ -15,7 +15,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.matinstudios.baghchal.BuildConfig
 import com.matinstudios.baghchal.CurrentActivity
-import com.matinstudios.baghchal.data.Entitlements
+import com.matinstudios.baghchal.data.AdFree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -31,19 +31,20 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 /**
- * Google Mobile Ads, initialised once per process after consent allows it. Interstitial and
+ * Google Mobile Ads, initialised once per process after consent allows it. [adFree] (any pass or
+ * Remove Ads) turns off banners and interstitials; see [offeredWhen] for rewarded ads. Interstitial and
  * rewarded ads are preloaded and reloaded after each use; load failures are ignored and simply
  * mean that no ad is shown.
  */
 class MobileAdsManager(
     private val context: Context,
     consent: ConsentManager,
-    entitlements: Flow<Entitlements>,
+    adFree: Flow<AdFree>,
     private val activities: CurrentActivity,
     scope: CoroutineScope,
 ) : Ads {
     private val initialized = MutableStateFlow(false)
-    private val removeAds = MutableStateFlow(false)
+    private val adFreeNow = MutableStateFlow(AdFree.NONE)
     private var interstitial: InterstitialAd? = null
     private var loadingInterstitial = false
     private val rewarded = mutableMapOf<RewardedPlacement, RewardedAd>()
@@ -53,11 +54,11 @@ class MobileAdsManager(
     private val retry = Runnable { preload() }
     private val interstitialPolicy = InterstitialPolicy(startedAtMillis = SystemClock.elapsedRealtime())
 
-    override val bannersEnabled: StateFlow<Boolean> = combine(initialized, removeAds) { ready, removed -> ready && !removed }
+    override val bannersEnabled: StateFlow<Boolean> = combine(initialized, adFreeNow) { ready, free -> ready && free == AdFree.NONE }
         .stateIn(scope, SharingStarted.Eagerly, false)
 
     private val rewardedReady = RewardedPlacement.entries.associateWith { placement ->
-        combine(rewardedLoaded.getValue(placement), removeAds) { loaded, removed -> loaded && !removed }
+        combine(rewardedLoaded.getValue(placement), adFreeNow) { loaded, free -> loaded && placement.offeredWhen(free) }
             .stateIn(scope, SharingStarted.Eagerly, false)
     }
 
@@ -65,9 +66,9 @@ class MobileAdsManager(
 
     init {
         scope.launch(Dispatchers.Main) {
-            entitlements.collect {
-                removeAds.value = it.removeAds
-                if (!it.removeAds) preload()
+            adFree.collect {
+                adFreeNow.value = it
+                preload()
             }
         }
         scope.launch {
@@ -84,7 +85,7 @@ class MobileAdsManager(
     override suspend fun showRewarded(placement: RewardedPlacement): RewardOutcome = withContext(Dispatchers.Main) {
         val ad = rewarded[placement]
         val activity = activities.activity
-        if (ad == null || activity == null || removeAds.value) {
+        if (ad == null || activity == null || !placement.offeredWhen(adFreeNow.value)) {
             preload()
             return@withContext RewardOutcome.UNAVAILABLE
         }
@@ -111,7 +112,7 @@ class MobileAdsManager(
         if (!interstitialPolicy.onGameFinished(SystemClock.elapsedRealtime())) return
         val ad = interstitial
         val activity = activities.activity
-        if (ad == null || activity == null || removeAds.value) {
+        if (ad == null || activity == null || adFreeNow.value != AdFree.NONE) {
             preload()
             return
         }
@@ -132,8 +133,8 @@ class MobileAdsManager(
 
     /** Main thread only. */
     private fun preload() {
-        if (!initialized.value || removeAds.value) return
-        if (interstitial == null && !loadingInterstitial) {
+        if (!initialized.value) return
+        if (interstitial == null && !loadingInterstitial && adFreeNow.value == AdFree.NONE) {
             loadingInterstitial = true
             InterstitialAd.load(
                 context,
@@ -153,7 +154,7 @@ class MobileAdsManager(
             )
         }
         for (placement in RewardedPlacement.entries) {
-            if (placement in rewarded || placement in loadingRewarded) continue
+            if (placement in rewarded || placement in loadingRewarded || !placement.offeredWhen(adFreeNow.value)) continue
             loadingRewarded += placement
             RewardedAd.load(
                 context,
@@ -180,6 +181,7 @@ class MobileAdsManager(
             RewardedPlacement.UNDO -> BuildConfig.ADMOB_REWARDED_UNDO_ID
             RewardedPlacement.HINT -> BuildConfig.ADMOB_REWARDED_HINT_ID
             RewardedPlacement.THEME -> BuildConfig.ADMOB_REWARDED_THEME_ID
+            RewardedPlacement.AD_FREE_DAY -> BuildConfig.ADMOB_REWARDED_ADFREE_ID
         }
 
     private companion object {

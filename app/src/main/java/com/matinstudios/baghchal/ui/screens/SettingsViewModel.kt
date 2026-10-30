@@ -9,14 +9,15 @@ import com.matinstudios.baghchal.BaghchalApplication
 import com.matinstudios.baghchal.CurrentActivity
 import com.matinstudios.baghchal.ads.ConsentManager
 import com.matinstudios.baghchal.billing.BillingManager
-import com.matinstudios.baghchal.billing.PurchaseLaunch
 import com.matinstudios.baghchal.billing.RestoreResult
+import com.matinstudios.baghchal.data.AdFree
 import com.matinstudios.baghchal.data.EntitlementRepository
 import com.matinstudios.baghchal.data.Entitlements
 import com.matinstudios.baghchal.data.SerialWriter
 import com.matinstudios.baghchal.data.Settings
 import com.matinstudios.baghchal.data.SettingsRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,24 +26,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/**
- * @property removeAdsPrice Play's localised price, once known.
- * @property purchasePending a Remove Ads payment is still being processed.
- */
+/** @property adFree how the player is ad-free now; the choices live on the ad-free screen. */
 data class SettingsUiState(
     val settings: Settings,
     val entitlements: Entitlements,
-    val removeAdsPrice: String?,
-    val purchasePending: Boolean,
+    val adFree: AdFree,
     val privacyOptionsRequired: Boolean,
 )
 
 /** One-line feedback shown in Settings after a purchase action. */
-enum class SettingsMessage { PURCHASE_UNAVAILABLE, RESTORED, NOT_OWNED, RESTORE_FAILED }
+enum class SettingsMessage { RESTORED, NOT_OWNED, RESTORE_FAILED }
 
 class SettingsViewModel(
     private val repository: SettingsRepository,
-    private val entitlements: EntitlementRepository,
+    entitlements: EntitlementRepository,
+    adFree: Flow<AdFree>,
     private val writer: SerialWriter,
     private val billing: BillingManager,
     private val consent: ConsentManager,
@@ -53,11 +51,10 @@ class SettingsViewModel(
     val uiState: StateFlow<SettingsUiState?> = combine(
         repository.settings,
         entitlements.entitlements,
-        billing.price,
-        billing.purchasePending,
+        adFree,
         consent.privacyOptionsRequired,
-    ) { settings, owned, price, pending, privacyOptions ->
-        SettingsUiState(settings, owned, price, pending, privacyOptions)
+    ) { settings, owned, free, privacyOptions ->
+        SettingsUiState(settings, owned, free, privacyOptions)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue = null)
 
     private val _message = MutableStateFlow<SettingsMessage?>(null)
@@ -75,11 +72,6 @@ class SettingsViewModel(
 
     fun onHapticsChanged(enabled: Boolean) {
         writer.submit { repository.setHapticsEnabled(enabled) }
-    }
-
-    fun onRemoveAds() {
-        _message.value = null
-        if (billing.launchPurchase() == PurchaseLaunch.UNAVAILABLE) _message.value = SettingsMessage.PURCHASE_UNAVAILABLE
     }
 
     fun onRestorePurchase() = runAction {
@@ -107,6 +99,7 @@ class SettingsViewModel(
                 SettingsViewModel(
                     container.settings,
                     container.entitlements,
+                    container.adFree,
                     container.writer,
                     container.billing,
                     container.consent,

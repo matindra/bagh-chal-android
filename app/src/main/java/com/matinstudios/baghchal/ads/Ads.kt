@@ -1,11 +1,15 @@
 package com.matinstudios.baghchal.ads
 
+import com.matinstudios.baghchal.data.AdFree
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Each rewarded feature has its own ad unit, so AdMob reports them separately. */
-enum class RewardedPlacement { UNDO, HINT, THEME }
+/**
+ * Each rewarded feature has its own ad unit, so AdMob reports them separately. [AD_FREE_DAY]
+ * earns the 24-hour ad-free pass.
+ */
+enum class RewardedPlacement { UNDO, HINT, THEME, AD_FREE_DAY }
 
 /** How a rewarded-ad request ended. */
 enum class RewardOutcome {
@@ -28,12 +32,25 @@ fun RewardOutcome.grantsAssist(): Boolean = this != RewardOutcome.DISMISSED
 /** A theme unlock is permanent, so it needs a fully watched ad. */
 fun RewardOutcome.grantsThemeUnlock(): Boolean = this == RewardOutcome.EARNED
 
+/** The ad-free day pass also needs a fully watched ad. */
+fun RewardOutcome.grantsDayPass(): Boolean = this == RewardOutcome.EARNED
+
+/**
+ * Whether [this] placement offers its ad while the player is [adFree]. Undo and Hint are simply
+ * free while ad-free, and the day pass isn't offered on top of another pass. Board and piece
+ * unlocks still offer their (optional) ad on a pass; lifetime Remove Ads includes them all.
+ */
+fun RewardedPlacement.offeredWhen(adFree: AdFree): Boolean = when (this) {
+    RewardedPlacement.THEME -> adFree != AdFree.LIFETIME
+    RewardedPlacement.UNDO, RewardedPlacement.HINT, RewardedPlacement.AD_FREE_DAY -> adFree == AdFree.NONE
+}
+
 /** The app's ads, as the screens see them. Every call fails silently: the game works with no ads. */
 interface Ads {
-    /** Banners may be shown: the SDK is initialised with consent, and Remove Ads isn't owned. */
+    /** Banners may be shown: the SDK is initialised with consent, and the player isn't ad-free. */
     val bannersEnabled: StateFlow<Boolean>
 
-    /** A rewarded ad for [placement] is loaded and would be shown; never true with Remove Ads. */
+    /** A rewarded ad for [placement] is loaded and would be shown (see [offeredWhen]). */
     fun rewardedReady(placement: RewardedPlacement): StateFlow<Boolean>
 
     /** Shows the rewarded ad for [placement] over the current activity and waits for it to close. */

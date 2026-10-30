@@ -1,6 +1,6 @@
 package com.matinstudios.baghchal.ui.screens
 
-import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -28,8 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -38,7 +42,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -52,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.ui.board.LocalPieceArt
 import com.matinstudios.baghchal.ads.BannerAd
 import com.matinstudios.baghchal.ads.BannerPlacement
 import com.matinstudios.baghchal.data.SavedGame
@@ -77,6 +81,7 @@ fun HomeScreen(
     onShop: () -> Unit,
     onSettings: () -> Unit,
     onHowToPlay: () -> Unit,
+    onGoAdFree: () -> Unit,
     modifier: Modifier = Modifier,
     barPadding: PaddingValues = PaddingValues(),
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
@@ -87,14 +92,31 @@ fun HomeScreen(
     val savedGame by viewModel.savedGame.collectAsStateWithLifecycle()
     val showBanner by viewModel.showBanner.collectAsStateWithLifecycle()
     val showRemoveAds by viewModel.showRemoveAds.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val unavailableText = stringResource(R.string.message_purchase_unavailable)
-    LaunchedEffect(viewModel) {
-        viewModel.purchaseUnavailable.collect { Toast.makeText(context, unavailableText, Toast.LENGTH_LONG).show() }
+    // Back on Home asks before closing the app (an open side menu just closes).
+    val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
+    var confirmExit by rememberSaveable { mutableStateOf(false) }
+    BackHandler {
+        if (drawerState.isOpen) scope.launch { drawerState.close() } else confirmExit = true
     }
-    // Shop, Stats and Settings sit in the top-right corner; the side menu keeps the rest.
+    if (confirmExit) {
+        YesNoPrompt(
+            title = stringResource(R.string.exit_app_title),
+            message = stringResource(R.string.exit_app_text),
+            yes = stringResource(R.string.yes),
+            no = stringResource(R.string.no),
+            icon = LocalPieceArt.current.goat,
+            onYes = {
+                confirmExit = false
+                activity?.finish()
+            },
+            onNo = { confirmExit = false },
+        )
+    }
+    // Shop, Stats and Settings sit in the top-right corner; the side menu has the Shop too.
     val menuItems = listOf(
         AppMenuItem(R.string.home_learn_title, R.drawable.ic_help, detail = R.string.home_learn_detail, onClick = onHowToPlay),
+        AppMenuItem(R.string.home_shop, R.drawable.ic_shop, onShop),
     )
     // The sky runs up behind the status bar and the mountain blue down behind the navigation bar;
     // the content and the banner stay clear of both.
@@ -112,7 +134,7 @@ fun HomeScreen(
                 onPlayWithFriend = onPlayWithFriend,
                 onStartGame = onStartGame,
                 onResume = onResume,
-                onRemoveAds = viewModel::onRemoveAds.takeIf { showRemoveAds },
+                onRemoveAds = onGoAdFree.takeIf { showRemoveAds },
                 onShop = onShop,
                 onStats = onStats,
                 onSettings = onSettings,

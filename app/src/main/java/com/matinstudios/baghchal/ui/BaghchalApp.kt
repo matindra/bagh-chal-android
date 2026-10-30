@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.matinstudios.baghchal.ui.screens.AdFreeScreen
 import com.matinstudios.baghchal.ui.screens.AiSetupScreen
 import com.matinstudios.baghchal.ui.screens.BoardsScreen
 import com.matinstudios.baghchal.ui.screens.GameResult
@@ -42,6 +43,7 @@ private const val HOME_ROUTE = "home"
 private const val STATS_ROUTE = "stats"
 private const val SETTINGS_ROUTE = "settings"
 private const val SHOP_ROUTE = "shop"
+private const val AD_FREE_ROUTE = "ad_free"
 private const val ARG_SHOP_SECTION = "section"
 private const val SHOP_SECTION_ROUTE = "shop/{$ARG_SHOP_SECTION}"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
@@ -116,6 +118,7 @@ fun BaghchalApp(
                 onShop = { navController.navigate(SHOP_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
+                onGoAdFree = { navController.navigate(AD_FREE_ROUTE) },
             )
         }
         insetScreen(
@@ -143,6 +146,7 @@ fun BaghchalApp(
                 onGameWon = { result -> navController.navigate(result.route) { popUpTo(HOME_ROUTE) } },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
+                onShop = { navController.navigate(SHOP_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
@@ -220,6 +224,7 @@ fun BaghchalApp(
                 },
                 onHowToPlay = { navController.navigate(HOW_TO_PLAY_ROUTE) },
                 onStats = { navController.navigate(STATS_ROUTE) },
+                onShop = { navController.navigate(SHOP_ROUTE) },
                 onSettings = { navController.navigate(SETTINGS_ROUTE) },
             )
         }
@@ -243,7 +248,13 @@ fun BaghchalApp(
             BoardsScreen(section = section, onBack = { navController.popBackStack() })
         }
         insetScreen(SETTINGS_ROUTE, barPadding) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onGoAdFree = { navController.navigate(AD_FREE_ROUTE) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        insetScreen(AD_FREE_ROUTE, barPadding) {
+            AdFreeScreen(onBack = { navController.popBackStack() })
         }
         insetScreen(HOW_TO_PLAY_ROUTE, barPadding) {
             HowToPlayScreen(onBack = { navController.popBackStack() })

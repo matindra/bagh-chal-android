@@ -32,6 +32,7 @@ val adIdKeys = mapOf(
     "ADMOB_REWARDED_UNDO_ID" to "ca-app-pub-3940256099942544/5224354917",
     "ADMOB_REWARDED_HINT_ID" to "ca-app-pub-3940256099942544/5224354917",
     "ADMOB_REWARDED_THEME_ID" to "ca-app-pub-3940256099942544/5224354917",
+    "ADMOB_REWARDED_ADFREE_ID" to "ca-app-pub-3940256099942544/5224354917",
 )
 
 /** `-PtestAds=true` makes a release use Google's sample ad IDs (e.g. an early closed-testing build). */
@@ -61,7 +62,7 @@ android {
         applicationId = "com.matinstudios.baghchal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 6
+        versionCode = 8
         versionName = "1.0"
 
         testInstrumentationRunner = "com.matinstudios.baghchal.BaghchalTestRunner"

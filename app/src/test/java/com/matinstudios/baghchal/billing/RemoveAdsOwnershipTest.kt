@@ -32,6 +32,13 @@ class RemoveAdsOwnershipTest {
     }
 
     @Test
+    fun `the yearly pass is checked on its own`() {
+        val year = purchase(State.PURCHASED, acknowledged = false, product = YEARLY_PASS_PRODUCT_ID, token = "year")
+        assertEquals(RemoveAdsOwnership(owned = true, toAcknowledge = listOf("year")), RemoveAdsOwnership.of(listOf(year), YEARLY_PASS_PRODUCT_ID))
+        assertEquals(RemoveAdsOwnership(owned = false, toAcknowledge = emptyList()), RemoveAdsOwnership.of(listOf(year)))
+    }
+
+    @Test
     fun `other products are ignored`() {
         val ownership = RemoveAdsOwnership.of(listOf(purchase(State.PURCHASED, acknowledged = false, product = "something_else")))
         assertEquals(RemoveAdsOwnership(owned = false, toAcknowledge = emptyList()), ownership)

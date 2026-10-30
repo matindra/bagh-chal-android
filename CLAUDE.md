@@ -113,7 +113,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Sound effects + haptics, toggleable in Settings.
 - "How to Play" screen with illustrated rules.
 - Save/resume the in-progress game automatically.
-- Leaving a game in progress (menu Home or system Back) always asks first: "Leave the game?" with No (`QuietButton`) / Yes (small `PrimaryButton`). Local games say the game is saved; online games say leaving counts as a loss. Finished games leave straight away.
+- Leaving a game in progress (menu Home or system Back) and Back on Home (closes the app) always ask first with `YesNoPrompt` (`ui/screens/YesNoPrompt.kt`): Home's night look: frosted-glass card with a white rim and frosted piece badge, rises in, floats 3 dp and shares Home's shine wave (card, then No), soft snow drifting inside. **No** (the safe choice) is the coral `PrimaryButton` on the right; **Yes** is a frosted `SecondaryButton`. Local games say the game is saved; online games say leaving counts as a loss. Finished games leave straight away. Use `YesNoPrompt` for any new are-you-sure prompt.
 - Stats: wins/losses per side and difficulty.
 - Localisation-ready: all strings in `strings.xml` (plan for English + Hindi + Odia + Nepali).
 - Portrait only on phones.
@@ -142,17 +142,21 @@ app/src/main/java/com/matinstudios/baghchal/
 - Preload ads; handle failures silently — the game must work fully offline with no ads.
 - Follow AdMob policy: no accidental-click layouts, no ads near interactive game pieces.
 
-### Remove Ads (Play Billing)
-- One-time non-consumable product: `remove_ads`.
-- Acknowledge purchases; restore on launch via `queryPurchasesAsync`.
-- Cache entitlement in DataStore; when owned, hide banners/interstitials. Rewarded features become free.
-- Settings screen has "Remove Ads" and "Restore Purchase".
+### Going ad-free (Play Billing + rewarded ad)
+- Three ways, all on the "Go ad-free" screen (`ui/screens/AdFreeScreen.kt`, opened from Home's Remove Ads button and the Remove Ads card in Settings):
+  - **Lifetime** (₹199): one-time non-consumable `remove_ads`. Also unlocks every board and piece set.
+  - **1 year** (₹49): subscription `ad_free_year` (one yearly base plan; auto-renewing or prepaid both work).
+  - **24 hours**: watch a rewarded ad (`RewardedPlacement.AD_FREE_DAY`) to the end; stored as an end time (`Entitlements.dayPassUntilMillis`), ignored if more than 24 h away (clock turned back).
+- Prices live in Play Console; the app shows Play's formatted price.
+- Any of the three (`AdFree`, from `AppContainer.adFree`, which flips the moment a day pass ends) hides banners and interstitials and makes Undo/Hint free. Board/piece rewarded unlocks still offer their ad on a day or year pass.
+- Acknowledge purchases; restore both products on launch via `queryPurchasesAsync` (INAPP + SUBS). A missing subscription in a full restore list drops the yearly pass.
+- Cache entitlements in DataStore. Settings has "Remove Ads" (opens the ad-free screen) and "Restore Purchase".
 
 ### Implementation notes
-- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. `-PtestAds=true` forces the test IDs in a release build (early closed testing). Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
-- One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME).
+- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID`, `ADMOB_REWARDED_ADFREE_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. `-PtestAds=true` forces the test IDs in a release build (early closed testing). Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
+- One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME, AD_FREE_DAY).
 - Screens see ads only through the `ads/Ads` interface; instrumented tests run on `TestBaghchalApplication` (no consent, ads or billing).
-- Undo/Hint/theme rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks are not.
+- Undo/Hint/theme/day-pass rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks and the day pass are not.
 
 ## Coding conventions
 

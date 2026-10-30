@@ -52,12 +52,15 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
         owned.effectivePieceSet(settings.pieceSet)
     }
 
+    /** How the player is ad-free right now (Remove Ads, the yearly pass or a day pass). */
+    val adFree: Flow<AdFree> = entitlements.entitlements.adFree()
+
     /** Which launcher icon the home screen shows. */
     val launcherIcons = LauncherIcons(context)
 
     val consent = ConsentManager(context)
     val ads: Ads = if (servicesEnabled) {
-        MobileAdsManager(context, consent, entitlements.entitlements, activities, appScope)
+        MobileAdsManager(context, consent, adFree, activities, appScope)
     } else {
         NoAds
     }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Builds a signed release bundle into dist/. Asks for the upload-key passwords (never stored).
+# Builds a signed release bundle into dist/. The upload-key password comes from the macOS Keychain
+# (item "baghchal-upload-keystore", used for both store and key); without it, the script asks.
+#   Save it once: security add-generic-password -U -a "$USER" -s baghchal-upload-keystore -w
 #   scripts/build-release.sh              real ad IDs (production)
 #   scripts/build-release.sh --test-ads   Google test ad IDs (closed testing)
 set -euo pipefail
@@ -10,9 +12,14 @@ ALIAS="upload"
 TEST_ADS=false
 [[ "${1:-}" == "--test-ads" ]] && TEST_ADS=true
 
-read -rsp "Keystore password: " STORE_PASS; echo
-read -rsp "Key password (Enter = same): " KEY_PASS; echo
-KEY_PASS="${KEY_PASS:-$STORE_PASS}"
+if STORE_PASS=$(security find-generic-password -a "$USER" -s baghchal-upload-keystore -w 2>/dev/null); then
+  KEY_PASS="$STORE_PASS"
+  echo "Using the keystore password from the Keychain."
+else
+  read -rsp "Keystore password: " STORE_PASS; echo
+  read -rsp "Key password (Enter = same): " KEY_PASS; echo
+  KEY_PASS="${KEY_PASS:-$STORE_PASS}"
+fi
 
 ./gradlew bundleRelease --no-configuration-cache \
   -PtestAds="$TEST_ADS" \

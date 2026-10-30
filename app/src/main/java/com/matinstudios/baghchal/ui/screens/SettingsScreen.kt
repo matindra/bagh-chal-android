@@ -3,6 +3,7 @@ package com.matinstudios.baghchal.ui.screens
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.text.style.TextAlign
+import com.matinstudios.baghchal.data.AdFree
 import com.matinstudios.baghchal.data.Entitlements
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +39,7 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 @Composable
 fun SettingsScreen(
+    onGoAdFree: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
@@ -50,7 +52,7 @@ fun SettingsScreen(
         onSoundChanged = viewModel::onSoundChanged,
         onMusicChanged = viewModel::onMusicChanged,
         onHapticsChanged = viewModel::onHapticsChanged,
-        onRemoveAds = viewModel::onRemoveAds,
+        onGoAdFree = onGoAdFree,
         onRestorePurchase = viewModel::onRestorePurchase,
         onPrivacyOptions = viewModel::onPrivacyOptions,
         onBack = onBack,
@@ -65,7 +67,7 @@ fun SettingsContent(
     onSoundChanged: (Boolean) -> Unit,
     onMusicChanged: (Boolean) -> Unit,
     onHapticsChanged: (Boolean) -> Unit,
-    onRemoveAds: () -> Unit,
+    onGoAdFree: () -> Unit,
     onRestorePurchase: () -> Unit,
     onPrivacyOptions: () -> Unit,
     onBack: () -> Unit,
@@ -95,7 +97,7 @@ fun SettingsContent(
                 HorizontalDivider()
                 ToggleRow(R.string.settings_haptics, R.string.settings_haptics_detail, settings.hapticsEnabled, onHapticsChanged)
             }
-            RemoveAdsCard(uiState, onRemoveAds, onRestorePurchase)
+            RemoveAdsCard(uiState, onGoAdFree, onRestorePurchase)
             message?.let {
                 Text(stringResource(it.text), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
             }
@@ -107,28 +109,14 @@ fun SettingsContent(
 }
 
 @Composable
-private fun RemoveAdsCard(uiState: SettingsUiState, onRemoveAds: () -> Unit, onRestorePurchase: () -> Unit) {
+private fun RemoveAdsCard(uiState: SettingsUiState, onGoAdFree: () -> Unit, onRestorePurchase: () -> Unit) {
+    val lifetime = uiState.adFree == AdFree.LIFETIME
     Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.settings_remove_ads), style = MaterialTheme.typography.titleMedium)
-            when {
-                uiState.entitlements.removeAds -> Text(stringResource(R.string.settings_remove_ads_owned))
-                uiState.purchasePending -> Text(stringResource(R.string.settings_remove_ads_pending))
-                else -> {
-                    Text(stringResource(R.string.settings_remove_ads_detail), style = MaterialTheme.typography.bodyMedium)
-                    val price = uiState.removeAdsPrice
-                    PrimaryButton(
-                        text = if (price == null) {
-                            stringResource(R.string.settings_remove_ads)
-                        } else {
-                            stringResource(R.string.settings_remove_ads_price, price)
-                        },
-                        onClick = onRemoveAds,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-            if (!uiState.entitlements.removeAds) {
+            Text(adFreeStatus(uiState.adFree, uiState.entitlements.dayPassUntilMillis), style = MaterialTheme.typography.bodyMedium)
+            if (!lifetime) {
+                PrimaryButton(stringResource(R.string.settings_remove_ads), onClick = onGoAdFree, modifier = Modifier.fillMaxWidth())
                 QuietButton(
                     stringResource(R.string.settings_restore_purchase),
                     onClick = onRestorePurchase,
@@ -141,7 +129,6 @@ private fun RemoveAdsCard(uiState: SettingsUiState, onRemoveAds: () -> Unit, onR
 
 private val SettingsMessage.text: Int
     get() = when (this) {
-        SettingsMessage.PURCHASE_UNAVAILABLE -> R.string.message_purchase_unavailable
         SettingsMessage.RESTORED -> R.string.message_restored
         SettingsMessage.NOT_OWNED -> R.string.message_not_owned
         SettingsMessage.RESTORE_FAILED -> R.string.message_restore_failed
@@ -175,12 +162,12 @@ private fun ToggleRow(@StringRes title: Int, @StringRes detail: Int, checked: Bo
 private fun SettingsContentPreview() {
     BaghchalTheme {
         SettingsContent(
-            SettingsUiState(Settings(), Entitlements(), "$1.99", purchasePending = false, privacyOptionsRequired = true),
+            SettingsUiState(Settings(), Entitlements(), AdFree.NONE, privacyOptionsRequired = true),
             message = null,
             onSoundChanged = {},
             onMusicChanged = {},
             onHapticsChanged = {},
-            onRemoveAds = {},
+            onGoAdFree = {},
             onRestorePurchase = {},
             onPrivacyOptions = {},
             onBack = {},
