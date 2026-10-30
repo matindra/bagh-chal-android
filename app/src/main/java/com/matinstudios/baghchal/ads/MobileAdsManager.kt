@@ -181,7 +181,6 @@ class MobileAdsManager(
             RewardedPlacement.UNDO -> BuildConfig.ADMOB_REWARDED_UNDO_ID
             RewardedPlacement.HINT -> BuildConfig.ADMOB_REWARDED_HINT_ID
             RewardedPlacement.THEME -> BuildConfig.ADMOB_REWARDED_THEME_ID
-            RewardedPlacement.AD_FREE_DAY -> BuildConfig.ADMOB_REWARDED_ADFREE_ID
         }
 
     private companion object {

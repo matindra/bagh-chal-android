@@ -97,6 +97,7 @@ fun OnlineLobbyScreen(
     onMatched: (roomId: String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
     viewModel: OnlineLobbyViewModel = viewModel(factory = OnlineLobbyViewModel.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -120,6 +121,7 @@ fun OnlineLobbyScreen(
             onShareCode = { code -> context.startActivity(shareCodeIntent(resources.getString(R.string.online_share_text, code))) },
             onBack = onBack,
             modifier = Modifier.weight(1f),
+            onShop = onShop,
         )
         SnackbarHost(snackbar)
     }
@@ -137,12 +139,16 @@ fun OnlineLobbyContent(
     onShareCode: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
-        // While a game is being set up, Back would strand it, so the top button cancels instead.
+        // While a game is being set up, Back would strand it, so the top button cancels instead,
+        // and the Shop button hides (leaving the lobby would miss the match).
+        val idle = state == LobbyState.Idle || !isAvailable
         BackTopBar(
-            onBack = if (state == LobbyState.Idle || !isAvailable) onBack else onCancel,
+            onBack = if (idle) onBack else onCancel,
             title = mode.title,
+            onShop = onShop.takeIf { idle },
         )
         Column(
             modifier = Modifier

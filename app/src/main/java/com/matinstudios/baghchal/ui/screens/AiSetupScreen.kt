@@ -59,12 +59,17 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 
 /** Player vs AI: pick a side and a difficulty, then start. */
 @Composable
-fun AiSetupScreen(onStart: (GameSetup) -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun AiSetupScreen(
+    onStart: (GameSetup) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
+) {
     var humanSide by rememberSaveable { mutableStateOf(Side.GOAT) }
     var difficulty by rememberSaveable { mutableStateOf(Difficulty.MEDIUM) }
 
     Column(modifier.fillMaxSize()) {
-        BackTopBar(onBack)
+        BackTopBar(onBack, onShop = onShop)
         Column(
             modifier = Modifier
                 .weight(1f)

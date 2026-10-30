@@ -121,12 +121,15 @@ internal object HomeNight {
     )
 }
 
-/** Milliseconds since Home appeared, ticking every frame; stays 0 when system animations are off. */
+/**
+ * Milliseconds since Home appeared, ticking every frame; stays 0 when system animations are off
+ * or while [running] is false (e.g. a closed side menu).
+ */
 @Composable
-internal fun rememberSceneClock(): State<Long> {
+internal fun rememberSceneClock(running: Boolean = true): State<Long> {
     val animationsOn = rememberAnimationsOn()
-    return produceState(0L, animationsOn) {
-        if (!animationsOn) return@produceState
+    return produceState(0L, animationsOn, running) {
+        if (!animationsOn || !running) return@produceState
         val start = withFrameMillis { it }
         while (true) withFrameMillis { value = it - start }
     }

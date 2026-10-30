@@ -4,11 +4,27 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.State
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -16,14 +32,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,6 +52,7 @@ import kotlinx.coroutines.launch
 
 const val WEBSITE_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/"
 const val PRIVACY_POLICY_URL = "https://matinstudios.com/bagh-chal-tiger-goat-game/privacy-policy"
+const val MORE_GAMES_URL = "https://play.google.com/store/apps/developer?id=Matin+Studios"
 
 /** One entry in the side menu; [detail] is an optional smaller second line. */
 data class AppMenuItem(
@@ -63,8 +75,9 @@ fun AppMenuDrawer(
 ) {
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
-    // Every screen's menu ends with the game's web page and privacy policy (open in the browser).
+    // Every screen's menu ends with our other games on Play, the game's web page and privacy policy (open in the browser).
     val allItems = items + listOf(
+        AppMenuItem(R.string.menu_more_games, R.drawable.ic_more_games, { runCatching { uriHandler.openUri(MORE_GAMES_URL) } }),
         AppMenuItem(R.string.menu_website, R.drawable.ic_globe, { runCatching { uriHandler.openUri(WEBSITE_URL) } }),
         AppMenuItem(R.string.menu_privacy_policy, R.drawable.ic_privacy, { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } }),
     )
@@ -73,60 +86,141 @@ fun AppMenuDrawer(
         drawerState = drawerState,
         modifier = modifier,
         drawerContent = {
-            ModalDrawerSheet {
-                Row(
-                    Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+            // Rows float and shine like Home's; the clock only ticks while the menu is showing.
+            val clock = rememberSceneClock(running = drawerState.currentValue == DrawerValue.Open || drawerState.isAnimationRunning)
+            ModalDrawerSheet(
+                drawerContainerColor = Color.Transparent,
+                drawerShape = MenuShape,
+                modifier = Modifier
+                    .background(Brush.verticalGradient(listOf(HomeNight.SkyTop, HomeNight.SkyMiddle, HomeNight.SkyBottom)), MenuShape)
+                    .border(1.5.dp, HomeNight.FrostBorder, MenuShape),
+            ) {
+                MenuHeader()
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Image(painterResource(LocalPieceArt.current.tiger), contentDescription = null, modifier = Modifier.size(36.dp))
-                    Image(painterResource(LocalPieceArt.current.goat), contentDescription = null, modifier = Modifier.size(36.dp))
-                    Text(
-                        stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                HorizontalDivider(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
-                allItems.forEach { item ->
-                    NavigationDrawerItem(
-                        label = {
-                            Column {
-                                Text(stringResource(item.label))
-                                item.detail?.let {
-                                    Text(
-                                        stringResource(it),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        },
-                        icon = { Icon(painterResource(item.icon), contentDescription = null) },
-                        selected = false,
-                        // Close first, so coming back to Home finds the menu shut.
-                        onClick = {
+                    allItems.forEachIndexed { index, item ->
+                        MenuRow(item, clock, index) {
+                            // Close first, so coming back to Home finds the menu shut.
                             scope.launch {
                                 drawerState.close()
                                 item.onClick()
                             }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                    )
+                        }
+                    }
                 }
-                Spacer(Modifier.weight(1f))
-                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                Text(
+                BasicText(
                     stringResource(R.string.menu_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = TextStyle(color = HomeNight.OnFrostSoft, fontWeight = FontWeight.Bold, fontSize = 12.sp),
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                 )
             }
         },
     ) {
         content { scope.launch { drawerState.open() } }
+    }
+}
+
+private val MenuShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp)
+
+/** The game's name in big glossy letters, with a tiger and a goat on frosted badges. */
+@Composable
+private fun MenuHeader() {
+    Row(
+        Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        PieceBadge(LocalPieceArt.current.tiger, ChipColors.Coral)
+        PieceBadge(LocalPieceArt.current.goat, ChipColors.Green)
+        BasicText(
+            stringResource(R.string.app_name),
+            style = TextStyle(
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                shadow = Shadow(HomeNight.CoralLip, with(LocalDensity.current) { Offset(0f, 3.dp.toPx()) }, 0f),
+            ),
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = 18.sp, maxFontSize = 28.sp),
+            modifier = Modifier.padding(start = 6.dp),
+        )
+    }
+}
+
+/** A piece on a round glass badge rimmed in its side's colour. */
+@Composable
+private fun PieceBadge(@DrawableRes art: Int, colors: ModeColors) {
+    Box(
+        Modifier
+            .size(44.dp)
+            .background(colors.chip.copy(alpha = 0.25f), CircleShape)
+            .border(1.5.dp, colors.chip, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(painterResource(art), contentDescription = null, modifier = Modifier.size(34.dp))
+    }
+}
+
+/** Each menu entry's colour comes from its icon, so an entry looks the same on every screen. */
+private fun menuColors(@DrawableRes icon: Int): ModeColors = when (icon) {
+    R.drawable.ic_home -> ChipColors.Coral
+    R.drawable.ic_help -> ChipColors.Green
+    R.drawable.ic_stats -> ChipColors.Orange
+    R.drawable.ic_shop -> ChipColors.Gold
+    R.drawable.ic_settings -> ChipColors.Violet
+    R.drawable.ic_more_games -> ChipColors.Pink
+    R.drawable.ic_globe -> ChipColors.Sky
+    else -> ChipColors.Teal
+}
+
+/** A menu entry as a raised tinted-glass row with a coloured icon chip and a chevron. */
+@Composable
+private fun MenuRow(item: AppMenuItem, clock: State<Long>, index: Int, onClick: () -> Unit) {
+    val colors = menuColors(item.icon)
+    RaisedButton(
+        onClick = onClick,
+        face = colors.chip.copy(alpha = 0.16f),
+        lip = HomeNight.FrostLip,
+        shape = RoundedCornerShape(16.dp),
+        lipHeight = 4.dp,
+        modifier = Modifier.fillMaxWidth().iceFloat(clock, index),
+        faceModifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+        border = colors.chip.copy(alpha = 0.5f),
+        decoration = { drawShineWave(clock, index) },
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = 8.dp, end = 10.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            IconChip(item.icon, colors.chip, colors.chipLip, Color.White, size = 36)
+            Column(Modifier.weight(1f)) {
+                BasicText(
+                    stringResource(item.label),
+                    style = TextStyle(color = HomeNight.OnFrost, fontWeight = FontWeight.Black, fontSize = 17.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                item.detail?.let {
+                    BasicText(
+                        stringResource(it),
+                        style = TextStyle(color = colors.ink, fontWeight = FontWeight.Bold, fontSize = 12.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Icon(
+                painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                tint = HomeNight.OnFrostSoft,
+                modifier = Modifier.size(20.dp),
+            )
+        }
     }
 }
 

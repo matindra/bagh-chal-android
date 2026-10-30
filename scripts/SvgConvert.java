@@ -94,8 +94,11 @@ public class SvgConvert {
             Map.entry("search.svg", "ic_search"),
             Map.entry("person.svg", "ic_person"),
             Map.entry("privacy.svg", "ic_privacy"),
+            Map.entry("more_games.svg", "ic_more_games"),
             Map.entry("sound_on.svg", "ic_sound_on"),
-            Map.entry("sound_off.svg", "ic_sound_off")
+            Map.entry("sound_off.svg", "ic_sound_off"),
+            Map.entry("music.svg", "ic_music"),
+            Map.entry("vibration.svg", "ic_vibration")
     ));
 
     /** Launcher icons (one per choice in the app); each has drawable/<name>_background and _foreground. */

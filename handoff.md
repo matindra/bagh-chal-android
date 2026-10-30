@@ -7,6 +7,34 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## Session 2026-10-30 (64) — Colourful side menu
+
+- The side (hamburger) menu matches Home and Settings: night-sky panel with a white rim, glossy "Bagh Chal" title with tiger/goat badges, and each entry a raised tinted-glass row with a coloured icon chip and chevron, floating and shining. An entry's colour comes from its icon (`menuColors` in `AppMenu.kt`), so it is the same on every screen.
+- Shared palette `ChipColors` (HomeButtons.kt) and `IconChip` (SettingsScreen.kt) are used by Settings and the menu. `rememberSceneClock(running)` pauses the clock while the menu is closed.
+
+## Session 2026-10-30 (63) — Colourful Settings
+
+- Settings now matches Home: big title with a gold gear chip; Sound (cyan), Music (violet) and Haptics (pink) are tinted-glass rows with a coloured icon chip and a chunky switch, floating and shining like Home's rows. A row greys out when switched off. Remove Ads sits in a gold glass card; Privacy options is a green mode row.
+- New icons `ic_music`, `ic_vibration` (design/music.svg, vibration.svg). `RaisedButton` takes a `role` (rows are switches for screen readers).
+- New strings: `settings_privacy_options_detail`, `settings_on`, `settings_off`.
+
+## Session 2026-10-30 (62) — "Yay!" after an ad unlock
+- Watching a rewarded ad to unlock a board or piece set now shows `CelebratePrompt` (new, in `YesNoPrompt.kt`; same frosted card, one coral "Let's go" button): "Yay! New Snow board unlocked. Enjoy!" / "New Bold pieces unlocked. Enjoy!", with the board (or the set's tiger) in the round badge.
+- Picking an already-unlocked board or piece set shows a frosted pill near the bottom for 2 s: "Snow theme selected" / "Bold pieces selected" (`BoardsViewModel.justSelected`, `SelectedNote` in `BoardsScreen.kt`; read out by TalkBack).
+- `YesNoPrompt` and `CelebratePrompt` share a private `FrostPrompt`. `BoardsViewModel.justUnlocked` / `onUnlockSeen()` drive it.
+- `./gradlew assembleDebug test` green. Not checked on a device.
+
+## Session 2026-10-30 (61) — 24-hour ad-free option removed
+- The Go ad-free screen now offers only **1 year** (`ad_free_year`) and **Lifetime** (`remove_ads`). Removed the rewarded day pass: `AdFree.DAY_PASS`, `Entitlements.dayPassUntilMillis`/`dayPassLeftMillis`, `startDayPass`, `RewardedPlacement.AD_FREE_DAY`, `grantsDayPass`, `ADMOB_REWARDED_ADFREE_ID`, and its strings. `Entitlements.adFree()` no longer takes a time; `Flow<Entitlements>.adFree()` is a plain map.
+- An old `entitlement_day_pass_until` value left in DataStore by vc8 testers is simply ignored.
+- `./gradlew test` + androidTest compile green. Not checked on a device.
+
+## Session 2026-10-30 (60) — More games in the side menu
+- Every screen's side menu now has **More games** (new `ic_more_games` from `design/more_games.svg`), above Website and Privacy Policy; opens `MORE_GAMES_URL` (Matin Studios developer page on Google Play) in the browser / Play Store.
+- Shop: new **Go ad-free** row at the top (coral Remove Ads icon; status: "No ads for 1 year or for life" / "Yearly pass active" / "Ads removed"), opens the ad-free screen. `ShopScreen` gained `onGoAdFree`.
+- Shop button everywhere: `BackTopBar` takes an optional `onShop` and shows Home's gold Shop button top right. Wired on AI setup, online lobby (hidden while matching or hosting, so the match isn't missed), Stats, Settings, How to Play and Go ad-free. Not on the Shop and its sections; game screens keep Shop in their side menu. Opens with `launchSingleTop`.
+- `./gradlew test assembleDebug` green. Not checked on a device.
+
 ## Session 2026-10-30 (57) — Yes/No prompt in the night look
 - `YesNoPrompt` restyled to match Home/game: frosted-glass navy card with white rim and lip (no more violet/gold), frosted piece badge, rises in (fade + slide), floats 3 dp and shares Home's shine wave (card, then No button), soft snow drifting inside. Springy pop, badge bob, sparkles and No pulse removed. All still when system animations are off.
 - `iceFloat` / `drawShineWave` in `HomeButtons.kt` are now `internal` so the prompt reuses them.

@@ -214,11 +214,7 @@ class RepositoriesTest {
         assertEquals(rewarded, repository.entitlements.first(), "a refund keeps rewarded unlocks")
 
         repository.setYearlyPass(true)
-        repository.startDayPass(nowMillis = 1_000L)
-        assertEquals(
-            rewarded.copy(yearlyPass = true, dayPassUntilMillis = 1_000L + DAY_PASS_MILLIS),
-            repository.entitlements.first(),
-        )
+        assertEquals(rewarded.copy(yearlyPass = true), repository.entitlements.first())
 
         repository.reset()
         assertEquals(Entitlements(), repository.entitlements.first())

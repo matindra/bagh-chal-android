@@ -45,18 +45,25 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 fun StatsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
     viewModel: StatsViewModel = viewModel(factory = StatsViewModel.Factory),
 ) {
     val stats = viewModel.stats.collectAsStateWithLifecycle().value ?: return
-    StatsContent(stats, onBack = onBack, onReset = viewModel::onReset, modifier = modifier)
+    StatsContent(stats, onBack = onBack, onReset = viewModel::onReset, modifier = modifier, onShop = onShop)
 }
 
 @Composable
-fun StatsContent(stats: Stats, onBack: () -> Unit, onReset: () -> Unit, modifier: Modifier = Modifier) {
+fun StatsContent(
+    stats: Stats,
+    onBack: () -> Unit,
+    onReset: () -> Unit,
+    modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
+) {
     var confirmReset by rememberSaveable { mutableStateOf(false) }
 
     Column(modifier.fillMaxSize()) {
-        BackTopBar(onBack)
+        BackTopBar(onBack, onShop = onShop)
         Column(
             modifier = Modifier
                 .weight(1f)

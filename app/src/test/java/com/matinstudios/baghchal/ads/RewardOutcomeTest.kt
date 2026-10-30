@@ -23,22 +23,13 @@ class RewardOutcomeTest {
     }
 
     @Test
-    fun `the ad-free day needs a fully watched ad`() {
-        assertTrue(RewardOutcome.EARNED.grantsDayPass())
-        assertFalse(RewardOutcome.UNAVAILABLE.grantsDayPass())
-        assertFalse(RewardOutcome.DISMISSED.grantsDayPass())
-    }
-
-    @Test
     fun `every rewarded ad is offered to players who are not ad-free`() {
         assertTrue(RewardedPlacement.entries.all { it.offeredWhen(AdFree.NONE) })
     }
 
     @Test
-    fun `on a pass only board and piece unlocks offer an ad`() {
-        for (pass in listOf(AdFree.DAY_PASS, AdFree.YEARLY)) {
-            assertEquals(listOf(RewardedPlacement.THEME), RewardedPlacement.entries.filter { it.offeredWhen(pass) }, pass.name)
-        }
+    fun `on the yearly pass only board and piece unlocks offer an ad`() {
+        assertEquals(listOf(RewardedPlacement.THEME), RewardedPlacement.entries.filter { it.offeredWhen(AdFree.YEARLY) })
     }
 
     @Test

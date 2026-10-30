@@ -2,7 +2,11 @@ package com.matinstudios.baghchal.ui.screens
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +28,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,8 +42,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +61,7 @@ import com.matinstudios.baghchal.data.PieceSet
 import com.matinstudios.baghchal.ui.board.art
 import com.matinstudios.baghchal.ui.board.drawable
 import com.matinstudios.baghchal.ui.theme.BaghchalTheme
+import kotlinx.coroutines.delay
 
 /** What the Shop offers; each opens its own picker. */
 enum class ShopSection(@StringRes val title: Int) {
@@ -70,18 +81,59 @@ fun BoardsScreen(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value ?: return
     val noAdAvailable by viewModel.noAdAvailable.collectAsStateWithLifecycle()
     val appIcon by viewModel.appIcon.collectAsStateWithLifecycle()
-    BoardsContent(
-        section = section,
-        uiState = uiState,
-        noAdAvailable = noAdAvailable,
-        onBoardSelected = viewModel::onBoardSelected,
-        onBack = onBack,
-        modifier = modifier,
-        appIcon = appIcon,
-        onPieceSetSelected = viewModel::onPieceSetSelected,
-        onAppIconSelected = viewModel::onAppIconSelected,
-    )
+    val justUnlocked by viewModel.justUnlocked.collectAsStateWithLifecycle()
+    val justSelected by viewModel.justSelected.collectAsStateWithLifecycle()
+    justUnlocked?.let { UnlockedPrompt(it, onOk = viewModel::onUnlockSeen) }
+    LaunchedEffect(justSelected) {
+        if (justSelected != null) {
+            delay(SELECTED_NOTE_MILLIS)
+            viewModel.onSelectedSeen()
+        }
+    }
+    Box(modifier.fillMaxSize()) {
+        BoardsContent(
+            section = section,
+            uiState = uiState,
+            noAdAvailable = noAdAvailable,
+            onBoardSelected = viewModel::onBoardSelected,
+            onBack = onBack,
+            appIcon = appIcon,
+            onPieceSetSelected = viewModel::onPieceSetSelected,
+            onAppIconSelected = viewModel::onAppIconSelected,
+        )
+        SelectedNote(justSelected, Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp))
+    }
 }
+
+/** "Snow theme selected": a frosted pill that fades in, then out after [SELECTED_NOTE_MILLIS]. */
+@Composable
+private fun SelectedNote(pick: JustUnlocked?, modifier: Modifier) {
+    // Keep the last text while fading out.
+    var shown by remember { mutableStateOf(pick) }
+    if (pick != null) shown = pick
+    AnimatedVisibility(pick != null, modifier, enter = fadeIn(), exit = fadeOut()) {
+        val text = when (val p = shown) {
+            is JustUnlocked.Board -> stringResource(R.string.selected_board_message, stringResource(p.theme.label))
+            is JustUnlocked.Pieces -> stringResource(R.string.selected_pieces_message, stringResource(p.set.label))
+            null -> ""
+        }
+        Text(
+            text,
+            color = HomeNight.OnFrost,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .background(HomeNight.Frost, CircleShape)
+                .border(1.dp, HomeNight.FrostBorder, CircleShape)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
+                .semantics { liveRegion = LiveRegionMode.Polite },
+        )
+    }
+}
+
+private const val SELECTED_NOTE_MILLIS = 2_000L
 
 @Composable
 fun BoardsContent(
@@ -159,6 +211,28 @@ fun BoardsContent(
                     }
                 }
             }
+        }
+    }
+}
+
+/** "Yay! New Snow board unlocked. Enjoy!" with the new board or pieces in the badge. */
+@Composable
+private fun UnlockedPrompt(unlocked: JustUnlocked, onOk: () -> Unit) {
+    val message = when (unlocked) {
+        is JustUnlocked.Board -> stringResource(R.string.unlocked_board_message, stringResource(unlocked.theme.label))
+        is JustUnlocked.Pieces -> stringResource(R.string.unlocked_pieces_message, stringResource(unlocked.set.label))
+    }
+    CelebratePrompt(
+        title = stringResource(R.string.unlocked_title),
+        message = message,
+        ok = stringResource(R.string.unlocked_ok),
+        onOk = onOk,
+    ) {
+        when (unlocked) {
+            is JustUnlocked.Board ->
+                Image(painterResource(unlocked.theme.drawable), contentDescription = null, modifier = Modifier.fillMaxSize())
+            is JustUnlocked.Pieces ->
+                Image(painterResource(unlocked.set.art.tiger), contentDescription = null, modifier = Modifier.size(58.dp))
         }
     }
 }

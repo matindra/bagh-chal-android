@@ -38,6 +38,12 @@ data class BoardsUiState(
     val selectedPieces: PieceSet = Entitlements.FREE_PIECE_SET,
 )
 
+/** Something a rewarded ad just unlocked, for the "Yay!" note. */
+sealed interface JustUnlocked {
+    data class Board(val theme: BoardTheme) : JustUnlocked
+    data class Pieces(val set: PieceSet) : JustUnlocked
+}
+
 class BoardsViewModel(
     private val settings: SettingsRepository,
     private val entitlements: EntitlementRepository,
@@ -58,6 +64,16 @@ class BoardsViewModel(
     private val _appIcon = MutableStateFlow(launcherIcons.current())
     val appIcon: StateFlow<AppIcon> = _appIcon.asStateFlow()
 
+    private val _justUnlocked = MutableStateFlow<JustUnlocked?>(null)
+
+    /** Set after an ad unlocks something; cleared by [onUnlockSeen]. */
+    val justUnlocked: StateFlow<JustUnlocked?> = _justUnlocked.asStateFlow()
+
+    private val _justSelected = MutableStateFlow<JustUnlocked?>(null)
+
+    /** Set when an already-unlocked board or piece set is picked, for a short note; cleared by [onSelectedSeen]. */
+    val justSelected: StateFlow<JustUnlocked?> = _justSelected.asStateFlow()
+
     private var unlockJob: Job? = null
 
     /** A locked board is offered for a rewarded ad; watching it to the end unlocks it for good. */
@@ -65,8 +81,9 @@ class BoardsViewModel(
         val state = uiState.value ?: return
         if (state.entitlements.isUnlocked(theme)) {
             writer.submit { settings.setBoardTheme(theme) }
+            _justSelected.value = JustUnlocked.Board(theme)
         } else {
-            unlockWithAd {
+            unlockWithAd(JustUnlocked.Board(theme)) {
                 entitlements.unlockTheme(theme)
                 settings.setBoardTheme(theme)
             }
@@ -78,8 +95,9 @@ class BoardsViewModel(
         val state = uiState.value ?: return
         if (state.entitlements.isUnlocked(set)) {
             writer.submit { settings.setPieceSet(set) }
+            _justSelected.value = JustUnlocked.Pieces(set)
         } else {
-            unlockWithAd {
+            unlockWithAd(JustUnlocked.Pieces(set)) {
                 entitlements.unlockPieceSet(set)
                 settings.setPieceSet(set)
             }
@@ -93,13 +111,24 @@ class BoardsViewModel(
         viewModelScope.launch(Dispatchers.Default) { launcherIcons.select(icon) }
     }
 
-    private fun unlockWithAd(unlock: suspend () -> Unit) {
+    fun onSelectedSeen() {
+        _justSelected.value = null
+    }
+
+    fun onUnlockSeen() {
+        _justUnlocked.value = null
+    }
+
+    private fun unlockWithAd(unlocked: JustUnlocked, unlock: suspend () -> Unit) {
         if (unlockJob?.isActive == true) return
         _noAdAvailable.value = false
         unlockJob = viewModelScope.launch {
             val outcome = ads.showRewarded(RewardedPlacement.THEME)
             when {
-                outcome.grantsThemeUnlock() -> writer.submit { unlock() }
+                outcome.grantsThemeUnlock() -> {
+                    writer.submit { unlock() }
+                    _justUnlocked.value = unlocked
+                }
                 outcome == RewardOutcome.UNAVAILABLE -> _noAdAvailable.value = true
             }
         }

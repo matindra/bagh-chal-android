@@ -66,6 +66,7 @@
     <string name="home_menu">Menu</string>
     <string name="menu_home">Home</string>
     <string name="menu_version">Version %1$s (%2$d)</string>
+    <string name="menu_more_games">More games</string>
     <string name="menu_website">Website</string>
     <string name="menu_privacy_policy">Privacy Policy</string>
 
@@ -105,14 +106,13 @@
     <string name="shop_unlocked">%1$d of %2$d unlocked</string>
     <string name="shop_all_unlocked">All unlocked</string>
     <string name="shop_all_free">All free</string>
+    <string name="shop_ad_free_offer">No ads for 1 year or for life</string>
+    <string name="shop_ad_free_yearly">Yearly pass active</string>
+    <string name="shop_ad_free_lifetime">Ads removed</string>
     <string name="boards_watch_ad">Watch ad to unlock</string>
     <string name="settings_remove_ads">Remove Ads</string>
     <string name="ad_free_title">Go ad-free</string>
     <string name="ad_free_intro">No banners and no ads between games, and Undo and Hint are free. Pick how long:</string>
-    <string name="ad_free_until">You\'re ad-free until %1$s.</string>
-    <string name="ad_free_day_title">24 hours free</string>
-    <string name="ad_free_day_detail">Watch one short ad and play a whole day without ads.</string>
-    <string name="ad_free_watch_ad">Watch ad</string>
     <string name="ad_free_year_title">1 year</string>
     <string name="ad_free_year_detail">No ads for a whole year. Renews every year until you cancel in Google Play.</string>
     <string name="ad_free_year_active">Your yearly ad-free pass is active.</string>
@@ -122,11 +122,18 @@
     <string name="ad_free_buy">Buy</string>
     <string name="ad_free_buy_price">Buy · %1$s</string>
     <string name="ad_free_pending">Your payment is being processed. It applies once it completes.</string>
-    <string name="message_day_pass_started">Enjoy! No ads for the next 24 hours.</string>
-    <string name="message_day_pass_skipped">Watch the whole ad to get your ad-free day.</string>
     <string name="settings_remove_ads_owned">Ads removed. Thank you for supporting the game!</string>
     <string name="settings_restore_purchase">Restore Purchase</string>
     <string name="settings_privacy_options">Privacy options</string>
+    <string name="settings_privacy_options_detail">Change your ad consent choices</string>
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <string name="unlocked_title">Yay!</string>
+    <string name="unlocked_board_message">New %1$s board unlocked. Enjoy!</string>
+    <string name="unlocked_pieces_message">New %1$s pieces unlocked. Enjoy!</string>
+    <string name="selected_board_message">%1$s theme selected</string>
+    <string name="selected_pieces_message">%1$s pieces selected</string>
+    <string name="unlocked_ok">Let\'s go</string>
     <string name="message_no_ad">No ad is available right now. Check your connection and try again.</string>
     <string name="message_purchase_unavailable">Purchases aren\'t available right now. Check that Google Play is set up and try again.</string>
     <string name="message_restored">Purchase restored. Ads are removed.</string>

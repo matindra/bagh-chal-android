@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +26,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
@@ -82,7 +84,48 @@ fun YesNoPrompt(
     onYes: () -> Unit,
     onNo: () -> Unit,
 ) {
-    Dialog(onDismissRequest = onNo, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    FrostPrompt(
+        title = title,
+        message = message,
+        onDismiss = onNo,
+        badge = { Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(58.dp)) },
+    ) { clock ->
+        SecondaryButton(yes, onYes, Modifier.weight(1f))
+        PrimaryButton(no, onNo, Modifier.weight(1f).buttonShine(clock, ButtonSize.Large))
+    }
+}
+
+/**
+ * A happy one-button note in the same frosted card, e.g. "Yay! New board unlocked".
+ * [badge] fills the round badge on the card's top edge (clipped to a circle).
+ */
+@Composable
+fun CelebratePrompt(
+    title: String,
+    message: String,
+    ok: String,
+    onOk: () -> Unit,
+    badge: @Composable () -> Unit,
+) {
+    FrostPrompt(
+        title = title,
+        message = message,
+        onDismiss = onOk,
+        badge = { Box(Modifier.size(BadgeSize).clip(CircleShape), contentAlignment = Alignment.Center) { badge() } },
+    ) { clock ->
+        PrimaryButton(ok, onOk, Modifier.weight(1f).buttonShine(clock, ButtonSize.Large))
+    }
+}
+
+@Composable
+private fun FrostPrompt(
+    title: String,
+    message: String,
+    onDismiss: () -> Unit,
+    badge: @Composable () -> Unit,
+    buttons: @Composable RowScope.(State<Long>) -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         val animationsOn = rememberAnimationsOn()
         val clock = rememberSceneClock()
         val enter = remember { Animatable(if (animationsOn) 0f else 1f) }
@@ -152,8 +195,7 @@ fun YesNoPrompt(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    SecondaryButton(yes, onYes, Modifier.weight(1f))
-                    PrimaryButton(no, onNo, Modifier.weight(1f).buttonShine(clock, ButtonSize.Large))
+                    buttons(clock)
                 }
             }
             // The piece badge rides on the card's top edge: a frosted coin like Home's icon chips.
@@ -165,7 +207,7 @@ fun YesNoPrompt(
                     .border(1.5.dp, HomeNight.FrostBorder, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Image(painterResource(icon), contentDescription = null, modifier = Modifier.size(58.dp))
+                badge()
             }
         }
     }

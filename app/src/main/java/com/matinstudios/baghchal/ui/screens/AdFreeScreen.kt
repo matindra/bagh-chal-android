@@ -1,6 +1,5 @@
 package com.matinstudios.baghchal.ui.screens
 
-import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -42,11 +40,12 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 private val MANAGE_SUBSCRIPTION_URL =
     "https://play.google.com/store/account/subscriptions?sku=$YEARLY_PASS_PRODUCT_ID&package=${BuildConfig.APPLICATION_ID}"
 
-/** Go ad-free: 24 hours for a rewarded ad, a year by subscription, or for good. */
+/** Go ad-free: a year by subscription, or for good. */
 @Composable
 fun AdFreeScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
     viewModel: AdFreeViewModel = viewModel(factory = AdFreeViewModel.Factory),
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value ?: return
@@ -55,12 +54,12 @@ fun AdFreeScreen(
     AdFreeContent(
         uiState = uiState,
         message = message,
-        onWatchAd = viewModel::onWatchAd,
         onBuy = viewModel::onBuy,
         onManageSubscription = { runCatching { uriHandler.openUri(MANAGE_SUBSCRIPTION_URL) } },
         onRestorePurchase = viewModel::onRestorePurchase,
         onBack = onBack,
         modifier = modifier,
+        onShop = onShop,
     )
 }
 
@@ -68,16 +67,16 @@ fun AdFreeScreen(
 fun AdFreeContent(
     uiState: AdFreeUiState,
     message: AdFreeMessage?,
-    onWatchAd: () -> Unit,
     onBuy: (AdFreeProduct) -> Unit,
     onManageSubscription: () -> Unit,
     onRestorePurchase: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
 ) {
     val adFree = uiState.adFree
     Column(modifier.fillMaxSize()) {
-        BackTopBar(onBack)
+        BackTopBar(onBack, onShop = onShop)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -94,19 +93,14 @@ fun AdFreeContent(
                 modifier = Modifier.semantics { heading() },
             )
             Text(
-                adFreeStatus(adFree, uiState.dayPassUntilMillis),
+                adFreeStatus(adFree),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.widthIn(max = 480.dp),
             )
             val cardModifier = Modifier.widthIn(max = 480.dp).fillMaxWidth()
-            if (adFree == AdFree.NONE) {
-                OptionCard(R.string.ad_free_day_title, R.string.ad_free_day_detail, cardModifier) {
-                    SecondaryButton(stringResource(R.string.ad_free_watch_ad), onWatchAd, Modifier.fillMaxWidth())
-                }
-            }
             when (adFree) {
-                AdFree.NONE, AdFree.DAY_PASS -> OptionCard(R.string.ad_free_year_title, R.string.ad_free_year_detail, cardModifier) {
+                AdFree.NONE -> OptionCard(R.string.ad_free_year_title, R.string.ad_free_year_detail, cardModifier) {
                     BuyButton(AdFreeProduct.YEARLY, uiState, onBuy, primary = false)
                 }
                 AdFree.YEARLY -> OptionCard(R.string.ad_free_year_title, R.string.ad_free_year_active, cardModifier) {
@@ -135,16 +129,8 @@ fun AdFreeContent(
 
 /** One sentence on how the player is ad-free now; also used by Settings. */
 @Composable
-fun adFreeStatus(adFree: AdFree, dayPassUntilMillis: Long): String = when (adFree) {
+fun adFreeStatus(adFree: AdFree): String = when (adFree) {
     AdFree.NONE -> stringResource(R.string.ad_free_intro)
-    AdFree.DAY_PASS -> stringResource(
-        R.string.ad_free_until,
-        DateUtils.formatDateTime(
-            LocalContext.current,
-            dayPassUntilMillis,
-            DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH,
-        ),
-    )
     AdFree.YEARLY -> stringResource(R.string.ad_free_year_active)
     AdFree.LIFETIME -> stringResource(R.string.settings_remove_ads_owned)
 }
@@ -187,9 +173,6 @@ private fun ColumnScope.BuyButton(product: AdFreeProduct, uiState: AdFreeUiState
 
 private val AdFreeMessage.text: Int
     get() = when (this) {
-        AdFreeMessage.DAY_PASS_STARTED -> R.string.message_day_pass_started
-        AdFreeMessage.AD_SKIPPED -> R.string.message_day_pass_skipped
-        AdFreeMessage.NO_AD -> R.string.message_no_ad
         AdFreeMessage.PURCHASE_UNAVAILABLE -> R.string.message_purchase_unavailable
         AdFreeMessage.RESTORED -> R.string.message_restored
         AdFreeMessage.NOT_OWNED -> R.string.message_not_owned
@@ -203,12 +186,10 @@ private fun AdFreeContentPreview() {
         AdFreeContent(
             uiState = AdFreeUiState(
                 adFree = AdFree.NONE,
-                dayPassUntilMillis = 0L,
                 prices = mapOf(AdFreeProduct.YEARLY to "₹49.00", AdFreeProduct.LIFETIME to "₹199.00"),
                 pending = emptySet(),
             ),
             message = null,
-            onWatchAd = {},
             onBuy = {},
             onManageSubscription = {},
             onRestorePurchase = {},

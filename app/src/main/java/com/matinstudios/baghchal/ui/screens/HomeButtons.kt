@@ -74,6 +74,7 @@ internal fun RaisedButton(
     faceModifier: Modifier = Modifier,
     border: Color? = null,
     enabled: Boolean = true,
+    role: Role = Role.Button,
     decoration: (DrawScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -84,7 +85,7 @@ internal fun RaisedButton(
     Box(
         modifier
             .drawBehind { drawLip(shape, lip, sink.toPx(), (lipHeight - sink).toPx()) }
-            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(interaction, indication = null, enabled = enabled, role = role, onClick = onClick)
             .padding(top = sink, bottom = lipHeight - sink),
         propagateMinConstraints = true,
     ) {
@@ -254,6 +255,18 @@ private fun DrawScope.drawShine(t: Float) {
 
 /** A mode's colours: the icon chip, its darker lip, and the light text tint on its glass row. */
 internal class ModeColors(val chip: Color, val chipLip: Color, val ink: Color)
+
+/** Shared row colours for Settings and the side menu, matching Home's mode rows. */
+internal object ChipColors {
+    val Sky = ModeColors(Color(0xFF38BDF8), Color(0xFF0E7AB0), Color(0xFFCDEFFF))
+    val Violet = ModeColors(Color(0xFF9B7BFF), Color(0xFF5E43C2), Color(0xFFE3DAFF))
+    val Pink = ModeColors(Color(0xFFFF5C8A), Color(0xFFB02A55), Color(0xFFFFD3E0))
+    val Green = ModeColors(Color(0xFF34D399), Color(0xFF0F8A5F), Color(0xFFC9F5E4))
+    val Teal = ModeColors(Color(0xFF2DD4BF), Color(0xFF0F7F73), Color(0xFFC8F7F0))
+    val Orange = ModeColors(Color(0xFFFF9F43), Color(0xFFB8620F), Color(0xFFFFE2C4))
+    val Gold = ModeColors(HomeNight.Gold, HomeNight.GoldLip, Color(0xFFFFEBB0))
+    val Coral = ModeColors(HomeNight.Coral, HomeNight.CoralLip, Color(0xFFFFD6CB))
+}
 
 /**
  * A tinted-glass mode row: the mode's colour, see-through over the night sky, with its icon chip,

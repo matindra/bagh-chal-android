@@ -52,7 +52,7 @@ class AppContainer(context: Context, val servicesEnabled: Boolean = true) {
         owned.effectivePieceSet(settings.pieceSet)
     }
 
-    /** How the player is ad-free right now (Remove Ads, the yearly pass or a day pass). */
+    /** How the player is ad-free right now (Remove Ads or the yearly pass). */
     val adFree: Flow<AdFree> = entitlements.entitlements.adFree()
 
     /** Which launcher icon the home screen shows. */

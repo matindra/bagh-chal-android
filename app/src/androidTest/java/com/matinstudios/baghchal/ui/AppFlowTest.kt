@@ -428,10 +428,6 @@ class AppFlowTest {
         waitForText(R.string.settings_title)
         compose.onNode(hasText(str(R.string.settings_remove_ads)) and hasClickAction()).performScrollTo().performClick()
         waitForText(R.string.ad_free_title)
-        // Tests run without ads: the day pass needs a watched ad, so it isn't granted.
-        text(R.string.ad_free_watch_ad).performClick()
-        waitForText(R.string.message_no_ad)
-        text(R.string.ad_free_day_title).assertIsDisplayed()
         // Tests run without Play Billing, so the purchase sheet can't open.
         compose.onAllNodes(hasText(str(R.string.ad_free_buy)) and hasClickAction())[1].performScrollTo().performClick()
         waitForText(R.string.message_purchase_unavailable)

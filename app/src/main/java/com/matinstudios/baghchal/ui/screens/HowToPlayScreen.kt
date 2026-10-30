@@ -34,16 +34,22 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 fun HowToPlayScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
     viewModel: HowToPlayViewModel = viewModel(factory = HowToPlayViewModel.Factory),
 ) {
     val theme = viewModel.boardTheme.collectAsStateWithLifecycle().value ?: return
-    HowToPlayContent(theme, onBack, modifier)
+    HowToPlayContent(theme, onBack, modifier, onShop)
 }
 
 @Composable
-fun HowToPlayContent(boardTheme: BoardTheme, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun HowToPlayContent(
+    boardTheme: BoardTheme,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    onShop: (() -> Unit)? = null,
+) {
     Column(modifier.fillMaxSize()) {
-        BackTopBar(onBack)
+        BackTopBar(onBack, onShop = onShop)
         Column(
             modifier = Modifier
                 .weight(1f)

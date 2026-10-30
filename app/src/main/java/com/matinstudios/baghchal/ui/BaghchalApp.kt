@@ -95,6 +95,8 @@ fun BaghchalApp(
     LaunchedEffect(navController) {
         navController.currentBackStackEntryFlow.collect { appViewModel.onScreenChanged(navController.isInGame()) }
     }
+    // The Shop button on screens with a back arrow; reuses the Shop already on the back stack.
+    val openShop: () -> Unit = { navController.navigate(SHOP_ROUTE) { launchSingleTop = true } }
     NavHost(navController, startDestination = if (showWelcome) WELCOME_ROUTE else HOME_ROUTE, modifier = modifier) {
         insetScreen(WELCOME_ROUTE, barPadding) {
             WelcomeScreen(
@@ -191,6 +193,7 @@ fun BaghchalApp(
                 // Back from the game goes Home, where the game can be resumed.
                 onStart = { setup -> navController.navigate(setup.route) { popUpTo(HOME_ROUTE) } },
                 onBack = { navController.popBackStack() },
+                onShop = openShop,
             )
         }
         insetScreen(
@@ -205,6 +208,7 @@ fun BaghchalApp(
                 mode = mode,
                 onMatched = { roomId -> navController.navigate(OnlineGameViewModel.route(roomId)) },
                 onBack = { navController.popBackStack() },
+                onShop = openShop,
             )
         }
         insetScreen(
@@ -229,11 +233,12 @@ fun BaghchalApp(
             )
         }
         insetScreen(STATS_ROUTE, barPadding) {
-            StatsScreen(onBack = { navController.popBackStack() })
+            StatsScreen(onBack = { navController.popBackStack() }, onShop = openShop)
         }
         insetScreen(SHOP_ROUTE, barPadding) {
             ShopScreen(
                 onOpenSection = { section -> navController.navigate(shopSectionRoute(section)) },
+                onGoAdFree = { navController.navigate(AD_FREE_ROUTE) },
                 onBack = { navController.popBackStack() },
             )
         }
@@ -251,13 +256,14 @@ fun BaghchalApp(
             SettingsScreen(
                 onGoAdFree = { navController.navigate(AD_FREE_ROUTE) },
                 onBack = { navController.popBackStack() },
+                onShop = openShop,
             )
         }
         insetScreen(AD_FREE_ROUTE, barPadding) {
-            AdFreeScreen(onBack = { navController.popBackStack() })
+            AdFreeScreen(onBack = { navController.popBackStack() }, onShop = openShop)
         }
         insetScreen(HOW_TO_PLAY_ROUTE, barPadding) {
-            HowToPlayScreen(onBack = { navController.popBackStack() })
+            HowToPlayScreen(onBack = { navController.popBackStack() }, onShop = openShop)
         }
     }
 }

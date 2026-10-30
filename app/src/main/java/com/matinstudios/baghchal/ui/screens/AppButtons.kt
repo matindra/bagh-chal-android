@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -284,7 +285,12 @@ fun QuietButton(
  * exactly where the menu button sits.
  */
 @Composable
-fun BackTopBar(onBack: () -> Unit, modifier: Modifier = Modifier, @StringRes title: Int? = null) {
+fun BackTopBar(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes title: Int? = null,
+    onShop: (() -> Unit)? = null,
+) {
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = MenuTopBarHeight).padding(start = TopBarButtonStart, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -298,6 +304,10 @@ fun BackTopBar(onBack: () -> Unit, modifier: Modifier = Modifier, @StringRes tit
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.semantics { heading() },
             )
+        }
+        if (onShop != null) {
+            Spacer(Modifier.weight(1f))
+            HomeIconButton(R.drawable.ic_shop, R.string.home_shop, onShop, HomeIconColors.Gold)
         }
     }
 }

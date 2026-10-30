@@ -113,11 +113,12 @@ app/src/main/java/com/matinstudios/baghchal/
 - Sound effects + haptics, toggleable in Settings.
 - "How to Play" screen with illustrated rules.
 - Save/resume the in-progress game automatically.
-- Leaving a game in progress (menu Home or system Back) and Back on Home (closes the app) always ask first with `YesNoPrompt` (`ui/screens/YesNoPrompt.kt`): Home's night look: frosted-glass card with a white rim and frosted piece badge, rises in, floats 3 dp and shares Home's shine wave (card, then No), soft snow drifting inside. **No** (the safe choice) is the coral `PrimaryButton` on the right; **Yes** is a frosted `SecondaryButton`. Local games say the game is saved; online games say leaving counts as a loss. Finished games leave straight away. Use `YesNoPrompt` for any new are-you-sure prompt.
+- Leaving a game in progress (menu Home or system Back) and Back on Home (closes the app) always ask first with `YesNoPrompt` (`ui/screens/YesNoPrompt.kt`): Home's night look: frosted-glass card with a white rim and frosted piece badge, rises in, floats 3 dp and shares Home's shine wave (card, then No), soft snow drifting inside. **No** (the safe choice) is the coral `PrimaryButton` on the right; **Yes** is a frosted `SecondaryButton`. Local games say the game is saved; online games say leaving counts as a loss. Finished games leave straight away. Use `YesNoPrompt` for any new are-you-sure prompt; `CelebratePrompt` (same card, one coral button) is the happy note, e.g. "Yay! New … board unlocked" after a rewarded unlock.
 - Stats: wins/losses per side and difficulty.
 - Localisation-ready: all strings in `strings.xml` (plan for English + Hindi + Odia + Nepali).
 - Portrait only on phones.
-- Buttons (`ui/screens/AppButtons.kt`): one raised family (a face on a lip that sinks when pressed), design at claude.ai/artifact/UzNkLVeh5jkJtXMSuYqpES. `PrimaryButton` (one main action, solid coral) and `SecondaryButton` (frosted glass, beside it; `ButtonPair` = secondary left, primary right), both `ButtonSize.Large` (56 dp) or `Small` (40 dp, dialog confirms). `ToolButton` (48 dp frosted, coloured icon chip: Undo cyan, Hint gold; `adLabel` shows an AD badge and is what screen readers hear). `HomeIconButton` for square icons. `QuietButton` (no face, gold text, `danger` = soft red) for small actions and dialog dismisses. No Material `TextButton`/tonal buttons. Dialogs: `QuietButton` dismiss + small `PrimaryButton` confirm. No bottom "Back" buttons: `BackTopBar`'s arrow sits where `MenuTopBar`'s menu button does; both are Home's frosted square (`HomeIconButton`).
+- Buttons (`ui/screens/AppButtons.kt`): one raised family (a face on a lip that sinks when pressed), design at claude.ai/artifact/UzNkLVeh5jkJtXMSuYqpES. `PrimaryButton` (one main action, solid coral) and `SecondaryButton` (frosted glass, beside it; `ButtonPair` = secondary left, primary right), both `ButtonSize.Large` (56 dp) or `Small` (40 dp, dialog confirms). `ToolButton` (48 dp frosted, coloured icon chip: Undo cyan, Hint gold; `adLabel` shows an AD badge and is what screen readers hear). `HomeIconButton` for square icons. `QuietButton` (no face, gold text, `danger` = soft red) for small actions and dialog dismisses. No Material `TextButton`/tonal buttons. Dialogs: `QuietButton` dismiss + small `PrimaryButton` confirm. No bottom "Back" buttons: `BackTopBar`'s arrow sits where `MenuTopBar`'s menu button does; both are Home's frosted square (`HomeIconButton`). `BackTopBar(onShop = …)` adds Home's gold Shop button top right; every back-arrow screen outside the Shop passes it.
+- Settings: each setting is a Home-style tinted-glass row (own colour, icon chip, chunky switch, float + shine); off rows turn grey. The side menu (`AppMenu.kt`) uses the same rows, colour picked from each entry's icon; shared colours are `ChipColors`.
 - Home buttons (`ui/screens/HomeButtons.kt`): Play with AI (coral) and the mode rows Friend / Quick Match / Pass n Play (`FrostModeButton`, own colour) are see-through tinted glass, so the sky and falling snow show through. `RaisedButton` draws its lip only around the face, so faces may be translucent. They gently float (3 dp) and share one shine wave running top to bottom; both stop when system animations are off.
 
 ## Online play
@@ -142,21 +143,20 @@ app/src/main/java/com/matinstudios/baghchal/
 - Preload ads; handle failures silently — the game must work fully offline with no ads.
 - Follow AdMob policy: no accidental-click layouts, no ads near interactive game pieces.
 
-### Going ad-free (Play Billing + rewarded ad)
-- Three ways, all on the "Go ad-free" screen (`ui/screens/AdFreeScreen.kt`, opened from Home's Remove Ads button and the Remove Ads card in Settings):
+### Going ad-free (Play Billing)
+- Two ways, both on the "Go ad-free" screen (`ui/screens/AdFreeScreen.kt`, opened from Home's Remove Ads button and the Remove Ads card in Settings):
   - **Lifetime** (₹199): one-time non-consumable `remove_ads`. Also unlocks every board and piece set.
   - **1 year** (₹49): subscription `ad_free_year` (one yearly base plan; auto-renewing or prepaid both work).
-  - **24 hours**: watch a rewarded ad (`RewardedPlacement.AD_FREE_DAY`) to the end; stored as an end time (`Entitlements.dayPassUntilMillis`), ignored if more than 24 h away (clock turned back).
 - Prices live in Play Console; the app shows Play's formatted price.
-- Any of the three (`AdFree`, from `AppContainer.adFree`, which flips the moment a day pass ends) hides banners and interstitials and makes Undo/Hint free. Board/piece rewarded unlocks still offer their ad on a day or year pass.
+- Either one (`AdFree`, from `AppContainer.adFree`) hides banners and interstitials and makes Undo/Hint free. Board/piece rewarded unlocks still offer their ad on the year pass.
 - Acknowledge purchases; restore both products on launch via `queryPurchasesAsync` (INAPP + SUBS). A missing subscription in a full restore list drops the yearly pass.
 - Cache entitlements in DataStore. Settings has "Remove Ads" (opens the ad-free screen) and "Restore Purchase".
 
 ### Implementation notes
-- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID`, `ADMOB_REWARDED_ADFREE_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. `-PtestAds=true` forces the test IDs in a release build (early closed testing). Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
-- One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME, AD_FREE_DAY).
+- AdMob IDs: `local.properties` keys `ADMOB_APP_ID`, `ADMOB_BANNER_HOME_ID`, `ADMOB_BANNER_GAME_ID`, `ADMOB_INTERSTITIAL_GAMEEND_ID`, `ADMOB_REWARDED_UNDO_ID`, `ADMOB_REWARDED_HINT_ID`, `ADMOB_REWARDED_THEME_ID` → `BuildConfig` fields of the same name (app ID → manifest placeholder `admobAppId`). Release only; debug always uses Google's test IDs, and a missing key in release falls back to them. `-PtestAds=true` forces the test IDs in a release build (early closed testing). Debug-only consent testing: `ump.forceEea=true` + `ump.testDeviceId=…`.
+- One ad unit per placement: `BannerPlacement` (HOME, GAME) and `RewardedPlacement` (UNDO, HINT, THEME).
 - Screens see ads only through the `ads/Ads` interface; instrumented tests run on `TestBaghchalApplication` (no consent, ads or billing).
-- Undo/Hint/theme/day-pass rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks and the day pass are not.
+- Undo/Hint/theme rewards: skipping the ad withholds the reward; when no ad can be shown, Undo/Hint are free but theme unlocks are not.
 
 ## Coding conventions
 
