@@ -47,6 +47,18 @@ Can you trap the tigers, or will the tigers break through? Download Bagh Chal an
 - Feature graphic: feature-graphic.png (1024×500)
 - Phone screenshots: screenshots/01-classic.png … 08-resume.png (1080×1920)
 
+## Release notes — 1.0 (versionCode 10), production launch (max 500 per language)
+<en-US>
+Welcome to Bagh Chal, the classic game of tigers and goats played in India and Nepal!
+• Play the AI as Tigers or Goats: Easy, Medium or Hard
+• Play online: quick match, or invite a friend with a 4-digit code
+• Pass n Play with a friend on one device
+• Unlock boards, piece sets and app icons in the Shop
+• Undo, hints, auto-save, stats and a How to Play guide
+• Go ad-free for a year or for life
+Enjoying the game? A rating helps a lot!
+</en-US>
+
 ## Release notes — 1.0 (versionCode 3), closed testing (max 500 per language)
 <en-US>
 First test release of Bagh Chal: Tiger & Goat Game.

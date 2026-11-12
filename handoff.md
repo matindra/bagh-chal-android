@@ -7,6 +7,19 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-12 — production access granted; production build vc10
+- Google granted production access (open testing is now available too).
+- versionCode bumped to **10** (versionName 1.0); includes the androidx.fragment 1.9.1 pin (Play Console flagged Play Services' fragment 1.1.0). `./gradlew test lint` green.
+- Signed bundle `dist/baghchal-1.0-vc10.aab` with **real** ad IDs (release BuildConfig checked, no Google test IDs) + `dist/mapping-1.0-vc10.txt`.
+- 2026-11-12: vc10 (mapping attached) **sent to Production for review** by the user. The open-testing release of vc10 was discarded first. Production release notes are in `store/listing.md` ("…tigers and goats played in India and Nepal!").
+- Next: watch the review; after approval, watch Android vitals (crashes/ANRs) before raising the rollout. The store descriptions and the in-app `welcome_tagline` still say "from Nepal" only; changing the tagline needs vc11.
+- Still to confirm (see below): Play App Signing SHA-1 in Firebase, Data safety form, Firebase rules.
+
+## 2026-11-10 — applied for production access
+- Production access form submitted in Play Console (closed test ran from 2026-10-25). Google emails the account owner, usually within 7 days. Keep testers opted in until then.
+- Next after approval: build **versionCode 10** with real ad IDs (`scripts/build-release.sh`, no `--test-ads`); vc9 is already used by the test-ads upload, so `baghchal-1.0-vc9.aab` can't be uploaded.
+- Still to confirm before launch: Play App Signing SHA-1 in Firebase, Firebase in the Data safety form, latest `firebase/database.rules.json` published.
+
 ## Session 2026-10-30 (64) — Colourful side menu
 
 - The side (hamburger) menu matches Home and Settings: night-sky panel with a white rim, glossy "Bagh Chal" title with tiger/goat badges, and each entry a raised tinted-glass row with a coloured icon chip and chevron, floating and shining. An entry's colour comes from its icon (`menuColors` in `AppMenu.kt`), so it is the same on every screen.
@@ -23,6 +36,11 @@
 - Picking an already-unlocked board or piece set shows a frosted pill near the bottom for 2 s: "Snow theme selected" / "Bold pieces selected" (`BoardsViewModel.justSelected`, `SelectedNote` in `BoardsScreen.kt`; read out by TalkBack).
 - `YesNoPrompt` and `CelebratePrompt` share a private `FrostPrompt`. `BoardsViewModel.justUnlocked` / `onUnlockSeen()` drive it.
 - `./gradlew assembleDebug test` green. Not checked on a device.
+
+## Session 2026-10-30 (62) — release build vc9
+- versionCode bumped to **9** (versionName 1.0). Includes the day-pass removal (61) and More games (60). Unit tests and lint pass.
+- Signed bundles in `dist/`: `baghchal-1.0-vc9-testads.aab` (Google test ads, for closed testing) and `baghchal-1.0-vc9.aab` (real ad IDs, for production), each with its `mapping-1.0-vc9*.txt`.
+- 2026-10-31: `vc9-testads` uploaded to closed testing by the user, with release notes (ad-free 1 year/Lifetime, colourful Settings + side menu, "Yay!" unlock, Shop button, More games).
 
 ## Session 2026-10-30 (61) — 24-hour ad-free option removed
 - The Go ad-free screen now offers only **1 year** (`ad_free_year`) and **Lifetime** (`remove_ads`). Removed the rewarded day pass: `AdFree.DAY_PASS`, `Entitlements.dayPassUntilMillis`/`dayPassLeftMillis`, `startDayPass`, `RewardedPlacement.AD_FREE_DAY`, `grantsDayPass`, `ADMOB_REWARDED_ADFREE_ID`, and its strings. `Entitlements.adFree()` no longer takes a time; `Flow<Entitlements>.adFree()` is a plain map.

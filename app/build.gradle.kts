@@ -61,7 +61,7 @@ android {
         applicationId = "com.matinstudios.baghchal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 8
+        versionCode = 10
         versionName = "1.0"
 
         testInstrumentationRunner = "com.matinstudios.baghchal.BaghchalTestRunner"
@@ -96,6 +96,8 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    // Play Services still asks for fragment 1.1.0, which Play Console flags as outdated.
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
