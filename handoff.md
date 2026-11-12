@@ -12,7 +12,10 @@
 - versionCode bumped to **10** (versionName 1.0); includes the androidx.fragment 1.9.1 pin (Play Console flagged Play Services' fragment 1.1.0). `./gradlew test lint` green.
 - Signed bundle `dist/baghchal-1.0-vc10.aab` with **real** ad IDs (release BuildConfig checked, no Google test IDs) + `dist/mapping-1.0-vc10.txt`.
 - 2026-11-12: vc10 (mapping attached) **sent to Production for review** by the user. The open-testing release of vc10 was discarded first. Production release notes are in `store/listing.md` ("…tigers and goats played in India and Nepal!").
-- Next: watch the review; after approval, watch Android vitals (crashes/ANRs) before raising the rollout. The store descriptions and the in-app `welcome_tagline` still say "from Nepal" only; changing the tagline needs vc11.
+- Next: watch the review; after approval, watch Android vitals (crashes/ANRs) before raising the rollout.
+- Store short/full descriptions in `store/listing.md` now say "India and Nepal" (user pastes them into Play Console).
+- Mapping file: AGP puts it inside the AAB (`BUNDLE-METADATA/.../proguard.map`), so Play picks it up; no separate upload needed.
+- Unreleased (vc11): `welcome_tagline` → "The tiger and goat game of India and Nepal"; versionCode bumped to **11**. Not built or signed yet.
 - Still to confirm (see below): Play App Signing SHA-1 in Firebase, Data safety form, Firebase rules.
 
 ## 2026-11-10 — applied for production access

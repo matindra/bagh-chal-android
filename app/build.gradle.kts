@@ -61,7 +61,7 @@ android {
         applicationId = "com.matinstudios.baghchal"
         minSdk = 24
         targetSdk = 37
-        versionCode = 10
+        versionCode = 11
         versionName = "1.0"
 
         testInstrumentationRunner = "com.matinstudios.baghchal.BaghchalTestRunner"
