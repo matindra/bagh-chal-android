@@ -16,12 +16,12 @@
 - Store short/full descriptions in `store/listing.md` now say "India and Nepal" (user pastes them into Play Console).
 - Mapping file: AGP puts it inside the AAB (`BUNDLE-METADATA/.../proguard.map`), so Play picks it up; no separate upload needed.
 - Unreleased (vc11): `welcome_tagline` → "The tiger and goat game of India and Nepal"; versionCode bumped to **11**. Not built or signed yet.
-- Still to confirm (see below): Play App Signing SHA-1 in Firebase, Data safety form, Firebase rules.
+- Still to confirm (see below): Data safety form, Firebase rules. Play App Signing SHA-1 in Firebase is **not needed**: the app uses only anonymous Auth + Realtime Database, which do not check fingerprints (only Google/phone sign-in, App Check and Dynamic Links do). Add SHA-1 + SHA-256 only if one of those is added later.
 
 ## 2026-11-10 — applied for production access
 - Production access form submitted in Play Console (closed test ran from 2026-10-25). Google emails the account owner, usually within 7 days. Keep testers opted in until then.
 - Next after approval: build **versionCode 10** with real ad IDs (`scripts/build-release.sh`, no `--test-ads`); vc9 is already used by the test-ads upload, so `baghchal-1.0-vc9.aab` can't be uploaded.
-- Still to confirm before launch: Play App Signing SHA-1 in Firebase, Firebase in the Data safety form, latest `firebase/database.rules.json` published.
+- Still to confirm before launch: Firebase in the Data safety form, latest `firebase/database.rules.json` published.
 
 ## Session 2026-10-30 (64) — Colourful side menu
 
