@@ -4,10 +4,10 @@
 Bagh Chal: Tiger & Goat Game
 
 ## Short description (max 80)
-Nepal's classic tiger and goat strategy game. Play the AI, online or a friend.
+Classic tiger and goat game of India and Nepal. Play the AI, online or a friend.
 
 ## Full description (max 4000)
-Bagh Chal ("move the tiger") is the traditional strategy board game from Nepal. Four tigers hunt twenty goats on a 5×5 board. It is quick to learn and hard to master.
+Bagh Chal ("move the tiger") is the traditional strategy board game played in India and Nepal. Four tigers hunt twenty goats on a 5×5 board. It is quick to learn and hard to master.
 
 HOW IT WORKS
 • Tigers win by capturing 5 goats. They jump over a goat in a straight line to the empty point beyond.
