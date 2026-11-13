@@ -31,3 +31,18 @@ Made by Matin Studios: https://matinstudios.com
 
 ## Tags (max 500 characters in total)
 bagh chal, baghchal, bagh chal game, tiger and goat game, tigers and goats, goats and tigers, nepali board game, nepal game, indian board game, traditional board game, strategy board game, classic board game, bagh chal android, tiger game, goat game, board game app, offline board game, two player game, multiplayer board game, play with friends, mobile board game, android game, bagh bakri, aadu puli attam, huligutta, matin studios
+
+# YouTube Short (store/short.mp4)
+
+## Title (max 100; keep #Shorts)
+Can you trap the tigers? 🐯🐐 Bagh Chal, the classic board game of Nepal #Shorts
+
+## Description
+4 tigers vs 20 goats. Tigers jump to capture, goats team up to trap them. Play the AI, a friend online, or pass n play.
+
+Free on Google Play: https://play.google.com/store/apps/details?id=com.matinstudios.baghchal
+
+#Shorts #BaghChal #BoardGame #StrategyGame #Nepal #MobileGame
+
+## Tags
+Same as the trailer.

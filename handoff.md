@@ -12,6 +12,7 @@
 - Sound is the app's own: `music_home` for the whole video (only one track, by request); `move` on tiger drops, the goat step, difficulty pills and code digits; `tiger_capture` on the jump; `goat_capture` when the tiger gets locked; `player_win` on the end card. No voice-over.
 - Rebuild: `scripts/trailer/make-trailer.sh` (`trailer.html` animation, `render.mjs` grabs frames through headless Chrome's DevTools protocol, no npm packages). Sound cue times in the script must match the animation times in `trailer.html`.
 - Thumbnail `store/youtube-thumbnail.png` (1280×720) from `scripts/trailer/thumbnail.html`, made by the same script. Title/description/tags in `store/youtube.md`.
+- YouTube Short `store/short.mp4` (1080×1920, 20.5 s): hook, setup, hunt, trap, modes, end card; text kept out of the Shorts UI areas (bottom ~400 px, right ~140 px). `scripts/trailer/make-short.sh` from `short.html`; `render.mjs` takes `PAGE`/`WIDTH`/`HEIGHT`. Cover `store/short-thumbnail.png` from `thumbnail-short.html` (same script; upload it in the YouTube phone app).
 - End card says "Free on Google Play" as plain text; add the official Play badge in the YouTube editor or video editor if wanted.
 
 ## 2026-11-13 — Paw & Scratch piece set (unreleased)

@@ -194,6 +194,7 @@ scripts/convert-svgs.sh      # regenerate res/drawable + legacy launcher icons f
 scripts/convert-sounds.sh    # regenerate res/raw/*.ogg from design/sounds (needs ffmpeg + vorbis-tools)
 scripts/make-store-images.py # Play Store screenshots + feature graphic from store/raw (needs Chrome + ffmpeg)
 scripts/trailer/make-trailer.sh # 31 s YouTube trailer + thumbnail -> store/trailer.mp4, store/youtube-thumbnail.png (needs Chrome, Node 22+, ffmpeg)
+scripts/trailer/make-short.sh   # 20 s vertical YouTube Short + cover -> store/short.mp4, store/short-thumbnail.png
 ```
 
 ## Release checklist

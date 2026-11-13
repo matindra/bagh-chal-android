@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bagh Chal short</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Inter:wght@400;600;700&display=swap">
+<style>
+  /* 1080x1920 YouTube Short. Shorts covers the bottom ~400 px (title, channel) and a ~140 px column on the
+     right (like, comment, share), so text stays in the top two thirds and away from the right edge. */
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; color: #fff;
+    background: linear-gradient(180deg, #0A1636 0%, #172A5E 60%, #263C7A 100%); }
+  .abs { position: absolute; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .display { font-family: 'Baloo 2', sans-serif; font-weight: 800; margin: 0; line-height: 1; text-shadow: 0 6px 30px rgba(10,22,54,0.6); }
+  .head { position: absolute; left: 80px; right: 80px; top: 230px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+  .sub { margin: 0; font-size: 44px; line-height: 1.35; color: #C9D6FF; font-weight: 600; }
+  .chip { padding: 18px 32px; border-radius: 28px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.35); font-size: 38px; font-weight: 700; }
+  .tag { font-weight: 700; font-size: 48px; text-transform: uppercase; padding: 12px 34px; border-radius: 999px; }
+  .row { box-sizing: border-box; height: 190px; padding: 0 44px; border-radius: 44px; display: flex; align-items: center; gap: 36px; }
+  .row h3 { margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 64px; line-height: 1; }
+  .row p { margin: 6px 0 0; font-size: 32px; color: #DCE6FF; }
+  .ico { width: 96px; height: 96px; border-radius: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ico div { width: 60px; height: 60px; background: #fff; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(120px); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" style="left:-200px; top:-200px; width:900px; height:700px; background:#3FE0A8; opacity:0.16"></div>
+  <div class="blob" style="right:-200px; top:-100px; width:800px; height:640px; background:#9B7BFF; opacity:0.18"></div>
+  <svg id="mountains" class="abs" viewBox="0 0 960 540" style="left:-540px; top:780px; width:2160px; height:1215px; transform-origin: 50% 100%">
+    <polygon points="0,540 0,360 140,250 230,320 360,190 470,300 560,230 690,330 800,220 960,330 960,540" fill="#1F3470"/>
+    <polygon points="360,190 330,222 352,216 372,232 392,214 404,226" fill="#E6EEFF"/>
+    <polygon points="800,220 772,250 792,244 810,258 828,240 840,252" fill="#E6EEFF"/>
+    <polygon points="140,250 116,274 134,270 150,282 164,268" fill="#E6EEFF"/>
+    <polygon points="0,540 0,440 180,370 320,430 520,350 700,440 860,390 960,430 960,540" fill="#16285A"/>
+  </svg>
+  <svg id="snow" class="abs" viewBox="0 0 1080 1920" style="left:0; top:0; width:1080px; height:1920px"></svg>
+
+  <!-- A hook -->
+  <div class="scene" id="sA">
+    <div class="head" style="top:300px">
+      <h1 class="display" id="aH" style="font-size:132px">Can you trap<br>the tigers?</h1>
+    </div>
+    <img id="aT" class="abs" src="../../design/tiger_piece.svg" style="left:290px; top:760px; width:500px; height:500px">
+  </div>
+
+  <!-- B setup -->
+  <div class="scene" id="sB">
+    <div class="head">
+      <h1 class="display" style="font-size:150px">Bagh Chal</h1>
+      <div id="bTags" style="display:flex; align-items:center; gap:18px; margin-top:8px">
+        <span class="tag" style="background:#F0552F; box-shadow:0 7px 0 #A8341A">4 Tigers</span>
+        <span class="display" style="font-size:56px; color:#FFC94D">vs</span>
+        <span class="tag" style="background:#2E9E68; box-shadow:0 7px 0 #1F6B47">20 Goats</span>
+      </div>
+    </div>
+    <div class="abs" id="bB" style="left:90px; top:620px"></div>
+  </div>
+
+  <!-- C hunt -->
+  <div class="scene" id="sC">
+    <div class="head" id="cH">
+      <h2 class="display" style="font-size:128px; color:#FF7A57">Tigers hunt</h2>
+      <p class="sub">Jump a goat to capture it.<br>Catch five to win.</p>
+    </div>
+    <div class="abs" id="bC" style="left:90px; top:620px"></div>
+  </div>
+
+  <!-- D trap -->
+  <div class="scene" id="sD">
+    <div class="head" id="dH">
+      <h2 class="display" style="font-size:128px; color:#4FD18F">Goats trap</h2>
+      <p class="sub">Box in every tiger<br>so none can move.</p>
+    </div>
+    <div class="abs" id="bD" style="left:90px; top:620px"></div>
+  </div>
+
+  <!-- E modes -->
+  <div class="scene" id="sE">
+    <div class="head"><h2 class="display" style="font-size:120px">Play your way</h2></div>
+    <div class="abs" style="left:80px; right:80px; top:520px; display:flex; flex-direction:column; gap:40px">
+      <div class="row" id="r0" style="background:rgba(240,85,47,0.35); border:3px solid rgba(255,140,110,0.8); box-shadow:0 10px 0 rgba(130,40,20,0.9)">
+        <div class="ico" style="background:#fff"><svg viewBox="0 0 24 24" width="56" height="56"><path d="M8 5v14l11-7z" fill="#F0552F"/></svg></div>
+        <div><h3>Play with AI</h3><p>Easy · Medium · Hard</p></div>
+      </div>
+      <div class="row" id="r1" style="background:rgba(79,214,232,0.2); border:3px solid rgba(79,214,232,0.7); box-shadow:0 10px 0 rgba(20,90,110,0.85)">
+        <div class="ico" style="background:#36C3EE"><div style="-webkit-mask:url(../../design/mode_friend_line.svg) center/contain no-repeat; mask:url(../../design/mode_friend_line.svg) center/contain no-repeat"></div></div>
+        <div><h3>Friend</h3><p>Online with a 4-digit code</p></div>
+      </div>
+      <div class="row" id="r2" style="background:rgba(236,72,153,0.2); border:3px solid rgba(244,114,182,0.7); box-shadow:0 10px 0 rgba(120,30,80,0.85)">
+        <div class="ico" style="background:#EC5A9A"><div style="-webkit-mask:url(../../design/mode_online_line.svg) center/contain no-repeat; mask:url(../../design/mode_online_line.svg) center/contain no-repeat"></div></div>
+        <div><h3>Quick Match</h3><p>Random players online</p></div>
+      </div>
+      <div class="row" id="r3" style="background:rgba(52,211,153,0.2); border:3px solid rgba(52,211,153,0.7); box-shadow:0 10px 0 rgba(20,100,70,0.85)">
+        <div class="ico" style="background:#2FCB8E"><div style="-webkit-mask:url(../../design/mode_vs_player_line.svg) center/contain no-repeat; mask:url(../../design/mode_vs_player_line.svg) center/contain no-repeat"></div></div>
+        <div><h3>Pass n Play</h3><p>One phone, two friends</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F end -->
+  <div class="scene" id="sF">
+    <div class="abs" style="left:0; right:0; top:330px; display:flex; flex-direction:column; align-items:center; gap:30px; text-align:center">
+      <div id="icon" style="position:relative; width:300px; height:300px; border-radius:70px; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,0.45)">
+        <img src="../../design/ic_launcher_background.svg" style="position:absolute; left:-50px; top:-50px; width:400px; height:400px">
+        <img src="../../design/ic_launcher_foreground.svg" style="position:absolute; left:-50px; top:-50px; width:400px; height:400px">
+      </div>
+      <div>
+        <h2 class="display" style="font-size:170px">Bagh Chal</h2>
+        <p class="display" style="font-weight:600; font-size:56px; color:#C9D6FF; margin-top:10px">बाघ चाल</p>
+      </div>
+      <p id="fP" class="display" style="font-size:72px; color:#FFC94D; margin-top:10px">Free on Google Play</p>
+      <p id="fM" style="margin:0; font-size:34px; letter-spacing:0.18em; text-transform:uppercase; color:#C9D6FF">Matin Studios</p>
+    </div>
+  </div>
+
+  <div id="black" class="abs" style="inset:0; background:#000; opacity:0"></div>
+</div>
+
+<script>
+const D = '../../design/';
+const $ = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const out3 = (x) => 1 - Math.pow(1 - x, 3);
+const back = (x) => { const c = 1.7; return x === 0 ? 0 : 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const inOut = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+// Scene windows (seconds). Keep in sync with the sound cues in make-short.sh.
+const SCENES = [['sA', 0, 2.6], ['sB', 2.6, 5.8], ['sC', 5.8, 9.6], ['sD', 9.6, 13.4], ['sE', 13.4, 16.8], ['sF', 16.8, 20.5]];
+const DURATION = 20.5;
+const X = 0.22;
+
+let seed = 11;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const flakes = Array.from({ length: 80 }, () => ({ x: rnd() * 1080, y: rnd() * 1920, r: 2 + rnd() * 5, v: 40 + rnd() * 60, a: 0.35 + rnd() * 0.5, w: rnd() * 6 }));
+flakes.forEach((f) => { const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); c.setAttribute('r', f.r); c.setAttribute('fill', '#fff'); c.setAttribute('opacity', f.a); $('snow').appendChild(c); f.el = c; });
+
+const BOARD = 900, PIECE = BOARD * 90 / 600;
+const pt = (i) => BOARD * (75 + 112.5 * i) / 600;
+function makeBoard(id) {
+  const b = $(id); b.style.width = b.style.height = BOARD + 'px';
+  const im = document.createElement('img'); im.src = D + 'board_night.svg'; im.className = 'abs';
+  im.style.cssText = `left:0;top:0;width:${BOARD}px;height:${BOARD}px;border-radius:44px;box-shadow:0 30px 80px rgba(0,0,0,0.45)`;
+  b.appendChild(im); return b;
+}
+function piece(board, kind, r, c) {
+  const im = document.createElement('img'); im.src = D + (kind === 't' ? 'tiger_piece.svg' : 'goat_piece.svg');
+  im.className = 'abs'; im.style.width = im.style.height = PIECE + 'px'; board.appendChild(im);
+  im.at = (rr, cc, scale = 1, alpha = 1, lift = 0) => {
+    im.style.left = (pt(cc) - PIECE / 2) + 'px'; im.style.top = (pt(rr) - PIECE / 2 - lift) + 'px';
+    im.style.transform = `scale(${scale})`; im.style.opacity = alpha;
+  };
+  im.at(r, c); return im;
+}
+function ring(board, colors) {
+  const s = PIECE * 1.4;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '-50 -50 100 100'); svg.setAttribute('class', 'abs'); svg.style.width = svg.style.height = s + 'px';
+  svg.innerHTML = `<circle r="44" fill="none" stroke="${colors[0]}" stroke-width="6" stroke-dasharray="14 10"/><circle r="44" fill="none" stroke="${colors[1]}" stroke-width="6" stroke-dasharray="10 14" stroke-dashoffset="-14"/>`;
+  board.appendChild(svg);
+  svg.at = (rr, cc, t, alpha) => { svg.style.left = (pt(cc) - s / 2) + 'px'; svg.style.top = (pt(rr) - s / 2) + 'px'; svg.style.transform = `rotate(${t * 70}deg) scale(${0.85 + 0.15 * alpha})`; svg.style.opacity = alpha; };
+  svg.at(0, 0, 0, 0); return svg;
+}
+function moveDot(board, r, c) {
+  const s = PIECE;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '-50 -50 100 100'); svg.setAttribute('class', 'abs');
+  svg.style.cssText = `left:${pt(c) - s / 2}px;top:${pt(r) - s / 2}px;width:${s}px;height:${s}px;opacity:0`;
+  svg.innerHTML = '<circle class="rip" r="16" fill="#7BE0A2"/><circle r="16" fill="#2E9E5F"/>';
+  board.appendChild(svg);
+  svg.set = (t, alpha) => { const p = (t % 1.6) / 1.6; const rip = svg.querySelector('.rip'); rip.setAttribute('r', 16 + 30 * p); rip.setAttribute('opacity', 0.6 * (1 - p)); svg.style.opacity = alpha; };
+  return svg;
+}
+
+// B: tigers drop onto the corners.
+const bB = makeBoard('bB');
+const corners = [[0, 0], [0, 4], [4, 4], [4, 0]];
+const bT = corners.map(([r, c]) => piece(bB, 't', r, c));
+const DROPS = [3.1, 3.4, 3.7, 4.0];
+
+// C: a tiger jumps (1,1) over (2,2) to (3,3).
+const bC = makeBoard('bC');
+[[0, 2], [2, 0], [2, 4], [3, 2], [1, 3]].forEach(([r, c]) => piece(bC, 'g', r, c));
+const victim = piece(bC, 'g', 2, 2);
+const dotC = moveDot(bC, 3, 3);
+[[0, 4], [4, 0], [4, 4]].forEach(([r, c]) => piece(bC, 't', r, c));
+const ringC = ring(bC, ['#F0552F', '#0A1636']);
+const hunter = piece(bC, 't', 1, 1);
+const JUMP = [7.3, 7.85];
+
+// D: the last goat steps (3,3) -> (2,2); the corner tiger is trapped.
+const bD = makeBoard('bD');
+[[0, 1], [0, 2], [1, 0], [2, 0], [1, 1]].forEach(([r, c]) => piece(bD, 'g', r, c));
+const ringD = ring(bD, ['#1F7A4D', '#F4F7FF']);
+const mover = piece(bD, 'g', 3, 3);
+const dotD = moveDot(bD, 2, 2);
+const trapped = piece(bD, 't', 0, 0);
+const lock = document.createElement('img'); lock.src = D + 'lock_badge.svg'; lock.className = 'abs';
+lock.style.cssText = `width:${PIECE * 0.55}px;height:${PIECE * 0.55}px;left:${pt(0) + PIECE * 0.18}px;top:${pt(0) - PIECE * 0.62}px;opacity:0`;
+bD.appendChild(lock);
+const STEP = [10.8, 11.2], LOCK = 11.45;
+
+function sceneAlpha(t, a, b) {
+  const fin = a === 0 ? seg(t, 0, 0.4) : seg(t, a - X, a + X);
+  const fout = b >= DURATION ? 1 : 1 - seg(t, b - X, b + X);
+  return Math.min(fin, fout);
+}
+function show(id, alpha, dy = 0) { const e = $(id); e.style.opacity = alpha; e.style.transform = `translateY(${dy}px)`; }
+
+window.render = function (t) {
+  for (const [id, a, b] of SCENES) $(id).style.opacity = sceneAlpha(t, a, b);
+  $('mountains').style.opacity = Math.max(sceneAlpha(t, 0, 2.6), sceneAlpha(t, 16.8, 20.5));
+  // Hills sit low under the hook and the end card, so no white peak touches the text.
+  $('mountains').style.transform = `translateY(${220 + 380 * out3(seg(t, 2.0, 2.8))}px)`;
+  flakes.forEach((f) => { f.el.setAttribute('cx', f.x + Math.sin(t * 0.8 + f.w) * 14); f.el.setAttribute('cy', (f.y + f.v * t) % 1940 - 10); });
+  $('black').style.opacity = seg(t, 20.0, 20.5);
+
+  // A
+  const a = out3(seg(t, 0.1, 0.6));
+  $('aH').style.opacity = a; $('aH').style.transform = `scale(${0.9 + 0.1 * a})`;
+  const at = seg(t, 0.5, 0.95);
+  $('aT').style.opacity = at; $('aT').style.transform = `scale(${back(at)}) rotate(${Math.sin(t * 3) * 4}deg)`;
+
+  // B
+  bB.style.transform = `scale(${0.94 + 0.06 * out3(seg(t, 2.4, 3.1))})`;
+  bT.forEach((p, i) => { const k = seg(t, DROPS[i] - 0.25, DROPS[i]); const [r, c] = corners[i]; p.at(r, c, 1.6 - 0.6 * out3(k), k); });
+  const bt = seg(t, 4.1, 4.5); $('bTags').style.opacity = bt; $('bTags').style.transform = `scale(${0.7 + 0.3 * back(bt)})`;
+
+  // C
+  show('cH', out3(seg(t, 5.9, 6.4)), 30 * (1 - out3(seg(t, 5.9, 6.4))));
+  ringC.at(1, 1, t, seg(t, 6.3, 6.55) * (1 - seg(t, 7.25, 7.4)));
+  dotC.set(t, seg(t, 6.5, 6.7) * (1 - seg(t, 7.7, 7.85)));
+  const j = inOut(seg(t, JUMP[0], JUMP[1]));
+  hunter.at(1 + 2 * j, 1 + 2 * j, 1 + 0.25 * Math.sin(Math.PI * j), 1, 100 * Math.sin(Math.PI * j));
+  const v = seg(t, 7.55, 8.0); victim.at(2, 2, 1 - 0.4 * v, 1 - v);
+
+  // D
+  show('dH', out3(seg(t, 9.7, 10.2)), 30 * (1 - out3(seg(t, 9.7, 10.2))));
+  ringD.at(3, 3, t, seg(t, 10.2, 10.4) * (1 - seg(t, 10.75, 10.85)));
+  dotD.set(t, seg(t, 10.25, 10.45) * (1 - seg(t, 10.8, 10.9)));
+  const s = inOut(seg(t, STEP[0], STEP[1])); mover.at(3 - s, 3 - s);
+  const lk = seg(t, LOCK, LOCK + 0.3); lock.style.opacity = lk; lock.style.transform = `scale(${back(lk)})`;
+  trapped.style.filter = `saturate(${1 - 0.4 * lk})`;
+
+  // E
+  ['r0', 'r1', 'r2', 'r3'].forEach((id, i) => { const k = seg(t, 13.6 + 0.2 * i, 14.05 + 0.2 * i); $(id).style.opacity = k; $(id).style.transform = `translateX(${(1 - back(k)) * 300}px) translateY(${Math.sin(t * 2 + i) * 4}px)`; });
+
+  // F
+  const e = seg(t, 16.9, 17.5);
+  $('icon').style.transform = `scale(${back(e)})`; $('icon').style.opacity = e;
+  show('fP', out3(seg(t, 17.5, 18.0)), 20 * (1 - out3(seg(t, 17.5, 18.0))));
+  show('fM', out3(seg(t, 17.8, 18.3)));
+};
+
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((im) => im.decode().catch(() => {})));
+  window.render(0);
+  return true;
+})();
+</script>
+</body>
+</html>

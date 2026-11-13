@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bagh Chal short thumbnail</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Inter:wght@700&display=swap">
+<style>
+  /* 1080x1920. Shelves crop Shorts covers toward the centre, so the key parts sit in the middle band. */
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; }
+  #t { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; color: #fff;
+    background: linear-gradient(180deg, #0A1636 0%, #172A5E 60%, #263C7A 100%); }
+  .abs { position: absolute; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(110px); }
+  .display { font-family: 'Baloo 2', sans-serif; font-weight: 800; margin: 0; line-height: 0.92; text-shadow: 0 8px 0 #0A1636, 0 18px 40px rgba(0,0,0,0.55); }
+  .tag { font-weight: 700; font-size: 56px; text-transform: uppercase; padding: 14px 38px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div id="t">
+  <div class="blob" style="left:-200px; top:-160px; width:900px; height:640px; background:#3FE0A8; opacity:0.2"></div>
+  <div class="blob" style="right:-200px; top:200px; width:800px; height:600px; background:#9B7BFF; opacity:0.25"></div>
+  <div class="blob" style="left:-120px; top:1050px; width:700px; height:600px; background:#F0552F; opacity:0.45"></div>
+  <div class="blob" style="right:-120px; top:1150px; width:700px; height:600px; background:#2E9E68; opacity:0.5"></div>
+
+  <div class="abs" style="left:0; right:0; top:330px; display:flex; flex-direction:column; align-items:center; gap:36px; text-align:center">
+    <h1 class="display" style="font-size:150px">Can you<br>trap the<br>tigers?</h1>
+    <div style="display:flex; align-items:center; gap:20px">
+      <span class="tag" style="background:#F0552F; box-shadow:0 8px 0 #A8341A">4 Tigers</span>
+      <span class="display" style="font-size:64px; color:#FFC94D; text-shadow:0 4px 0 #0A1636">vs</span>
+      <span class="tag" style="background:#2E9E68; box-shadow:0 8px 0 #1F6B47">20 Goats</span>
+    </div>
+  </div>
+
+  <div class="abs" style="left:190px; top:1120px; width:700px; height:700px; perspective:1100px">
+    <img src="../../design/board_night.svg" style="width:700px; height:700px; border-radius:48px; transform: rotateX(50deg); transform-origin: 50% 30%; box-shadow:0 40px 90px rgba(0,0,0,0.5)">
+  </div>
+  <img class="abs" src="../../design/tiger_piece.svg" style="left:-10px; top:1080px; width:500px; height:500px; transform:rotate(-10deg); filter:drop-shadow(0 24px 36px rgba(0,0,0,0.5))">
+  <img class="abs" src="../../design/goat_piece.svg" style="right:0px; top:1120px; width:460px; height:460px; transform:rotate(9deg); filter:drop-shadow(0 24px 36px rgba(0,0,0,0.5))">
+
+  <p class="abs display" style="left:0; right:0; top:1640px; text-align:center; font-size:110px">Bagh Chal</p>
+</div>
+</body>
+</html>
