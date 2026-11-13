@@ -1,4 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <rect width="108" height="108" fill="#24402F"/>
-  <path d="M21 21 H87 M21 37.5 H87 M21 54 H87 M21 70.5 H87 M21 87 H87 M21 21 V87 M37.5 21 V87 M54 21 V87 M70.5 21 V87 M87 21 V87 M21 21 L87 87 M87 21 L21 87 M54 21 L87 54 L54 87 L21 54 Z" fill="none" stroke="#33573F" stroke-width="2"/>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A1636"/>
+      <stop offset="1" stop-color="#263C7A"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#sky)"/>
+  <path d="M32.906 32.906 H75.094 M32.906 54 H75.094 M32.906 75.094 H75.094 M32.906 32.906 V75.094 M54 32.906 V75.094 M75.094 32.906 V75.094 M32.906 32.906 L75.094 75.094 M75.094 32.906 L32.906 75.094" fill="none" stroke="#C9D6FF" stroke-opacity="0.9" stroke-width="1.6875" stroke-linecap="round"/>
+  <g fill="#E6EEFF">
+    <circle cx="32.906" cy="32.906" r="1.6875"/>
+    <circle cx="54" cy="32.906" r="1.6875"/>
+    <circle cx="75.094" cy="32.906" r="1.6875"/>
+    <circle cx="32.906" cy="54" r="1.6875"/>
+    <circle cx="75.094" cy="54" r="1.6875"/>
+    <circle cx="32.906" cy="75.094" r="1.6875"/>
+    <circle cx="54" cy="75.094" r="1.6875"/>
+    <circle cx="75.094" cy="75.094" r="1.6875"/>
+  </g>
 </svg>

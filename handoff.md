@@ -7,6 +7,12 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — new default app icon (unreleased, vc11)
+- New Classic icon: the tiger face on the navy night board (design canvas https://claude.ai/artifact/TA9843rLMRwSABdQqgvTZC, idea 7, picked by the user). New `design/ic_launcher_{background,foreground}.svg`; regenerated drawables + legacy webp mipmaps.
+- The old tiger-on-green Classic art is removed everywhere (user's call). Kept the `.LauncherClassic` alias and only changed its art, so existing players' home-screen shortcuts survive the update (switching the enabled alias would drop them and could leave two launcher entries).
+- `store/icon-512.png` is now the new icon: upload it as the Play icon when vc11 ships.
+- `./gradlew test assembleDebug lint` green. Not checked on a device/emulator yet (launcher + Shop > App icons). Not built or signed.
+
 ## 2026-11-13 — vc10 live in production
 - Google approved vc10; the production build is live on Play.
 - AdMob: the 6 ad unit IDs match `local.properties`; `matinstudios.com/app-ads.txt` is live (pub-1234942035084029). App linked to its Play listing in AdMob on 2026-11-13; waiting for AdMob's app review and the app-ads.txt "verified" status (up to ~24 h).

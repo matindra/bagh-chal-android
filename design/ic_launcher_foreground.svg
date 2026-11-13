@@ -1,21 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <g transform="translate(24 22.8) scale(0.6)">
-    <circle cx="28" cy="24" r="10" fill="#E8862A" stroke="#3A2416" stroke-width="3"/>
-    <circle cx="28" cy="24" r="5" fill="#3A2416"/>
-    <circle cx="72" cy="24" r="10" fill="#E8862A" stroke="#3A2416" stroke-width="3"/>
-    <circle cx="72" cy="24" r="5" fill="#3A2416"/>
-    <circle cx="50" cy="54" r="36" fill="#F29A3A" stroke="#3A2416" stroke-width="3"/>
-    <polygon points="46,19 54,19 50,33" fill="#3A2416"/>
-    <polygon points="36,23 42,21 41,32" fill="#3A2416"/>
-    <polygon points="64,23 58,21 59,32" fill="#3A2416"/>
-    <polygon points="15,48 29,49 15,55" fill="#3A2416"/>
-    <polygon points="16,61 28,61 18,67" fill="#3A2416"/>
-    <polygon points="85,48 71,49 85,55" fill="#3A2416"/>
-    <polygon points="84,61 72,61 82,67" fill="#3A2416"/>
-    <ellipse cx="50" cy="67" rx="16" ry="12" fill="#FFF4E0"/>
-    <ellipse cx="38" cy="49" rx="4" ry="5" fill="#3A2416"/>
-    <ellipse cx="62" cy="49" rx="4" ry="5" fill="#3A2416"/>
-    <path d="M44 60 L56 60 L50 67 Z" fill="#3A2416"/>
-    <path d="M50 67 L50 71 M50 71 Q45 75 41 72 M50 71 Q55 75 59 72" fill="none" stroke="#3A2416" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Tiger face from the icon design (512-unit canvas), centred on the board's middle point. -->
+  <g transform="translate(54 54) scale(0.084375) translate(-256 -274)">
+    <circle cx="158" cy="158" r="54" fill="#F0552F"/>
+    <circle cx="354" cy="158" r="54" fill="#F0552F"/>
+    <circle cx="162" cy="164" r="28" fill="#2A140C"/>
+    <circle cx="350" cy="164" r="28" fill="#2A140C"/>
+    <ellipse cx="256" cy="302" rx="162" ry="146" fill="#A8341A"/>
+    <ellipse cx="256" cy="290" rx="162" ry="146" fill="#F0552F"/>
+    <path d="M228 150 L256 212 L284 150 Z" fill="#2A140C"/>
+    <path d="M180 168 L206 210 L214 156 Z" fill="#2A140C"/>
+    <path d="M332 168 L306 210 L298 156 Z" fill="#2A140C"/>
+    <path d="M102 254 L156 268 L100 288 Z" fill="#2A140C"/>
+    <path d="M104 312 L148 318 L110 336 Z" fill="#2A140C"/>
+    <path d="M410 254 L356 268 L412 288 Z" fill="#2A140C"/>
+    <path d="M408 312 L364 318 L402 336 Z" fill="#2A140C"/>
+    <ellipse cx="200" cy="356" rx="74" ry="56" fill="#FFF4EC"/>
+    <ellipse cx="312" cy="356" rx="74" ry="56" fill="#FFF4EC"/>
+    <ellipse cx="200" cy="268" rx="24" ry="18" fill="#F5B83D"/>
+    <ellipse cx="312" cy="268" rx="24" ry="18" fill="#F5B83D"/>
+    <circle cx="202" cy="268" r="10" fill="#2A140C"/>
+    <circle cx="310" cy="268" r="10" fill="#2A140C"/>
+    <circle cx="206" cy="264" r="3.5" fill="#FFFFFF"/>
+    <circle cx="314" cy="264" r="3.5" fill="#FFFFFF"/>
+    <path d="M230 318 L282 318 L256 346 Z" fill="#3A1A12"/>
+    <path d="M256 346 L256 362 M256 362 Q240 378 222 368 M256 362 Q272 378 290 368" fill="none" stroke="#3A1A12" stroke-width="6" stroke-linecap="round"/>
   </g>
 </svg>
