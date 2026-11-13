@@ -45,6 +45,7 @@ app/src/main/java/com/matinstudios/baghchal/
 ├── ads/            # AdMob wrappers (banner, interstitial, rewarded), consent
 ├── billing/        # Remove Ads purchase + entitlement
 ├── online/         # OnlineService (Firebase / NoOnline), move codec, room codes, move checking
+├── tutorial/       # PURE Kotlin guided first game: lessons, script, state machine (no Android imports)
 ├── data/           # DataStore repositories
 └── MainActivity.kt
 ```
@@ -112,6 +113,7 @@ app/src/main/java/com/matinstudios/baghchal/
 - Hint button (uses AI at medium depth; rewarded ad for free users).
 - Sound effects + haptics, toggleable in Settings.
 - "How to Play" screen with illustrated rules.
+- First launch opens a guided tutorial game (`tutorial/Tutorial.kt` + `ui/screens/WelcomeScreen.kt`): 6 scripted steps on the real `BoardCanvas` (player = goats, tigers answer from the script): meet the board, place a goat, block a jump, see a careless goat eaten, pick any safe point (dangerous ones refused with the jump arrow), trap the last tiger. Skip any time; replayable from How to Play ("Play the tutorial"). Script moves are checked legal by `TutorialTest`; keep them legal when the script changes.
 - Save/resume the in-progress game automatically.
 - Leaving a game in progress (menu Home or system Back) and Back on Home (closes the app) always ask first with `YesNoPrompt` (`ui/screens/YesNoPrompt.kt`): Home's night look: frosted-glass card with a white rim and frosted piece badge, rises in, floats 3 dp and shares Home's shine wave (card, then No), soft snow drifting inside. **No** (the safe choice) is the coral `PrimaryButton` on the right; **Yes** is a frosted `SecondaryButton`. Local games say the game is saved; online games say leaving counts as a loss. Finished games leave straight away. Use `YesNoPrompt` for any new are-you-sure prompt; `CelebratePrompt` (same card, one coral button) is the happy note, e.g. "Yay! New … board unlocked" after a rewarded unlock.
 - Stats: wins/losses per side and difficulty.
@@ -224,7 +226,7 @@ scripts/make-store-images.py # Play Store screenshots + feature graphic from sto
 
 - Source SVGs live in `design/`. Convert them to VectorDrawables in `res/drawable/`; never edit the generated XML by hand.
 - Run `scripts/convert-svgs.sh` after changing any SVG (uses Android Studio's Svg2Vector; needs Android Studio installed and `cwebp`). Name mapping lives in `scripts/SvgConvert.java` (`board.svg` → `board_wood`, `tiger_piece.svg` → `ic_tiger`, `goat_piece.svg` → `ic_goat`).
-- Pieces come in sets (`PieceSet`): Classic `ic_tiger`/`ic_goat` (free), plus `ic_tiger_token`/`ic_goat_token`, `ic_tiger_glyph`/`ic_goat_glyph`, `ic_tiger_mask`/`ic_goat_chyangra`, `ic_tiger_snow`/`ic_goat_black`, `ic_tiger_night_eyes`/`ic_goat_night_eyes`, `ic_tiger_line`/`ic_goat_line` (unlocked like boards). Always draw pieces via `LocalPieceArt.current`, never the drawables directly. Button icons: `ic_undo`, `ic_hint` (single-colour, tinted in code).
+- Pieces come in sets (`PieceSet`): Classic `ic_tiger` (the app icon's tiger face, outlined)/`ic_goat` (free), plus `ic_tiger_token`/`ic_goat_token`, `ic_tiger_glyph`/`ic_goat_glyph`, `ic_tiger_mask`/`ic_goat_chyangra`, `ic_tiger_snow`/`ic_goat_black`, `ic_tiger_night_eyes`/`ic_goat_night_eyes`, `ic_tiger_line`/`ic_goat_line` (unlocked like boards). Always draw pieces via `LocalPieceArt.current`, never the drawables directly. Button icons: `ic_undo`, `ic_hint` (single-colour, tinted in code).
 - App icons: one `<activity-alias>` per `AppIcon` (only Classic enabled in the manifest), switched by `data/LauncherIcons.kt`. Classic (`.LauncherClassic`, `design/ic_launcher_*`) is the tiger face on the night board (since vc11; the earlier tiger-on-green art was removed). Never rename or re-point existing aliases (home-screen shortcuts would vanish); change an icon's art instead. Layers come from `design/launcher_*_{background,foreground}.svg`; add new ones to `LAUNCHER_ICONS` in `SvgConvert.java`.
 - Decorations: `deco_prayer_flags` (header ornament) and the night sky (`ui/theme/Scenery.kt` `NightBackdrop`: gradient, aurora glows, snowy peaks drawn in code; Home animates its own). Every screen sits on `NightBackdrop` via `insetScreen` in `BaghchalApp`; the game screens get it without mountains. Purely decorative, never clickable, never behind or touching an ad; keep the game screen free of them.
 - Colours: one night look on every screen, the same as Home (`ui/theme/Theme.kt` `NightColorScheme`, palette `Night*` in `Color.kt`; Home's `HomeNight` uses the same values). No light/dark choice and no board tint: the theme picker was removed and `BoardTint.kt` is no longer applied. Navy sky background, frosted-glass containers with white text; tigers use primary/primaryContainer (coral) and goats secondary/secondaryContainer (green) everywhere; tertiary is cyan. Dynamic colour is off on purpose.

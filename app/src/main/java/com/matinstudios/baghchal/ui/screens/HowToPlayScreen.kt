@@ -33,18 +33,20 @@ import com.matinstudios.baghchal.ui.theme.BaghchalTheme
 @Composable
 fun HowToPlayScreen(
     onBack: () -> Unit,
+    onTutorial: () -> Unit,
     modifier: Modifier = Modifier,
     onShop: (() -> Unit)? = null,
     viewModel: HowToPlayViewModel = viewModel(factory = HowToPlayViewModel.Factory),
 ) {
     val theme = viewModel.boardTheme.collectAsStateWithLifecycle().value ?: return
-    HowToPlayContent(theme, onBack, modifier, onShop)
+    HowToPlayContent(theme, onBack, onTutorial, modifier, onShop)
 }
 
 @Composable
 fun HowToPlayContent(
     boardTheme: BoardTheme,
     onBack: () -> Unit,
+    onTutorial: () -> Unit,
     modifier: Modifier = Modifier,
     onShop: (() -> Unit)? = null,
 ) {
@@ -66,6 +68,7 @@ fun HowToPlayContent(
                 modifier = Modifier.semantics { heading() },
             )
             Text(stringResource(R.string.rules_goal), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+            SecondaryButton(stringResource(R.string.how_to_play_tutorial), onClick = onTutorial)
 
             HOW_TO_PLAY_STEPS.forEachIndexed { index, step ->
                 Card(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
@@ -107,5 +110,5 @@ internal fun RulePicture(step: HowToPlayStep, boardTheme: BoardTheme, modifier: 
 @Preview(showBackground = true, heightDp = 2000)
 @Composable
 private fun HowToPlayPreview() {
-    BaghchalTheme { HowToPlayContent(BoardTheme.WOOD, onBack = {}) }
+    BaghchalTheme { HowToPlayContent(BoardTheme.WOOD, onBack = {}, onTutorial = {}) }
 }

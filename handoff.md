@@ -7,6 +7,14 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — guided first-launch tutorial (unreleased)
+- The swipe-through rule pages on first launch are replaced by a guided game on the real board. Pure logic in `tutorial/Tutorial.kt` (`Lesson`, `Goal`, `TutorialScript.STEPS`, `Tutorial.start/tap/tigerReply/next`); `WelcomeViewModel` adds the 1.1 s tiger pause and move sounds (Sound setting); `WelcomeScreen` = step chip + Skip, `BoardCanvas`, frosted coach card (goat/tiger icon, nudges), Next / Let's play.
+- Steps: Meet → place on 12 (tiger 4→8) → block the 8×12→16 jump on 16 (tiger 24→19) → place on 7 and get eaten (8×7→6) → fresh board, any safe point (taps on jumpable points refused with the jump arrow) → movement phase, 17→18 traps all four tigers.
+- Classic tiger piece (`design/tiger_piece.svg` → `ic_tiger`) redrawn as the new app icon's tiger face (dark outline added), so the board, tutorial, How to Play, Home and `store/feature-graphic.png` (regenerated) match the icon. Play Store screenshots (`store/screenshots`, from emulator captures in `store/raw`) still show the old tiger: recapture before the next listing update.
+- How to Play has a "Play the tutorial" button (`tutorial` route, back to How to Play when done).
+- Tests: `TutorialTest` (7, script legality + flows); `WelcomeFlowTest` rewritten to play the tutorial through taps. Unit tests, lint, and WelcomeFlowTest + HowToPlayScreenTest on the emulator pass. English strings only.
+- Known, not from this change: 3 AppFlowTest tests (`gameMenuOpensSettingsAndKeepsTheGame`, `leavingAGameOffersResumeWhichRestoresTheBoard`, `goatsWinShowsTheResultScreenAndPlayAgainStartsAFreshGame`) also fail on clean main; they leave a game and probably predate the leave-game YesNoPrompt. The emulator needs animations off (`animator_duration_scale` etc. = 0) for UI tests.
+
 ## 2026-11-13 — new default app icon (unreleased, vc11)
 - New Classic icon: the tiger face on the navy night board (design canvas https://claude.ai/artifact/TA9843rLMRwSABdQqgvTZC, idea 7, picked by the user). New `design/ic_launcher_{background,foreground}.svg`; regenerated drawables + legacy webp mipmaps.
 - The old tiger-on-green Classic art is removed everywhere (user's call). Kept the `.LauncherClassic` alias and only changed its art, so existing players' home-screen shortcuts survive the update (switching the enabled alias would drop them and could leave two launcher entries).

@@ -47,6 +47,7 @@ private const val AD_FREE_ROUTE = "ad_free"
 private const val ARG_SHOP_SECTION = "section"
 private const val SHOP_SECTION_ROUTE = "shop/{$ARG_SHOP_SECTION}"
 private const val HOW_TO_PLAY_ROUTE = "how_to_play"
+private const val TUTORIAL_ROUTE = "tutorial"
 private const val WELCOME_ROUTE = "welcome"
 private const val AI_SETUP_ROUTE = "ai_setup"
 private const val ARG_ONLINE_MODE = "mode"
@@ -263,7 +264,14 @@ fun BaghchalApp(
             AdFreeScreen(onBack = { navController.popBackStack() }, onShop = openShop)
         }
         insetScreen(HOW_TO_PLAY_ROUTE, barPadding) {
-            HowToPlayScreen(onBack = { navController.popBackStack() }, onShop = openShop)
+            HowToPlayScreen(
+                onBack = { navController.popBackStack() },
+                onTutorial = { navController.navigate(TUTORIAL_ROUTE) { launchSingleTop = true } },
+                onShop = openShop,
+            )
+        }
+        insetScreen(TUTORIAL_ROUTE, barPadding) {
+            WelcomeScreen(onFinished = { navController.popBackStack() })
         }
     }
 }

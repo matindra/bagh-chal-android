@@ -34,7 +34,7 @@ class HowToPlayScreenTest {
     private var backClicks = 0
 
     private fun show(theme: BoardTheme = BoardTheme.WOOD) {
-        compose.setContent { BaghchalTheme { HowToPlayContent(theme, onBack = { backClicks++ }) } }
+        compose.setContent { BaghchalTheme { HowToPlayContent(theme, onBack = { backClicks++ }, onTutorial = {}) } }
     }
 
     @Test
@@ -52,7 +52,7 @@ class HowToPlayScreenTest {
     @Test
     fun rendersWithEveryBoardTheme() {
         var theme by mutableStateOf(BoardTheme.WOOD)
-        compose.setContent { BaghchalTheme { HowToPlayContent(theme, onBack = {}) } }
+        compose.setContent { BaghchalTheme { HowToPlayContent(theme, onBack = {}, onTutorial = {}) } }
         for (each in BoardTheme.entries) {
             theme = each
             compose.waitForIdle()

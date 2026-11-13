@@ -5,7 +5,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -14,8 +14,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.matinstudios.baghchal.BaghchalApplication
 import com.matinstudios.baghchal.MainActivity
 import com.matinstudios.baghchal.R
-import com.matinstudios.baghchal.ui.screens.HOW_TO_PLAY_STEPS
-import com.matinstudios.baghchal.ui.screens.WELCOME_PAGE_COUNT
+import com.matinstudios.baghchal.tutorial.TutorialScript
+import com.matinstudios.baghchal.ui.board.boardPointTestTag
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -24,7 +24,7 @@ import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
-/** First launch: the welcome tutorial, then the home screen. */
+/** First launch: the guided tutorial game, then the home screen. */
 @RunWith(AndroidJUnit4::class)
 class WelcomeFlowTest {
 
@@ -58,19 +58,49 @@ class WelcomeFlowTest {
         compose.waitUntil(5_000) { runBlocking { container.settings.tutorialSeen.first() } }
     }
 
+    private fun point(index: Int) = compose.onNodeWithTag(boardPointTestTag(index))
+
+    private fun next() = text(R.string.welcome_next).performClick()
+
     @Test
-    fun nextWalksThroughEveryRuleThenOpensHome() {
+    fun guidedGameWalksThroughEveryLessonThenOpensHome() {
+        val steps = TutorialScript.STEPS.size
         waitForText(R.string.welcome_title)
-        compose.onNodeWithContentDescription(str(R.string.welcome_page_description, 1, WELCOME_PAGE_COUNT)).assertIsDisplayed()
+        text(R.string.tutorial_step_count, 1, steps).assertIsDisplayed()
+        next()
 
-        HOW_TO_PLAY_STEPS.forEachIndexed { index, step ->
-            text(R.string.welcome_next).performClick()
-            waitForText(R.string.welcome_step_count, index + 1, HOW_TO_PLAY_STEPS.size)
-            text(step.title).assertIsDisplayed()
-            compose.onNodeWithContentDescription(str(step.illustrationDescription)).assertIsDisplayed()
-        }
+        // Place a goat: a wrong point is refused, the glowing one is taken, then the tiger answers.
+        waitForText(R.string.tutorial_first_goat_instruction)
+        point(6).performClick()
+        waitForText(R.string.tutorial_nudge_glowing)
+        point(12).performClick()
+        waitForText(R.string.tutorial_first_goat_done)
+        next()
 
-        text(R.string.welcome_next).assertDoesNotExist()
+        waitForText(R.string.tutorial_block_instruction)
+        point(16).performClick()
+        waitForText(R.string.tutorial_block_done)
+        next()
+
+        waitForText(R.string.tutorial_careless_instruction)
+        point(7).performClick()
+        waitForText(R.string.tutorial_careless_done)
+        next()
+
+        // A point the tiger could jump is refused with a warning; a safe one is fine.
+        waitForText(R.string.tutorial_safe_instruction)
+        point(6).performClick()
+        waitForText(R.string.tutorial_nudge_danger)
+        point(1).performClick()
+        waitForText(R.string.tutorial_safe_done)
+        next()
+
+        waitForText(R.string.tutorial_trap_instruction)
+        text(R.string.tutorial_step_count, steps, steps).assertIsDisplayed()
+        point(17).performClick()
+        point(18).performClick()
+        waitForText(R.string.tutorial_trap_done)
+
         text(R.string.welcome_start).performClick()
         waitForText(R.string.mode_vs_ai)
         text(R.string.mode_vs_player).performScrollTo().assertIsDisplayed()
