@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bagh Chal thumbnail</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Inter:wght@700&display=swap">
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  #t { position: relative; width: 1280px; height: 720px; overflow: hidden; font-family: Inter, sans-serif; color: #fff;
+    background: linear-gradient(180deg, #0A1636 0%, #172A5E 60%, #263C7A 100%); }
+  .abs { position: absolute; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); }
+  .title { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 176px; line-height: 0.9; margin: 0; letter-spacing: -0.01em;
+    text-shadow: 0 8px 0 #0A1636, 0 18px 40px rgba(0,0,0,0.55); }
+  .tag { font-weight: 700; font-size: 44px; letter-spacing: 0.04em; text-transform: uppercase; padding: 10px 30px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div id="t">
+  <div class="blob" style="left:-80px; top:-120px; width:620px; height:420px; background:#3FE0A8; opacity:0.2"></div>
+  <div class="blob" style="right:-60px; top:-100px; width:560px; height:400px; background:#9B7BFF; opacity:0.25"></div>
+  <div class="blob" style="left:20px; bottom:-120px; width:520px; height:440px; background:#F0552F; opacity:0.45"></div>
+  <div class="blob" style="right:20px; bottom:-120px; width:500px; height:420px; background:#2E9E68; opacity:0.5"></div>
+
+  <!-- board, tilted back like a table top -->
+  <div class="abs" style="left:390px; top:300px; width:500px; height:500px; perspective:900px">
+    <img src="../../design/board_night.svg" style="width:500px; height:500px; border-radius:36px; transform: rotateX(52deg); transform-origin: 50% 30%; box-shadow:0 30px 80px rgba(0,0,0,0.5)">
+  </div>
+
+  <div class="abs" style="left:0; right:0; top:46px; display:flex; flex-direction:column; align-items:center; gap:22px">
+    <h1 class="title">Bagh Chal</h1>
+    <div style="display:flex; align-items:center; gap:18px">
+      <span class="tag" style="background:#F0552F; box-shadow:0 7px 0 #A8341A">4 Tigers</span>
+      <span style="font-family:'Baloo 2',sans-serif; font-weight:800; font-size:52px; color:#FFC94D; text-shadow:0 4px 0 #0A1636">vs</span>
+      <span class="tag" style="background:#2E9E68; box-shadow:0 7px 0 #1F6B47">20 Goats</span>
+    </div>
+  </div>
+
+  <img class="abs" src="../../design/tiger_piece.svg" style="left:20px; bottom:-40px; width:420px; height:420px; transform:rotate(-10deg); filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5))">
+  <img class="abs" src="../../design/goat_piece.svg" style="right:30px; bottom:-30px; width:390px; height:390px; transform:rotate(9deg); filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5))">
+</div>
+</body>
+</html>

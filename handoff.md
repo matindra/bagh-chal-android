@@ -7,6 +7,13 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — YouTube trailer
+- `store/trailer.mp4`: 31 s, 1920×1080, 30 fps, H.264 + AAC, about −15 LUFS. Nine scenes from the storyboard https://claude.ai/artifact/LcUc7sWgdu2jnodoUfLpi1 (cold open, title, setup, tigers hunt, goats trap, play the AI, play friends, boards, end card). Uses the real art: `design/` boards, pieces, lock badge, launcher icon, plus `store/raw/game.png` on the phone.
+- Sound is the app's own: `music_home` for the whole video (only one track, by request); `move` on tiger drops, the goat step, difficulty pills and code digits; `tiger_capture` on the jump; `goat_capture` when the tiger gets locked; `player_win` on the end card. No voice-over.
+- Rebuild: `scripts/trailer/make-trailer.sh` (`trailer.html` animation, `render.mjs` grabs frames through headless Chrome's DevTools protocol, no npm packages). Sound cue times in the script must match the animation times in `trailer.html`.
+- Thumbnail `store/youtube-thumbnail.png` (1280×720) from `scripts/trailer/thumbnail.html`, made by the same script. Title/description/tags in `store/youtube.md`.
+- End card says "Free on Google Play" as plain text; add the official Play badge in the YouTube editor or video editor if wanted.
+
 ## 2026-11-13 — Paw & Scratch piece set (unreleased)
 - New `PieceSet.PAW_SCRATCH` ("Paw & Scratch"): tiger = three claw scratches on an amber coin (`design/tiger_scratch.svg` → `ic_tiger_scratch`), goat = cloven hoof print on a snow coin with a green rim (`design/goat_hoof.svg` → `ic_goat_hoof`). Design canvas: https://claude.ai/artifact/BhpPVy3dizCjuYzvErveUi
 - Unlocks with a rewarded ad, lifetime Remove Ads, or the 1-year pass (`Entitlements.YEARLY_PIECE_SETS`, first thing the year pass unlocks; it locks again when the pass ends). The 1-year card's text mentions it.
