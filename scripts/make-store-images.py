@@ -21,29 +21,31 @@ OUT = ROOT / "store"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 SCREEN_ROWS = 1960
 
-TIGER = ("#9C4A00", "#C96A1E")
-MEADOW = ("#2F5A29", "#4E8A44")
-SKY = ("#1F4F70", "#3B7CA8")
-NIGHT = ("#140D08", "#3A2A1E")
+# Background gradients (dark, light) in the app's night look.
+CORAL = ("#4A140C", "#C8432A")
+NAVY = ("#0A1636", "#2E4A94")
+AURORA = ("#0A2A36", "#1F7A68")
+VIOLET = ("#171238", "#5B48B0")
 
 SHOTS = [
-    ("01-classic", "game.png", TIGER, "Classic tiger &amp; goat strategy", "The traditional board game from Nepal"),
-    ("02-vs-ai", "vsai_setup.png", MEADOW, "Play as Tigers or Goats", "Beat the AI on Easy, Medium or Hard"),
-    ("03-moves", "select.png", SKY, "Tap a piece to see its moves", "Legal steps and captures are highlighted"),
-    ("04-online", "online.png", TIGER, "Play online with anyone", "Quick match, or a 4-digit code for a friend"),
-    ("05-win", "result.png", MEADOW, "Capture 5 goats to win", "Or play the goats and trap all four tigers"),
-    ("06-how-to-play", "howto.png", SKY, "Learn the rules in a minute", "Illustrated How to Play guide"),
-    ("07-dark", "dark_game.png", NIGHT, "Easy on the eyes at night", "Light and dark themes"),
-    ("08-resume", "home.png", TIGER, "Games save automatically", "Pick up right where you left off"),
+    ("01-classic", "game.png", CORAL, "Classic tiger &amp; goat strategy", "The traditional board game of India and Nepal"),
+    # Captured without an ad banner, so it can show more rows (down to the Start button).
+    ("02-vs-ai", "vsai_setup.png", NAVY, "Play as Tigers or Goats", "Beat the AI on Easy, Medium or Hard", 2080),
+    ("03-moves", "select.png", AURORA, "Tap a piece to see its moves", "Steps and captures light up"),
+    ("04-online", "online.png", VIOLET, "Play online with a friend", "Share a 4-digit code, or quick match anyone"),
+    ("05-win", "result.png", CORAL, "Capture 5 goats to win", "Or play the goats and trap all four tigers"),
+    ("06-tutorial", "tutorial.png", AURORA, "Learn as you play", "A guided first game shows you every move"),
+    ("07-boards", "shop.png", VIOLET, "Collect beautiful boards", "Wood, Thangka, Night, Snow and more"),
+    ("08-resume", "home.png", NAVY, "Games save automatically", "Pick up right where you left off"),
 ]
 
 FONT = "-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
 
 
-def screenshot_html(raw: str, colors: tuple, title: str, subtitle: str) -> str:
+def screenshot_html(raw: str, colors: tuple, title: str, subtitle: str, rows: int = SCREEN_ROWS) -> str:
     screen_w = 812
     scale = screen_w / 1080
-    screen_h = round(SCREEN_ROWS * scale)
+    screen_h = round(rows * scale)
     bezel = 16
     top = 1920 - screen_h - bezel
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
@@ -56,7 +58,7 @@ p{{margin:22px 0 0;font-size:40px;line-height:1.25;font-weight:500;opacity:.9}}
 .phone{{position:absolute;left:{(1080 - screen_w) // 2 - bezel}px;top:{top}px;width:{screen_w}px;
   height:{screen_h + 200}px;padding:{bezel}px;background:#14100d;border-radius:72px 72px 0 0;
   box-shadow:0 30px 80px rgba(0,0,0,.45)}}
-.screen{{width:{screen_w}px;height:{screen_h + 200}px;border-radius:58px 58px 0 0;overflow:hidden;background:#fff}}
+.screen{{width:{screen_w}px;height:{screen_h + 200}px;border-radius:58px 58px 0 0;overflow:hidden;background:#0A1636}}
 .screen img{{width:{screen_w}px;display:block}}
 </style></head><body>
 <img class="flags" src="{(DESIGN / 'prayer_flags.svg').as_uri()}">
@@ -132,8 +134,8 @@ def render(html: str, width: int, height: int, out: pathlib.Path) -> None:
 
 
 def main() -> None:
-    for name, raw, colors, title, subtitle in SHOTS:
-        render(screenshot_html(raw, colors, title, subtitle), 1080, 1920, OUT / "screenshots" / f"{name}.png")
+    for name, raw, colors, title, subtitle, *rows in SHOTS:
+        render(screenshot_html(raw, colors, title, subtitle, *rows), 1080, 1920, OUT / "screenshots" / f"{name}.png")
     render(feature_html(), 1024, 500, OUT / "feature-graphic.png")
     render(icon_html(), 512, 512, OUT / "icon-512.png")
     render_badge_icon()
