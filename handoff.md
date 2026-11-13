@@ -7,6 +7,11 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — Paw & Scratch piece set (unreleased)
+- New `PieceSet.PAW_SCRATCH` ("Paw & Scratch"): tiger = three claw scratches on an amber coin (`design/tiger_scratch.svg` → `ic_tiger_scratch`), goat = cloven hoof print on a snow coin with a green rim (`design/goat_hoof.svg` → `ic_goat_hoof`). Design canvas: https://claude.ai/artifact/BhpPVy3dizCjuYzvErveUi
+- Unlocks with a rewarded ad, lifetime Remove Ads, or the 1-year pass (`Entitlements.YEARLY_PIECE_SETS`, first thing the year pass unlocks; it locks again when the pass ends). The 1-year card's text mentions it.
+- `./gradlew test assembleDebug` green. Not checked on a device yet (Shop › Pieces, pieces on the board, year-pass unlock). English strings only.
+
 ## 2026-11-13 — rotating dashed selection ring (unreleased)
 - The selected piece's solid gold ring is now 12 rounded dashes turning once every 4 s (`ui/board/SelectionRing.kt`, `drawSelectionRing` + `rememberRingTurn`). Two colours take turns: tigers coral + navy, goats dark green + snow white (tiger from option E, goat from option D of the preview https://claude.ai/artifact/ADMyNXKnqQrdW2aEVcUanX). It only ticks while a piece is selected and stays still when system animations are off. Applies everywhere `BoardCanvas` is used (games, tutorial).
 - Same ring (`drawPieceRing`) now replaces the gold hint ring on a suggested placement (goat colours) and the gold ring around Home's trapped tiger in `ChaseBanner` (tiger colours, turned by the scene clock via `ringTurnAt`, glow kept).

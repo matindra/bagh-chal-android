@@ -49,10 +49,12 @@ class EntitlementsTest {
     }
 
     @Test
-    fun `the yearly pass does not unlock boards or pieces`() {
+    fun `the yearly pass unlocks paw and scratch pieces but no boards`() {
         val pass = Entitlements(yearlyPass = true)
         assertEquals(listOf(BoardTheme.WOOD), BoardTheme.entries.filter(pass::isUnlocked))
-        assertEquals(listOf(PieceSet.CLASSIC), PieceSet.entries.filter(pass::isUnlocked))
+        assertEquals(listOf(PieceSet.CLASSIC, PieceSet.PAW_SCRATCH), PieceSet.entries.filter(pass::isUnlocked))
+        assertEquals(PieceSet.PAW_SCRATCH, pass.effectivePieceSet(PieceSet.PAW_SCRATCH))
+        assertEquals(PieceSet.CLASSIC, Entitlements().effectivePieceSet(PieceSet.PAW_SCRATCH))
     }
 
     @Test

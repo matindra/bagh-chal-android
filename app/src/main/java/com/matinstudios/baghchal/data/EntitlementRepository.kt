@@ -17,7 +17,8 @@ enum class AdFree { NONE, YEARLY, LIFETIME }
 /**
  * What the player owns: the lifetime Remove Ads purchase and the yearly ad-free subscription
  * (both cached from Play Billing), and the board themes and piece sets unlocked by rewarded ads.
- * Only lifetime Remove Ads includes every theme and piece set.
+ * Lifetime Remove Ads includes every theme and piece set; the yearly pass includes only
+ * [YEARLY_PIECE_SETS].
  */
 data class Entitlements(
     val removeAds: Boolean = false,
@@ -33,7 +34,8 @@ data class Entitlements(
 
     fun isUnlocked(theme: BoardTheme): Boolean = theme == FREE_THEME || removeAds || theme in unlockedThemes
 
-    fun isUnlocked(set: PieceSet): Boolean = set == FREE_PIECE_SET || removeAds || set in unlockedPieceSets
+    fun isUnlocked(set: PieceSet): Boolean = set == FREE_PIECE_SET || removeAds || set in unlockedPieceSets ||
+        (yearlyPass && set in YEARLY_PIECE_SETS)
 
     /** The theme to draw: the player's choice, or the free one if that choice is (no longer) unlocked. */
     fun effectiveTheme(selected: BoardTheme): BoardTheme = if (isUnlocked(selected)) selected else FREE_THEME
@@ -44,6 +46,9 @@ data class Entitlements(
     companion object {
         val FREE_THEME = BoardTheme.WOOD
         val FREE_PIECE_SET = PieceSet.CLASSIC
+
+        /** Piece sets the yearly pass unlocks (a rewarded ad still unlocks them for everyone). */
+        val YEARLY_PIECE_SETS = setOf(PieceSet.PAW_SCRATCH)
     }
 }
 

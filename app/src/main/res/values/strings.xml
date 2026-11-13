@@ -134,7 +134,7 @@
     <string name="ad_free_title">Go ad-free</string>
     <string name="ad_free_intro">No banners and no ads between games, and Undo and Hint are free. Pick how long:</string>
     <string name="ad_free_year_title">1 year</string>
-    <string name="ad_free_year_detail">No ads for a whole year. Renews every year until you cancel in Google Play.</string>
+    <string name="ad_free_year_detail">No ads for a whole year, plus the Paw &amp; Scratch pieces. Renews every year until you cancel in Google Play.</string>
     <string name="ad_free_year_active">Your yearly ad-free pass is active.</string>
     <string name="ad_free_manage">Manage subscription</string>
     <string name="ad_free_lifetime_title">Lifetime</string>
@@ -178,6 +178,7 @@
     <string name="piece_set_snow">Snow Tiger</string>
     <string name="piece_set_night_eyes">Night Eyes</string>
     <string name="piece_set_line_art">Line Art</string>
+    <string name="piece_set_paw_scratch">Paw &amp; Scratch</string>
     <string name="app_icon_classic">Classic</string>
     <string name="app_icon_face_off">Face-off</string>
     <string name="app_icon_glyph">Glyph</string>

@@ -350,6 +350,7 @@ val PieceSet.label: Int
         PieceSet.SNOW -> R.string.piece_set_snow
         PieceSet.NIGHT_EYES -> R.string.piece_set_night_eyes
         PieceSet.LINE_ART -> R.string.piece_set_line_art
+        PieceSet.PAW_SCRATCH -> R.string.piece_set_paw_scratch
     }
 
 @get:StringRes
