@@ -7,6 +7,10 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — vc10 live in production
+- Google approved vc10; the production build is live on Play.
+- Next: watch Android vitals (crashes/ANRs), AdMob fill/revenue and Play Billing (ad-free purchases) on real users before raising the rollout. Then build and ship vc11 (welcome tagline) as the first update.
+
 ## 2026-11-12 — production access granted; production build vc10
 - Google granted production access (open testing is now available too).
 - versionCode bumped to **10** (versionName 1.0); includes the androidx.fragment 1.9.1 pin (Play Console flagged Play Services' fragment 1.1.0). `./gradlew test lint` green.
