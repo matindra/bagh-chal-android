@@ -7,6 +7,11 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — release build vc11
+- `dist/baghchal-1.0-vc11.aab` (signed, real ad IDs: all 6 checked in the release BuildConfig, no Google test IDs) + `dist/mapping-1.0-vc11.txt`. `./gradlew test lint` green first.
+- Contains: new Classic icon + tiger piece, guided first-launch tutorial, welcome tagline "India and Nepal".
+- Next (user): upload to Production in Play Console with release notes; also upload `store/icon-512.png`, `store/feature-graphic.png` and the 8 `store/screenshots`.
+
 ## 2026-11-13 — Play Store screenshots recaptured
 - The old set still showed the October light theme (and "Light and dark themes"). New raw captures in `store/raw` (1080×2400, demo-mode status bar 10:00) from the night look with the new tiger: `game` (vs AI, Wood), `vsai_setup`, `select` (tiger selected on the Night board, steps + captures), `online` (Friend lobby, from the real debug app since the test app has no backend), `result` (Tigers Win), `tutorial` (Block the jump step), `shop` (Boards grid), `home` (Game in progress).
 - Captions/backgrounds in `SHOTS` (`scripts/make-store-images.py`) now use night colours (CORAL/NAVY/AURORA/VIOLET); 06 is now `06-tutorial`, 07 is `07-boards` (old `06-how-to-play`, `07-dark` and raws `howto`, `dark_game` removed). A SHOTS entry may give a 6th value = rows shown (02 uses 2080: captured without the ad banner).
