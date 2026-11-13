@@ -9,6 +9,7 @@
 
 ## 2026-11-13 — vc10 live in production
 - Google approved vc10; the production build is live on Play.
+- AdMob: the 6 ad unit IDs match `local.properties`; `matinstudios.com/app-ads.txt` is live (pub-1234942035084029). App linked to its Play listing in AdMob on 2026-11-13; waiting for AdMob's app review and the app-ads.txt "verified" status (up to ~24 h).
 - Next: watch Android vitals (crashes/ANRs), AdMob fill/revenue and Play Billing (ad-free purchases) on real users before raising the rollout. Then build and ship vc11 (welcome tagline) as the first update.
 
 ## 2026-11-12 — production access granted; production build vc10
