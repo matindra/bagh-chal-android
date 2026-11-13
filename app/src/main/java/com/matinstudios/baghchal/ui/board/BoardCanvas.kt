@@ -49,8 +49,6 @@ import com.matinstudios.baghchal.engine.Move
 import com.matinstudios.baghchal.engine.Side
 import kotlin.math.roundToInt
 
-private val SelectedColor = Color(0xFFFFD54F)
-
 /** Lock badge on a trapped tiger: size and offset of its centre to the top-right, relative to the piece. */
 private const val LOCK_BADGE_SIZE = 0.42f
 private const val LOCK_BADGE_OFFSET = 0.36f
@@ -114,6 +112,7 @@ fun BoardCanvas(
 
     // Only ticks while there are bubbles to show.
     val bob = if (targets.isNotEmpty()) rememberBubbleBob() else null
+    val ringTurn = if (selected != null) rememberRingTurn() else null
 
     BoxWithConstraints(modifier) {
         Canvas(
@@ -167,12 +166,7 @@ fun BoardCanvas(
                 if (side == null || point == moving?.to) return@forEachIndexed
                 val center = BoardGeometry.pointCenter(point, boardSize)
                 if (point == selected) {
-                    drawCircle(
-                        SelectedColor,
-                        radius = pieceSize / 2 + 2f * scale,
-                        center = center,
-                        style = Stroke(width = 7f * scale),
-                    )
+                    drawSelectionRing(center, pieceSize / 2 + 2f * scale, side, scale, ringTurn?.value ?: 0f)
                 }
                 if (point == carried?.from) return@forEachIndexed
                 drawPiece(if (side == Side.TIGER) tigerPainter else goatPainter, center, pieceSize)

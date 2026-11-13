@@ -106,7 +106,7 @@ app/src/main/java/com/matinstudios/baghchal/
 ## UI / UX
 
 - Board drawn with Compose `Canvas`; scale to screen, portrait-first, support tablets.
-- Tap to select a piece, highlight legal destinations; tap destination to move. Or drag a piece onto a destination (same rules: a drag is two taps).
+- Tap to select a piece, highlight legal destinations; tap destination to move. Or drag a piece onto a destination (same rules: a drag is two taps). The selected piece gets a turning dashed ring (`ui/board/SelectionRing.kt`): tigers coral + navy, goats dark green + snow.
 - Animate steps and jumps; fade out captured goats.
 - HUD: goats in hand, goats captured (x/5), whose turn, phase indicator.
 - Undo (1 move vs AI; can be gated behind a rewarded ad for free users).

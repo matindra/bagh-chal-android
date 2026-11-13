@@ -7,6 +7,10 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — rotating dashed selection ring (unreleased)
+- The selected piece's solid gold ring is now 12 rounded dashes turning once every 4 s (`ui/board/SelectionRing.kt`, `drawSelectionRing` + `rememberRingTurn`). Two colours take turns: tigers coral + navy, goats dark green + snow white (tiger from option E, goat from option D of the preview https://claude.ai/artifact/ADMyNXKnqQrdW2aEVcUanX). It only ticks while a piece is selected and stays still when system animations are off. Applies everywhere `BoardCanvas` is used (games, tutorial).
+- Build + unit tests green; not yet checked on a device.
+
 ## 2026-11-13 — release build vc11
 - `dist/baghchal-1.0-vc11.aab` (signed, real ad IDs: all 6 checked in the release BuildConfig, no Google test IDs) + `dist/mapping-1.0-vc11.txt`. `./gradlew test lint` green first.
 - Contains: new Classic icon + tiger piece, guided first-launch tutorial, welcome tagline "India and Nepal".
