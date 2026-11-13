@@ -47,6 +47,16 @@ Can you trap the tigers, or will the tigers break through? Download Bagh Chal an
 - Feature graphic: feature-graphic.png (1024×500)
 - Phone screenshots: screenshots/01-classic.png … 08-resume.png (1080×1920)
 
+## Release notes — 1.0 (versionCode 12) (max 500 per language)
+<en-US>
+New in this update:
+• New Paw & Scratch pieces: claw-scratch tigers and hoof-print goats. Unlock them with a short ad, Remove Ads or the 1-year pass
+• Selected pieces now get a turning ring in tiger or goat colours
+• Legal moves glow with a soft green ripple, so they are easier to spot
+• Small fixes and improvements
+Enjoying Bagh Chal? A rating helps a lot!
+</en-US>
+
 ## Release notes — 1.0 (versionCode 11) (max 500 per language)
 <en-US>
 New in this update:

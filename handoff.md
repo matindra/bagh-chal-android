@@ -7,6 +7,12 @@
 - ~~Save/resume~~ and ~~stats~~: done in session 6 (4a). Still open: persist last chosen side/difficulty on Home.
 - ~~TalkBack board points~~ and ~~Compose UI tests~~: done in session 9.
 
+## 2026-11-13 — release build vc12
+- `dist/baghchal-1.0-vc12.aab` (signed, real ad IDs: all 6 in the release BuildConfig, no Google test IDs) + `dist/mapping-1.0-vc12.txt`. `./gradlew test lint` green first.
+- Built with the local AGP 9.5.1 / Gradle 9.6.0 upgrade that is in the working tree but not committed.
+- Contains since vc11: Paw & Scratch piece set, rotating dashed selection ring, Forest move dots. Release notes in `store/listing.md`.
+- Next (user): upload to Production in Play Console with the release notes.
+
 ## 2026-11-13 — YouTube trailer
 - `store/trailer.mp4`: 31 s, 1920×1080, 30 fps, H.264 + AAC, about −15 LUFS. Nine scenes from the storyboard https://claude.ai/artifact/LcUc7sWgdu2jnodoUfLpi1 (cold open, title, setup, tigers hunt, goats trap, play the AI, play friends, boards, end card). Uses the real art: `design/` boards, pieces, lock badge, launcher icon, plus `store/raw/game.png` on the phone.
 - Sound is the app's own: `music_home` for the whole video (only one track, by request); `move` on tiger drops, the goat step, difficulty pills and code digits; `tiger_capture` on the jump; `goat_capture` when the tiger gets locked; `player_win` on the end card. No voice-over.
