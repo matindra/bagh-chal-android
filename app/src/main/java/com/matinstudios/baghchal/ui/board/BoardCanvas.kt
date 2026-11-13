@@ -26,7 +26,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
@@ -54,8 +53,6 @@ private const val LOCK_BADGE_SIZE = 0.42f
 private const val LOCK_BADGE_OFFSET = 0.36f
 private val CarryShadow = Color(0x59000000)
 private const val CARRY_SCALE = 1.15f
-private val HintColor = Color(0xFFFFD54F)
-private val HintOutline = Color(0xD93A2416)
 
 /**
  * Square board with pieces; reports taps as engine point indices. [lastMove] is animated once
@@ -112,7 +109,8 @@ fun BoardCanvas(
 
     // Only ticks while there are bubbles to show.
     val bob = if (targets.isNotEmpty()) rememberBubbleBob() else null
-    val ringTurn = if (selected != null) rememberRingTurn() else null
+    // Only ticks while a ring is showing: a selected piece or a hinted placement.
+    val ringTurn = if (selected != null || hint is Move.Place) rememberRingTurn() else null
 
     BoxWithConstraints(modifier) {
         Canvas(
@@ -166,7 +164,7 @@ fun BoardCanvas(
                 if (side == null || point == moving?.to) return@forEachIndexed
                 val center = BoardGeometry.pointCenter(point, boardSize)
                 if (point == selected) {
-                    drawSelectionRing(center, pieceSize / 2 + 2f * scale, side, scale, ringTurn?.value ?: 0f)
+                    drawPieceRing(center, pieceSize / 2 + 2f * scale, side, scale, ringTurn?.value ?: 0f)
                 }
                 if (point == carried?.from) return@forEachIndexed
                 drawPiece(if (side == Side.TIGER) tigerPainter else goatPainter, center, pieceSize)
@@ -180,7 +178,7 @@ fun BoardCanvas(
                 val over = BoardGeometry.pointCenter(moving.over, boardSize)
                 drawPiece(goatPainter, over, pieceSize, alpha = PieceMotion.capturedAlpha(p))
             }
-            if (moving == null && hint != null) drawHint(hint, boardSize, scale)
+            if (moving == null && hint != null) drawHint(hint, boardSize, scale, ringTurn?.value ?: 0f)
             // The moving piece goes last so it passes over everything else.
             val movingSide = moving?.let { board[it.to] }
             if (moving != null && movingSide != null) {
@@ -281,13 +279,14 @@ private fun BoardPointNodes(
     }
 }
 
-/** A suggested step or capture is an arrow; a suggested placement rings its point (an arrow from off the board would read as a move). */
-private fun DrawScope.drawHint(hint: Move, boardSize: Float, scale: Float) {
+/**
+ * A suggested step or capture is an arrow; a suggested placement gets the goats' turning ring on
+ * its point (an arrow from off the board would read as a move).
+ */
+private fun DrawScope.drawHint(hint: Move, boardSize: Float, scale: Float, ringDegrees: Float) {
     if (hint !is Move.Place) return drawMoveArrow(MoveArrow.shape(hint, boardSize), scale)
     val center = BoardGeometry.pointCenter(hint.to, boardSize)
-    val radius = BoardGeometry.PIECE_SIZE / 2 * scale
-    drawCircle(HintOutline, radius = radius, center = center, style = Stroke(width = 14f * scale))
-    drawCircle(HintColor, radius = radius, center = center, style = Stroke(width = 8f * scale))
+    drawPieceRing(center, BoardGeometry.PIECE_SIZE / 2 * scale, Side.GOAT, scale, ringDegrees)
 }
 
 @get:DrawableRes

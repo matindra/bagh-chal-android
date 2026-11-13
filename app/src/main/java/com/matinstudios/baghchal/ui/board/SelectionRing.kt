@@ -40,11 +40,15 @@ fun rememberRingTurn(): State<Float> {
     )
 }
 
+/** Degrees for a ring driven by an existing clock in [millis] (one turn every 4 s). */
+fun ringTurnAt(millis: Float): Float = millis % TURN_MILLIS / TURN_MILLIS * 360f
+
 /**
- * The selected piece's ring: [DASHES] rounded dashes alternating between the side's two colours,
- * turned by [degrees]. [scale] is the board's px per art unit.
+ * The turning ring used for a selected piece, a hinted placement and Home's trapped tiger:
+ * [DASHES] rounded dashes alternating between [side]'s two colours, turned by [degrees].
+ * [scale] is px per board art unit (a piece is 90 units).
  */
-fun DrawScope.drawSelectionRing(center: Offset, radius: Float, side: Side, scale: Float, degrees: Float) {
+fun DrawScope.drawPieceRing(center: Offset, radius: Float, side: Side, scale: Float, degrees: Float, alpha: Float = 1f) {
     val width = RING_WIDTH * scale
     val segment = (2 * PI * radius).toFloat() / DASHES
     // Round caps add half the width at each end, so the drawn dash is shortened to keep the gap.
@@ -54,6 +58,7 @@ fun DrawScope.drawSelectionRing(center: Offset, radius: Float, side: Side, scale
         listOf(first to 0f, second to segment).forEach { (color, phase) ->
             drawCircle(
                 color,
+                alpha = alpha,
                 radius = radius,
                 center = center,
                 style = Stroke(

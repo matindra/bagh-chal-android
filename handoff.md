@@ -9,7 +9,8 @@
 
 ## 2026-11-13 — rotating dashed selection ring (unreleased)
 - The selected piece's solid gold ring is now 12 rounded dashes turning once every 4 s (`ui/board/SelectionRing.kt`, `drawSelectionRing` + `rememberRingTurn`). Two colours take turns: tigers coral + navy, goats dark green + snow white (tiger from option E, goat from option D of the preview https://claude.ai/artifact/ADMyNXKnqQrdW2aEVcUanX). It only ticks while a piece is selected and stays still when system animations are off. Applies everywhere `BoardCanvas` is used (games, tutorial).
-- Build + unit tests green; not yet checked on a device.
+- Same ring (`drawPieceRing`) now replaces the gold hint ring on a suggested placement (goat colours) and the gold ring around Home's trapped tiger in `ChaseBanner` (tiger colours, turned by the scene clock via `ringTurnAt`, glow kept).
+- Build + unit tests green; checked on the emulator: tiger and goat selection, hint placement, Home scene.
 
 ## 2026-11-13 — release build vc11
 - `dist/baghchal-1.0-vc11.aab` (signed, real ad IDs: all 6 checked in the release BuildConfig, no Google test IDs) + `dist/mapping-1.0-vc11.txt`. `./gradlew test lint` green first.

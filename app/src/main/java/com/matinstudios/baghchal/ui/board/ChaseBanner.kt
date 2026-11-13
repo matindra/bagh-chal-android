@@ -18,13 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import com.matinstudios.baghchal.R
+import com.matinstudios.baghchal.engine.Side
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -78,7 +78,7 @@ fun ChaseBanner(modifier: Modifier = Modifier, scenery: ChaseSceneryColors? = nu
         val alpha = frame.alpha
         val tigerSprite = frame.sprites.first { it.actor == Actor.TIGER }
 
-        // Trapped tiger: a soft gold glow behind it.
+        // Trapped tiger: a soft gold glow behind it and the tiger's turning ring.
         if (frame.lockScale > 0f) {
             val pulse = (sin(2 * PI * frame.trapMillis / TRAP_PULSE_MILLIS).toFloat() + 1f) / 2f
             val center = Offset(px(tigerSprite.x), groundY)
@@ -88,11 +88,13 @@ fun ChaseBanner(modifier: Modifier = Modifier, scenery: ChaseSceneryColors? = nu
                 radius = r,
                 center = center,
             )
-            drawCircle(
-                TrapColor.copy(alpha = (0.55f + 0.45f * pulse) * alpha * frame.lockScale.coerceAtMost(1f)),
-                radius = piece * 0.6f,
+            drawPieceRing(
                 center = center,
-                style = Stroke(width = piece * 0.06f),
+                radius = piece * 0.6f,
+                side = Side.TIGER,
+                scale = piece / BoardGeometry.PIECE_SIZE,
+                degrees = ringTurnAt(frame.trapMillis),
+                alpha = alpha * frame.lockScale.coerceAtMost(1f),
             )
         }
 
