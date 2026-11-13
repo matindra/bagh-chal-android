@@ -12,6 +12,10 @@
 - Unlocks with a rewarded ad, lifetime Remove Ads, or the 1-year pass (`Entitlements.YEARLY_PIECE_SETS`, first thing the year pass unlocks; it locks again when the pass ends). The 1-year card's text mentions it.
 - `./gradlew test assembleDebug` green. Not checked on a device yet (Shop › Pieces, pieces on the board, year-pass unlock). English strings only.
 
+## 2026-11-13 — Forest move dots (unreleased)
+- The flat green legal-move dot is now "Forest": the same green dot sending out a fading lighter-green ripple (1.6 s, each dot staggered by 0.13 of a beat; swells 1.35× under a dragged piece; still when animations are off). `ui/board/BubbleDrawing.kt` (`rememberRipplePhase`, `drawMoveBubble`). Picked by the user (scheme 1 + ripple D1; tried 6 Snow first) from https://claude.ai/artifact/8gcwgGYPRiLLPy8atvnhx5. Drawn by `BoardCanvas`, so local and online games and the tutorial all get it.
+- `./gradlew assembleDebug test` green; not yet checked on a device.
+
 ## 2026-11-13 — rotating dashed selection ring (unreleased)
 - The selected piece's solid gold ring is now 12 rounded dashes turning once every 4 s (`ui/board/SelectionRing.kt`, `drawSelectionRing` + `rememberRingTurn`). Two colours take turns: tigers coral + navy, goats dark green + snow white (tiger from option E, goat from option D of the preview https://claude.ai/artifact/ADMyNXKnqQrdW2aEVcUanX). It only ticks while a piece is selected and stays still when system animations are off. Applies everywhere `BoardCanvas` is used (games, tutorial).
 - Same ring (`drawPieceRing`) now replaces the gold hint ring on a suggested placement (goat colours) and the gold ring around Home's trapped tiger in `ChaseBanner` (tiger colours, turned by the scene clock via `ringTurnAt`, glow kept).

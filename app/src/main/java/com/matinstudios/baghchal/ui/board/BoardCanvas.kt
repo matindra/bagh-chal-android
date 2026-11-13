@@ -107,8 +107,8 @@ fun BoardCanvas(
     val currentSelected by rememberUpdatedState(selected)
     val currentTargets by rememberUpdatedState(targets)
 
-    // Only ticks while there are bubbles to show.
-    val bob = if (targets.isNotEmpty()) rememberBubbleBob() else null
+    // Only ticks while there are move dots to show.
+    val ripple = if (targets.isNotEmpty()) rememberRipplePhase() else null
     // Only ticks while a ring is showing: a selected piece or a hinted placement.
     val ringTurn = if (selected != null || hint is Move.Place) rememberRingTurn() else null
 
@@ -156,8 +156,9 @@ fun BoardCanvas(
             with(boardPainter) { draw(Size(boardSize, boardSize)) }
 
             // Targets appear once the move has landed, so they don't show through a fading goat.
-            if (moving == null) for (point in targets) {
-                drawMoveBubble(BoardGeometry.pointCenter(point, boardSize), scale, bob?.value ?: 0f, hovered = point == hovered)
+            if (moving == null) targets.forEachIndexed { index, point ->
+                val center = BoardGeometry.pointCenter(point, boardSize)
+                drawMoveBubble(center, scale, ripple?.value ?: 0f, index, hovered = point == hovered)
             }
 
             board.forEachIndexed { point, side ->
